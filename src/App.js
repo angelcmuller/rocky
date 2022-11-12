@@ -8,6 +8,11 @@ import {
   Input,
   SkeletonText,
   Text,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverCloseButton,
+  PopoverBody
 } from '@chakra-ui/react'
 import { FaLocationArrow, FaTimes, FaCalendar, FaCloud, FaEyeSlash } from 'react-icons/fa'
 import './App.css'
@@ -19,7 +24,7 @@ import {
   Autocomplete,
   DirectionsRenderer,
 } from '@react-google-maps/api'
-import { useRef, useState } from 'react'
+import { useRef, useState, useMemo} from 'react'
 
 const center = { lat: 39.5437, lng: -119.8142}
 
@@ -28,6 +33,11 @@ function App() {
     googleMapsApiKey: "AIzaSyAoEmPPMmB44ozXVRVb486UMHGiDrMJo64",
     libraries: ['places'],
   })
+  const [isShown, setIsShown] = useState(false);
+  const [clicks, setClicks] = useState(false);
+  const [roadLink, setRoadLink] = useState(false);
+
+
 
   const [map, setMap] = useState(/** @type google.maps.Map */ (null))
   const [directionsResponse, setDirectionsResponse] = useState(null)
@@ -41,7 +51,19 @@ function App() {
 
   if (!isLoaded) {
     return <SkeletonText />
-  }
+  }  
+  let markerPos = { 
+    lat: 0, 
+    lng: 0}
+  const markerClick = event => {
+    // 👇️ toggle shown state
+    setClicks(current => !current);
+    markerPos = {lat: event.latLng.lat, long: event.latLng.long}
+    // 👇️ or simply set it to true
+    // setIsShown(true);
+  };
+
+
 
   async function calculateRoute() {
     if (originRef.current.value === '' || destRef.current.value === '') {
@@ -58,6 +80,7 @@ function App() {
     })
     setDirectionsResponse(results)
     //Need to change this into picking the most optimal route
+    setIsShown(current => !current);
     setDistance(results.routes[0].legs[0].distance.text)
     setDuration(results.routes[0].legs[0].duration.text)
   }
@@ -78,7 +101,7 @@ function App() {
       h='100vh'
       w='100vw'
     >
-      <Box position= 'absolute' left={0} top={0} h='100%' w='100%'>
+      <Box position= 'absolute' h='100%' w='100%'>
         {/* Google Map Box */}
         <GoogleMap
           center={center}
@@ -88,7 +111,18 @@ function App() {
             mapId:"d64a5c88eb83dabd"
           }}
           onLoad={map => setMap(map)}
-        >
+          onClick={(e) => {
+            markerPos = {lat: e.latLng.lat(), long: e.latLng.lng()}
+            console.log("latitude = ", e.latLng.lat());
+            console.log("longtitude = ", e.latLng.lng());
+            setClicks(current => !current);
+        }}
+          >
+          {clicks && (
+            <Marker 
+            position = {markerPos}
+            />
+          )}
           {directionsResponse && (
           <div>
             <DirectionsRenderer 
@@ -112,6 +146,7 @@ function App() {
         shadow='base'
         minW='container.md'
         zIndex='1'
+        top={5}
       >
         <HStack spacing={2} justifyContent='space-between'>
           <Box flexGrow={1} >
@@ -130,7 +165,7 @@ function App() {
           </Box>
 
           <ButtonGroup>
-            <Button colorScheme='yellow' type='submit' onClick={calculateRoute}>
+            <Button colorScheme='yellow' type='submit' onClick={calculateRoute} >
               Directions
             </Button>
             <IconButton
@@ -168,10 +203,24 @@ function App() {
             isSquare
             onClick={Input}
           />
+        <Popover>
+        <PopoverTrigger>
+          <Button colorScheme='gray'>Roadside Assitance</Button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <PopoverCloseButton />
+          <PopoverBody>
+            <p>Please enter your insurance provider</p>
+            <Input          type='text'
+                placeholder='Insurance Provider' />
+            </PopoverBody>
+        </PopoverContent>
+      </Popover>
 
           </ButtonGroup>
         </HStack> 
       </Box>
+      {isShown && (
       <Box 
         position = 'absolute'
         p={2}
@@ -196,8 +245,8 @@ function App() {
           height = '100'
           width = '250'
           />
-
     </Box>
+      )}
     </Flex>
     
   )
