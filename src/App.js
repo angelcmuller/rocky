@@ -23,10 +23,33 @@ import {
   Marker,
   Autocomplete,
   DirectionsRenderer,
+  InfoWindow,
 } from '@react-google-maps/api'
 import { useRef, useState, useMemo} from 'react'
 
 const center = { lat: 39.5437, lng: -119.8142}
+const markers = [
+  {
+    id: 1,
+    name: "huge pothole",
+    position: { lat: 39.5480, lng: -119.8199 }
+  },
+  {
+    id: 2,
+    name: "Big dip in the road",
+    position: { lat: 39.5470, lng: -119.8119 }
+  },
+  {
+    id: 3,
+    name: "Black Ice",
+    position: { lat:  39.5420, lng: -119.8109 }
+  },
+  {
+    id: 4,
+    name: "Please check, theres a huge pothol",
+    position: { lat:  39.5450, lng: -119.8129 }
+  }
+];
 
 function App() {
   const { isLoaded } = useJsApiLoader({
@@ -34,9 +57,17 @@ function App() {
     libraries: ['places'],
   })
   const [isShown, setIsShown] = useState(false);
-  const [clicks, setClicks] = useState(false);
+  const [clicks, setClicks] = useState([]);
   const [roadLink, setRoadLink] = useState(false);
+  
+  const [activeMarker, setActiveMarker] = useState(null);
 
+  const handleActiveMarker = (marker) => {
+    if (marker === activeMarker) {
+      return;
+    }
+    setActiveMarker(marker);
+  };
 
 
   const [map, setMap] = useState(/** @type google.maps.Map */ (null))
@@ -48,6 +79,7 @@ function App() {
   const originRef = useRef()
   /** @type React.MutableRefObject<HTMLInputElement> */
   const destRef = useRef()
+  const markerRef = useRef()
 
   if (!isLoaded) {
     return <SkeletonText />
@@ -82,7 +114,7 @@ function App() {
     //Need to change this into picking the most optimal route
     setIsShown(current => !current);
     setDistance(results.routes[0].legs[0].distance.text)
-    setDuration(results.routes[0].legs[0].duration.text)
+    setDuration(results.routes[0].legs[0].duration.text)  
   }
 
   function clearRoute() {
@@ -112,17 +144,25 @@ function App() {
           }}
           onLoad={map => setMap(map)}
           onClick={(e) => {
-            markerPos = {lat: e.latLng.lat(), long: e.latLng.lng()}
+            markerRef.current.value = e.latLng
             console.log("latitude = ", e.latLng.lat());
             console.log("longtitude = ", e.latLng.lng());
             setClicks(current => !current);
         }}
           >
-          {clicks && (
-            <Marker 
-            position = {markerPos}
-            />
-          )}
+          {markers.map(({ id, name, position }) => (
+        <Marker
+          key={id}
+          position={position}
+          onClick={() => handleActiveMarker(id)}
+        >
+          {activeMarker === id ? (
+            <InfoWindow onCloseClick={() => setActiveMarker(null)}>
+              <div>{name}</div>
+            </InfoWindow>
+          ) : null}
+        </Marker>
+      ))}
           {directionsResponse && (
           <div>
             <DirectionsRenderer 
@@ -176,8 +216,7 @@ function App() {
 
             <IconButton
             aria-label='center back'
-            icon={<FaLocationArrow />}
-            isSquare
+            icon={<FaLocationArrow />} 
             onClick={() => {
               map.panTo(center)
               map.setZoom(15)
@@ -187,20 +226,17 @@ function App() {
           <IconButton
             aria-label='change date'
             icon={<FaCalendar />}
-            isSquare
             onClick={Input}
           />
           <IconButton
             aria-label='check weather'
             icon={<FaCloud />}
-            isSquare
             onClick={Input}
           />
           {/* need to add a calendar function here */}
           <IconButton
             aria-label='hide other user comments'
             icon={<FaEyeSlash />}
-            isSquare
             onClick={Input}
           />
         <Popover>
