@@ -1,8 +1,15 @@
+# use libraries for CNNs and ML traning
 import numpy as np
 from tensorflow import keras
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+
+# Main()
+# The main driver function that will call everything
+# based on the apps conditions
+def main():
+    print("Hello World")
 
 #AddData(data, account)
 #  This method will take in aggregated road condition data.
@@ -38,3 +45,7 @@ import matplotlib.pyplot as plt
 
 # TestPin()
 # This method returns a GPS locatuion, image, and description to the front end
+
+
+if __name__ == "__main__":
+    main()
