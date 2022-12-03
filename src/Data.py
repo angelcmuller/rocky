@@ -6,9 +6,15 @@ import numpy as np
 import csv
 import pandas as pd
 import pymongo
+import requests
+import certifi
 
 
 def main():
+    print("========Welcome to ROS Backend========")
+
+
+def addPinData():
 
     # Obtain the the data from CSV file
     df = pd.read_csv('src\Data.csv', usecols=[
@@ -18,15 +24,15 @@ def main():
     data = df.to_dict(orient="records")
 
     # Connecting to the databse
-    client = pymongo.MongoClient(
-        "mongodb+srv://tristanbailey:RockyRoadKey2022@cluster0.fpy1pqs.mongodb.net/?retryWrites=true&w=majority")
+    client = pymongo.MongoClient("mongodb://tristanbailey:RockyRoadKey2022@ac-ap9bbel-shard-00-00.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-01.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-02.fpy1pqs.mongodb.net:27017/?ssl=true&replicaSet=atlas-zrbeo7-shard-0&authSource=admin&retryWrites=true&w=majority",  tlsCAFile=certifi.where())
+
     # Make a database
     db = client["pinDatabase"]
-    print(db)
 
     # Add data to the database
     # Note Pins is a custom name for the connection (you can rename it)
     db.Pins.insert_many(data)
+    print("Pin cordinates added to database")
 
 
 if __name__ == "__main__":
