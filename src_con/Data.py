@@ -19,9 +19,8 @@ def main():
 def addPinData():
 
     # Obtain the the data from CSV file
-    df = pd.read_csv('src\Data.csv', usecols=[
+    df = pd.read_csv('src_con\Data.csv', usecols=[
         'Lattitude', 'Longitude', 'Classification', 'Degree'])
-
     print(df)
 
     # Convert the data into a series of records
