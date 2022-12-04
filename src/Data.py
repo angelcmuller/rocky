@@ -13,6 +13,8 @@ import certifi
 def main():
     print("========Welcome to ROS Backend========")
 
+    addPinData()
+
 
 def addPinData():
 
@@ -20,8 +22,11 @@ def addPinData():
     df = pd.read_csv('src\Data.csv', usecols=[
         'Lattitude', 'Longitude', 'Classification', 'Degree'])
 
+    print(df)
+
     # Convert the data into a series of records
     data = df.to_dict(orient="records")
+    print(data)
 
     # Connecting to the databse
     client = pymongo.MongoClient("mongodb://tristanbailey:RockyRoadKey2022@ac-ap9bbel-shard-00-00.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-01.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-02.fpy1pqs.mongodb.net:27017/?ssl=true&replicaSet=atlas-zrbeo7-shard-0&authSource=admin&retryWrites=true&w=majority",  tlsCAFile=certifi.where())
