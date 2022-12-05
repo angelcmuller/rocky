@@ -62,9 +62,16 @@ const markers = [
   const [clicks, setClicks] = useState([]);
   const [roadLink, setRoadLink] = useState(false);
   const [isShownComment, setIsShownComment] = useState(false);
+  const [markerPosition, setmarkerpos] = useState();
+  const [addCommentbtn, setcommentbtn] = useState(false);
+  const [markersx,setMarkers] = useState(markers);
+  const [commentWindow, setcommentwindow] = useState(false);
+  const [commentWindowD, setcommentwindowD] = useState();
+
+
  
   const [activeMarker, setActiveMarker] = useState(null);
-   const handleActiveMarker = (marker) => {
+  const handleActiveMarker = (marker) => {
     if (marker === activeMarker) {
       return;
     }
@@ -86,15 +93,26 @@ const markers = [
   let markerPos = null
   const markerClick = event => {
     // 👇️ toggle shown state
-    setClicks(current => !current);
-    markerPos = event.latLng
-    console.log("latitude = ", event.latLng.lat());
-    console.log("longtitude = ", event.latLng.lng());
-    console.log(markerPos.lat());
-    console.log(markerPos.lng());
-    setIsShownComment(current => !current);
-    
+    if(addCommentbtn){
+      console.log(addCommentbtn);
+      setClicks(current => !current);
+      markerPos = event.latLng
+      console.log("latitude = ", event.latLng.lat());
+      console.log("longtitude = ", event.latLng.lng());
+      console.log(markerPos.lat());
+      console.log(markerPos.lng());
+      setmarkerpos(event.latLng);
+      setIsShownComment(current => !current);
+      setcommentbtn(false);
+    }
   };
+  const commentMarkerWindow= event => {
+    // 👇️ toggle shown state
+    setcommentwindow(current => !current);
+
+
+  };
+  
 
    async function calculateRoute() {
     if (originRef.current.value === '' || destRef.current.value === '') {
@@ -142,11 +160,21 @@ const markers = [
           onLoad={map => setMap(map)}
           onClick={markerClick}
           >
-          { isShownComment && (
+          { isShownComment &&(
+            
           <Marker
-          position={markerPos}
+          position={markerPosition}
+          onClick = {commentMarkerWindow}
           >
-            </Marker>
+            { commentWindow &&(
+              <InfoWindow>
+                <p>fdswfsd</p>
+              </InfoWindow>
+
+            )}
+
+          </Marker>
+
           )}
           {markers.map(({ id, name, position }) => (
         <Marker
@@ -219,7 +247,7 @@ const markers = [
             }}>
       Center
     </MenuItem>
-    <MenuItem icon={<FaCalendar />} command='⌘D'>
+    <MenuItem icon={<FaCalendar />} command='⌘D' type="datetime-local">
       Date
     </MenuItem>
     <MenuItem icon={<FaCloud />} command='⌘W'>
@@ -228,11 +256,14 @@ const markers = [
     <MenuItem icon={<FaEyeSlash />} command='⌘H'>
       Hide other user comments
     </MenuItem>
-    <MenuItem icon={<FaCommentAlt />} command='⌘C'>
+    <MenuItem icon={<FaCommentAlt />} command='⌘C'  onClick = {() => {
+              setcommentbtn(true);
+            }} >
       Add comment
     </MenuItem>
   </MenuList>
            </Menu>
+           
         <Popover>
         <PopoverTrigger>
           <Button colorScheme='gray'>Roadside Assitance</Button>
