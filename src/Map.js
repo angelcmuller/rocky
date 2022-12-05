@@ -18,8 +18,9 @@ import {
     MenuList,
     MenuItem,
     MenuItemOption,
+    Tag,
   } from '@chakra-ui/react'
-  import { FaLocationArrow, FaTimes, FaCalendar, FaCloud, FaEyeSlash, FaExclamation, FaStream, FaServer} from 'react-icons/fa'
+  import { FaLocationArrow, FaTimes, FaCalendar, FaCloud, FaEyeSlash, FaCommentAlt, FaServer} from 'react-icons/fa'
   import './App.css'
   
   import {
@@ -29,11 +30,15 @@ import {
     Autocomplete,
     DirectionsRenderer,
     InfoWindow,
-  
+    DrawingManager,
+
   } from '@react-google-maps/api'
   import { useRef, useState, useMemo} from 'react'
-  
+
+
+  //Map center on initialization
   const center = { lat: 39.5437, lng: -119.8142}
+  //array for the random markers in the map
   const markers = [
     {
       id: 1,
@@ -58,16 +63,19 @@ import {
   ];
   
   function App() {
+    const google = window.google;
+    //api key
     const { isLoaded } = useJsApiLoader({
-      googleMapsApiKey: "AIzaSyAoEmPPMmB44ozXVRVb486UMHGiDrMJo64",
-      libraries: ['places'],
+      googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+      libraries: ['places', 'drawing'],
     })
+    //Components with state
     const [isShown, setIsShown] = useState(false);
-    const [clicks, setClicks] = useState([]);
-    const [roadLink, setRoadLink] = useState(false);
-    
+    const [clicks, setClicks] = useState([]);//test
+    const [roadLink, setRoadLink] = useState(false);//test
+    // markers
     const [activeMarker, setActiveMarker] = useState(null);
-  
+  //function to show infowindow on a marker on click
     const handleActiveMarker = (marker) => {
       if (marker === activeMarker) {
         return;
@@ -75,21 +83,23 @@ import {
       setActiveMarker(marker);
     };
   
-  
+  //Map states and states and components for distance and duration
     const [map, setMap] = useState(/** @type google.maps.Map */ (null))
     const [directionsResponse, setDirectionsResponse] = useState(null)
     const [distance, setDistance] = useState('')
     const [duration, setDuration] = useState('')
   
     /** @type React.MutableRefObject<HTMLInputElement> */
+    //Takes the origin value in the search bar
     const originRef = useRef()
     /** @type React.MutableRefObject<HTMLInputElement> */
+    //takes the destination value
     const destRef = useRef()
-    const markerRef = useRef()
-  
+  //If map doesn't load
     if (!isLoaded) {
       return <SkeletonText />
     }  
+    /** 
     let markerPos = { 
       lat: 0, 
       lng: 0}
@@ -100,15 +110,25 @@ import {
       // 👇️ or simply set it to true
       // setIsShown(true);
     };
-  
-  
-  
+    */
+  //drawing manager
+  /** 
+    const onLoad = drawingManager => {
+        console.log(drawingManager)
+      }
+      
+      const onPolygonComplete = polygon => {
+        console.log(polygon)
+      }
+  */
+  //calculate route function
     async function calculateRoute() {
       if (originRef.current.value === '' || destRef.current.value === '') {
         return
       }
       // eslint-disable-next-line no-undef
       const directionsService = new google.maps.DirectionsService()
+      //render directions
       const results = await directionsService.route({
         origin: originRef.current.value,
         destination: destRef.current.value,
@@ -122,6 +142,7 @@ import {
       setDistance(results.routes[0].legs[0].distance.text)
       setDuration(results.routes[0].legs[0].duration.text)  
     }
+    //Clear route button function
     function clearRoute() {
       setDirectionsResponse(null)
       setDistance('')
@@ -131,6 +152,8 @@ import {
     }
   
     return (
+      //render
+      //Flex is the whole screen, acts like a div
       <Flex
         position='relative'
         flexDirection='column'
@@ -138,8 +161,10 @@ import {
         h='100vh'
         w='100vw'
       >
+      {/*Box or div for the whole map */}
         <Box position= 'absolute' h='100%' w='100%'>
           {/* Google Map Box */}
+          {/*Render the map*/}
           <GoogleMap
             center={center}
             zoom={15}
@@ -151,15 +176,24 @@ import {
             onClick={(e) => {
               console.log("latitude = ", e.latLng.lat());
               console.log("longtitude = ", e.latLng.lng());
-              setClicks(current => !current);
           }}
             >
+                <DrawingManager
+        options={{
+        drawingControl: true,
+        drawingControlOptions: {
+        drawingModes: [google.maps.drawing.OverlayType.MARKER]
+        },
+      }}
+    />
+        {/*Render markers around the map*/}
             {markers.map(({ id, name, position }) => (
           <Marker
             key={id}
             position={position}
             onClick={() => handleActiveMarker(id)}
           >
+            {/*Change active marker on click and show the infowindow */}
             {activeMarker === id ? (
               <InfoWindow onCloseClick={() => setActiveMarker(null)}>
                 <div>{name}</div>
@@ -190,9 +224,10 @@ import {
           shadow='base'
           minW='container.md'
           zIndex='1'
-          top={5}
+         
         >
           <HStack spacing={2} justifyContent='space-between'>
+        
             <Box flexGrow={1} >
               <Autocomplete>
                 <Input type='text' placeholder='Origin'ref={originRef} />
@@ -209,7 +244,7 @@ import {
             </Box>
             <ButtonGroup>
               <Button colorScheme='yellow' type='submit' onClick={calculateRoute} >
-                Directions
+                Calculate Route
               </Button>
               <Menu>
               <MenuButton
@@ -234,6 +269,9 @@ import {
       <MenuItem icon={<FaEyeSlash />} command='⌘H'>
         Hide other user comments
       </MenuItem>
+      <MenuItem icon={<FaCommentAlt />} command='⌘D'>
+        Add Comment
+      </MenuItem>
     </MenuList>
   
             </Menu>
@@ -245,8 +283,7 @@ import {
             <PopoverCloseButton />
             <PopoverBody>
               <p>Please enter your insurance provider</p>
-              <Input          type='text'
-                  placeholder='Insurance Provider' />
+              <Input type='text'placeholder='Insurance Provider' />
               </PopoverBody>
           </PopoverContent>
         </Popover>

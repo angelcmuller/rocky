@@ -17,7 +17,6 @@ function App() {
     setShowResults(current => !current);
     navigate('/Map')
   }
-
   return (
     
     <div>
@@ -26,12 +25,12 @@ function App() {
     {
     //put landing page here 
     }
-        <button onClick = {navigatetoMap}>Enter</button>
+      <button onClick = {navigatetoMap}>Enter</button>
     </div>
       )}
     <div>
     <Routes>
-    <Route path="/Map" element={<Map />} />
+    <Route path="/Map" element={<Map/>} />
     </Routes></div>
     </div>
   );
