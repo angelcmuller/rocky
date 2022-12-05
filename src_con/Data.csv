@@ -1,4 +1,4 @@
-Pin ID(14 bits),Lattitude,Longitude,Altitude,position_covarience,Measurement Date,Upload Date(Unix Time),Source,Contributor ID,Classification,Degree
+Pid,Lattitude,Longitude,Altitude,position_covarience,MeasurementDate,UploadDate,Source,Cid,Classification,Degree
 12000034540001,39.541621,-119.817119,0,0,1669957951,1669957951,0,0,pothole,1
 12000034540002,39.552115,-119.813614,0,0,1669957951,1669957951,0,0,pothole,1
 12000034540003,39.552542,-119.807409,0,0,1669957951,1669957951,0,0,worn road,4
