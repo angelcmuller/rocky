@@ -54,6 +54,11 @@ import {
       id: 4,
       name: "Please check, theres a huge pothol",
       position: { lat:  39.5450, lng: -119.8129 }
+    },
+    {
+      id: 5,
+      name: "Pin sent through backend",
+      position: { lat:  39.55014917660471, lng: -119.80719694373661 }
     }
   ];
   
