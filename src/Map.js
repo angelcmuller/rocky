@@ -53,7 +53,7 @@ const markers = [
     position: { lat:  39.5450, lng: -119.8129 }
   }
 ];
- function App() {
+ function Map() {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: "AIzaSyAoEmPPMmB44ozXVRVb486UMHGiDrMJo64",
     libraries: ['places'],
@@ -109,8 +109,6 @@ const markers = [
   const commentMarkerWindow= event => {
     // 👇️ toggle shown state
     setcommentwindow(current => !current);
-
-
   };
   
 
@@ -311,5 +309,5 @@ const markers = [
    
   )
 }
- export default App
+ export default Map
 
