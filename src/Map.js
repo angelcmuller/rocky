@@ -57,7 +57,7 @@ import {
     }
   ];
   
-  function App() {
+  export default function Map() {
     const { isLoaded } = useJsApiLoader({
       googleMapsApiKey: "AIzaSyAoEmPPMmB44ozXVRVb486UMHGiDrMJo64",
       libraries: ['places'],
@@ -284,5 +284,3 @@ import {
       
     )
   }
-  
-  export default App

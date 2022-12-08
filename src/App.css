@@ -1,12 +1,7 @@
-*{
-  margin: 0;
-  padding:0;
-}
-
 #body {
   background-color: rgba(185, 222, 203, 100);
   min-height: auto;
-  min-width: 100%;
+  min-width: auto;
   align-items: center;
   text-align: center;
 }
@@ -27,6 +22,24 @@
   display: block;
   margin-left: auto;
   margin-right: auto;
+}
+
+#introtext {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  position:relative;
+  width: 700px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#introtext:hover {
+  overflow: visible;
+  white-space: normal;
+  transition: 0.5s;
+  opacity: 50;
 }
 
 #auxToggle {

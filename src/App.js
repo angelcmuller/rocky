@@ -1,83 +1,63 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+// Imports needed for this page
+import React from 'react';
+// Components from other sources
+import { BrowserRouter as Router, Route, useNavigate, Routes } from 'react-router-dom';
+import { Button } from '@chakra-ui/react';
+import { Switch, FormControl, FormLabel } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Map from './Map.js'
+// Files from within our directory
+import Map from './Map.js';
 import './App.css';
-import logo from './Logo.png'
-import { ChakraProvider } from '@chakra-ui/react'
-import { Button, ButtonGroup, Wrap, WrapItem } from '@chakra-ui/react'
-import { Switch, FormControl, FormLabel, Stack } from '@chakra-ui/react'
+import logo from './images/Logo.png';
 
-// Main class where the React App starts
-// Landing Page
-class App extends React.Component {
-  render () {
-    return (
-        // Using ChakraProvider for components
-        <ChakraProvider>
+// Main Landing Page function
+function App () {
+  // const variables to manage the navigation to other Pages (/Map)
+  const navigate = useNavigate();
+  const [showResults, setShowResults] = React.useState(true)
+  const navigatetoMap = () =>{
+    setShowResults(current => !current);
+    navigate('/Map')
+  }
+
+  return (
+    <div>
+      {
+        showResults && (
           <div id='body'>
-            <br />
             <br />
             <br />
             <h1 id='welcome'> Welcome to Rocky Road Project </h1>
             <br /><br />
             <Introduction />
             <br /><br />
-            <Form />
+            <Button size='lg' colorScheme='teal' variant='solid' onClick = {navigatetoMap}>
+              Start your Journey
+            </Button>
             <ColorB />
           </div>
-          <div>
-            <Routes>
-              <Route path='/Map' element={<Map/>}/>
-            </Routes>
-          </div>
-        </ChakraProvider>
-      )
-  }
+        )
+      }
+      <div>
+        <Routes>
+          <Route path="/Map" element={<Map/>} />
+        </Routes>
+      </div>
+    </div>
+  );
 }
 
 // Displayment of Logo and Intro description of what Rocky Road is about
 const Introduction = (props) => {
   return(
     <div>
-      <img src={logo} id='Logo'/>
-      <br /><br /><br />
-      <p> Rocky Road is here to provide useful information that will prevent road based
-        inconveniences, injuries, and fatalities.
+      <img src={logo} id='Logo' alt='rockylogo'/>
+      <br />
+      <br />
+      <p id='introtext'> Rocky Road is here to provide useful information
+        that will prevent road based inconveniences, injuries, and fatalities.
+        Thank you for joining us in this project.
       </p>
-      <p>
-      Thank you for joining us in this project.
-      </p>
-    </div>
-  )
-}
-
-// Events related to the Button
-const Form = (props) => {
-  const [mapisShown, setmapIsShown] = useState(false);
-
-  const [homepageShown, sethomepageisShown] = useState(true);
-  
-  const showMap= event => {
-    setmapIsShown(current => !current);
-    sethomepageisShown(current => !current);
-  };
-  
-  const navigate = useNavigate();
-
-  const [showResults, setShowResults] = React.useState(true)
-
-  const navigatetoMap = () => {
-    setShowResults(current => !current);
-    navigate('Map')
-  }
-  
-  return(
-    <div>
-      <Button colorScheme='teal' size='lg' onClick={navigatetoMap}>
-        Start your Journey..
-      </Button>
     </div>
   )
 }
@@ -110,4 +90,4 @@ const ColorB = (props) => {
   )
 }
 
-export default App
+export default App;
