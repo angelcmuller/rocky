@@ -27,6 +27,11 @@ class App extends React.Component {
             <Form />
             <ColorB />
           </div>
+          <div>
+            <Routes>
+              <Route path='/Map' element={<Map/>}/>
+            </Routes>
+          </div>
         </ChakraProvider>
       )
   }
@@ -65,7 +70,7 @@ const Form = (props) => {
 
   const navigatetoMap = () => {
     setShowResults(current => !current);
-    navigate('Map.js')
+    navigate('Map')
   }
   
   return(
