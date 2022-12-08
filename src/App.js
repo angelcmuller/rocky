@@ -124,9 +124,7 @@ const ColumnRight = styled.div`
     <div>
       {showResults &&(
     <div>
-    {
-    //put landing page here 
-    }
+
     <Section>
       <Container>
       <Image
