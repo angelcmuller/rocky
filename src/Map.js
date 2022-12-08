@@ -71,36 +71,6 @@ const markers = [
 
 
  
-
-
-  //Map center on initialization
-  const center = { lat: 39.5437, lng: -119.8142}
-  //array for the random markers in the map
-  const markers = [
-    {
-      id: 1,
-      name: "huge pothole",
-      position: { lat: 39.5480, lng: -119.8199 }
-    },
-    {
-      id: 2,
-      name: "Big dip in the road",
-      position: { lat: 39.5470, lng: -119.8119 }
-    },
-    {
-      id: 3,
-      name: "Black Ice",
-      position: { lat:  39.5420, lng: -119.8109 }
-    },
-    {
-      id: 4,
-      name: "Please check, theres a huge pothol",
-      position: { lat:  39.5450, lng: -119.8129 }
-    },
-    {
-      id: 5,
-      name: "Pin sent through backend",
-      position: { lat:  39.55014917660471, lng: -119.80719694373661 }
   const [activeMarker, setActiveMarker] = useState(null);
   const handleActiveMarker = (marker) => {
     if (marker === activeMarker) {
