@@ -14,7 +14,7 @@ MongoClient.connect(uri, function(err, db) {
         if (err) throw err;
         console.log("Longitude | Lattitude   | Classification");
         for (let i = 0, len = result.length; i < len; i++){
-            console.log(result[i].Longitude + "  |  " + result[i].Lattitude + "  |  " + result[i].Classification);
+            console.log(result[i].Longitude + "  ,  " + result[i].Lattitude + "  ,  " + result[i].Classification);
         }
         db.close();
       });
