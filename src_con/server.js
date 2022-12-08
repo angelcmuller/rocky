@@ -12,7 +12,7 @@ MongoClient.connect(uri, function(err, db) {
     var customDB = db.db("pinDatabase");
     customDB.collection("Pins").find({}).toArray(function(err, result) {
         if (err) throw err;
-        console.log("Longitude | Lattitude   | Classification");
+        console.log("Longitude , Lattitude   | Classification");
         for (let i = 0, len = result.length; i < len; i++){
             console.log(result[i].Longitude + "  ,  " + result[i].Lattitude + "  ,  " + result[i].Classification);
         }
