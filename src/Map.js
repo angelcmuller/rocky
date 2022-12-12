@@ -1,3 +1,4 @@
+import JsonListReturn from "./components/recordList";
 import {
   Box,
   Button,
@@ -18,6 +19,7 @@ import {
   MenuList,
   MenuItem,
   MenuItemOption,
+  AlertDialog,
 } from '@chakra-ui/react'
 import { FaLocationArrow, FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaExclamation, FaStream, FaServer} from 'react-icons/fa'
 import './App.css'
@@ -30,30 +32,45 @@ import './App.css'
   InfoWindow,
  } from '@react-google-maps/api'
 import { useRef, useState, useMemo} from 'react'
- const center = { lat: 39.5437, lng: -119.8142}
-const markers = [
-  {
-    id: 1,
-    name: "huge pothole",
-    position: { lat: 39.5480, lng: -119.8199 }
-  },
-  {
-    id: 2,
-    name: "Big dip in the road",
-    position: { lat: 39.5470, lng: -119.8119 }
-  },
-  {
-    id: 3,
-    name: "Black Ice",
-    position: { lat:  39.5420, lng: -119.8109 }
-  },
-  {
-    id: 4,
-    name: "Please check, theres a huge pothol",
-    position: { lat:  39.5450, lng: -119.8129 }
-  }
-];
- function Map() {
+const center = { lat: 39.5437, lng: -119.8142}
+
+
+ const markers = [
+   {
+     id: 1,
+     name: "huge pothole",
+     position: { lat: 39.5480, lng: -119.8199 }
+   },
+   {
+     id: 2,
+     name: "Big dip in the road",
+     position: { lat: 39.5470, lng: -119.8119 }
+   },
+   {
+     id: 3,
+     name: "Black Ice",
+     position: { lat:  39.5420, lng: -119.8109 }
+   },
+   {
+     id: 4,
+     name: "Please check, theres a huge pothol",
+     position: { lat:  39.5450, lng: -119.8129 }
+   }
+ ];
+  
+// alert(markers)
+let x = null;
+async function fun(){
+  x = await JsonListReturn();
+  console.log(markers);
+  console.log(x);
+  return x;
+}
+x = fun();
+console.log(x);
+function Map() {
+ 
+
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: "AIzaSyAoEmPPMmB44ozXVRVb486UMHGiDrMJo64",
     libraries: ['places'],
@@ -68,9 +85,6 @@ const markers = [
   const [commentWindow, setcommentwindow] = useState(false);
   const [commentWindowD, setcommentwindowD] = useState();
 
-
-
- 
   const [activeMarker, setActiveMarker] = useState(null);
   const handleActiveMarker = (marker) => {
     if (marker === activeMarker) {
@@ -111,7 +125,15 @@ const markers = [
     // 👇️ toggle shown state
     setcommentwindow(current => !current);
   };
-  
+  function returnPosition(Lattitude, Longitude){
+    var lat = parseFloat(Lattitude);
+    var lng = parseFloat(Longitude);
+    let latLng = new window.google.maps.LatLng(parseFloat(Lattitude),parseFloat(Longitude));
+    console.log(latLng);
+    return latLng;
+    
+
+  }
 
    async function calculateRoute() {
     if (originRef.current.value === '' || destRef.current.value === '') {
@@ -175,15 +197,15 @@ const markers = [
           </Marker>
 
           )}
-          {markers.map(({ id, name, position }) => (
+{x.map(({ Pid, Classification, Lattitude, Longitude}) => (
         <Marker
-          key={id}
-          position={position}
-          onClick={() => handleActiveMarker(id)}
+          key={Pid}
+          position = {new window.google.maps.LatLng(parseFloat(Lattitude),parseFloat(Longitude))}
+          onClick={() => handleActiveMarker(Pid)}
         >
-          {activeMarker === id ? (
+          {activeMarker === Pid ? (
             <InfoWindow onCloseClick={() => setActiveMarker(null)}>
-              <div>{name}</div>
+              <div>{Classification}</div>
             </InfoWindow>
           ) : null}
         </Marker>
@@ -310,5 +332,7 @@ const markers = [
    
   )
 }
+
+
  export default Map
 
