@@ -21,7 +21,7 @@ import {
   MenuItemOption,
   AlertDialog,
 } from '@chakra-ui/react'
-import { FaLocationArrow, FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaExclamation, FaStream, FaServer} from 'react-icons/fa'
+import { FaLocationArrow, FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
  import {
   useJsApiLoader,
@@ -32,59 +32,35 @@ import './App.css'
   InfoWindow,
  } from '@react-google-maps/api'
 import { useRef, useState, useMemo} from 'react'
+import RequestMap from "./Request";
 const center = { lat: 39.5437, lng: -119.8142}
 
 
- const markers = [
-   {
-     id: 1,
-     name: "huge pothole",
-     position: { lat: 39.5480, lng: -119.8199 }
-   },
-   {
-     id: 2,
-     name: "Big dip in the road",
-     position: { lat: 39.5470, lng: -119.8119 }
-   },
-   {
-     id: 3,
-     name: "Black Ice",
-     position: { lat:  39.5420, lng: -119.8109 }
-   },
-   {
-     id: 4,
-     name: "Please check, theres a huge pothol",
-     position: { lat:  39.5450, lng: -119.8129 }
-   }
- ];
   
 // alert(markers)
 let x = null;
 async function fun(){
   x = await JsonListReturn();
-  console.log(markers);
   console.log(x);
   return x;
 }
 x = fun();
 console.log(x);
 function Map() {
- 
-
+  let mapIDx = "f7844d0f315f8d35";
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: "AIzaSyAoEmPPMmB44ozXVRVb486UMHGiDrMJo64",
     libraries: ['places'],
   })
   const [isShown, setIsShown] = useState(false);
-  const [clicks, setClicks] = useState([]);
-  const [roadLink, setRoadLink] = useState(false);
   const [isShownComment, setIsShownComment] = useState(false);
   const [markerPosition, setmarkerpos] = useState();
   const [addCommentbtn, setcommentbtn] = useState(false);
-  const [markersx,setMarkers] = useState(markers);
   const [commentWindow, setcommentwindow] = useState(false);
-  const [commentWindowD, setcommentwindowD] = useState();
+  const [showRequest, setRequestMap] = useState(false);
+  const [colorBlind, setColorBlind] = useState('f7844d0f315f8d35');
 
+  
   const [activeMarker, setActiveMarker] = useState(null);
   const handleActiveMarker = (marker) => {
     if (marker === activeMarker) {
@@ -105,12 +81,12 @@ function Map() {
    if (!isLoaded) {
     return <SkeletonText />
   } 
+  
   let markerPos = null
   const markerClick = event => {
     // 👇️ toggle shown state
     if(addCommentbtn){
       console.log(addCommentbtn);
-      setClicks(current => !current);
       markerPos = event.latLng
       console.log("latitude = ", event.latLng.lat());
       console.log("longtitude = ", event.latLng.lng());
@@ -125,15 +101,6 @@ function Map() {
     // 👇️ toggle shown state
     setcommentwindow(current => !current);
   };
-  function returnPosition(Lattitude, Longitude){
-    var lat = parseFloat(Lattitude);
-    var lng = parseFloat(Longitude);
-    let latLng = new window.google.maps.LatLng(parseFloat(Lattitude),parseFloat(Longitude));
-    console.log(latLng);
-    return latLng;
-    
-
-  }
 
    async function calculateRoute() {
     if (originRef.current.value === '' || destRef.current.value === '') {
@@ -161,6 +128,17 @@ function Map() {
     originRef.current.value = ''
     destRef.current.value = ''
   }
+  const showRequestMap = event => {
+    setRequestMap(current => !current);
+
+  }
+  const changeMap = event => {
+    mapIDx = "735a32cd73f3a468";
+    setColorBlind("735a32cd73f3a468");
+    console.log(colorBlind);
+    console.log(mapIDx);
+
+  }
    return (
     <Flex
       position='relative'
@@ -175,8 +153,10 @@ function Map() {
           center={center}
           zoom={15}
           mapContainerStyle={{ width: '100%', height: '100%' }}
+          tilt={45} 
+          key = {changeMap}
           options={{
-            mapId:"d64a5c88eb83dabd"
+            mapId: {colorBlind}
           }}
           onLoad={map => setMap(map)}
           onClick={markerClick}
@@ -186,10 +166,14 @@ function Map() {
           <Marker
           position={markerPosition}
           onClick = {commentMarkerWindow}
+          icon = {{
+            url: './comment.png',
+            scaledSize:  new window.google.maps.Size(30,30)
+          }}
           >
             { commentWindow &&(
               <InfoWindow>
-                <p>fdswfsd</p>
+                <p>This is a comment</p>
               </InfoWindow>
 
             )}
@@ -202,6 +186,10 @@ function Map() {
           key={Pid}
           position = {new window.google.maps.LatLng(parseFloat(Lattitude),parseFloat(Longitude))}
           onClick={() => handleActiveMarker(Pid)}
+          icon = {{
+            url: './marker.png',
+            scaledSize:  new window.google.maps.Size(30,30)
+          }}
         >
           {activeMarker === Pid ? (
             <InfoWindow onCloseClick={() => setActiveMarker(null)}>
@@ -223,6 +211,10 @@ function Map() {
             </div>
           )}
         </GoogleMap>
+        { showRequest && (
+        <RequestMap/>
+        )
+        }
       </Box>
       <Box
         position = 'absolute'
@@ -254,6 +246,16 @@ function Map() {
             <Button colorScheme='yellow' type='submit' onClick={calculateRoute} >
               Directions
             </Button>
+            <IconButton
+              aria-label='center back'
+              icon={<FaTimes />}
+              onClick={clearRoute}
+            />
+            <IconButton
+              aria-label='center back'
+              icon={<FaEye />}
+              onClick={changeMap}
+            />
             <Menu>
             <MenuButton
     as={IconButton}
@@ -273,6 +275,9 @@ function Map() {
     </MenuItem>
     <MenuItem icon={<FaCloud />} command='⌘W'>
       Weather
+    </MenuItem>
+    <MenuItem icon={<FaCloud />} command='⌘W' onClick = {showRequestMap}>
+     Request Service
     </MenuItem>
     <MenuItem icon={<FaEyeSlash />} command='⌘H'>
       Hide other user comments
@@ -329,6 +334,7 @@ function Map() {
     </Box>
       )}
     </Flex>
+   
    
   )
 }
