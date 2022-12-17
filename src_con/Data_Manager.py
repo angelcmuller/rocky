@@ -1,3 +1,10 @@
+#Project Rocky Road
+#Author: Tristan Bailey
+#DLM (Date Last Modified): 12/16/2022
+#Desc:
+#   Class code for a python object to handle writing to our
+#   Pins MongoDB. Code developed entirely by Tristan
+
 import pandas as pd
 import certifi
 import pymongo
