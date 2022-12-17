@@ -10,8 +10,7 @@ import Map from './Map.js';
 import './App.css';
 import logo from './images/Logo.png';
 
-
-// Main Landing Page function
+// Main Landing Page function by Angel C. Muller
 function App () {
   // const variables to manage the navigation to other Pages (/Map)
   const navigate = useNavigate();
@@ -24,6 +23,7 @@ function App () {
   return (
     <div>
       {
+        // JS for lading page and its Components
         showResults && (
           <div id='body'>
             <br />
@@ -41,7 +41,7 @@ function App () {
       }
       <div>
         <Routes>
-          <Route path=":Map" element={<Map/>} />
+          <Route path="/Map" element={<Map/>} />
         </Routes>
       </div>
     </div>
@@ -55,7 +55,8 @@ const Introduction = (props) => {
       <img src={logo} id='Logo' alt='rockylogo'/>
       <br />
       <br />
-      <p id='introtext'> Rocky Road is here to provide useful information
+      <p id='introtext'>
+        Rocky Road is here to provide useful information
         that will prevent road based inconveniences, injuries, and fatalities.
         Thank you for joining us in this project.
       </p>
@@ -74,11 +75,6 @@ const ColorB = (props) => {
   const handleMouseOut = () => {
     setIsHovering(false);
   }
-  const setMapID = () =>{
-    let mapID = '735a32cd73f3a468'
-  
-
-  }
 
   return(
     <div id='colorblind'>
@@ -88,7 +84,7 @@ const ColorB = (props) => {
           Color Blind
         </FormLabel>
         <Switch id='color-blind' size='lg' colorScheme='orange'
-        onMouseOver={handleMouseOver} onMouseOut={handleMouseOut} onChange = {setMapID}/>
+        onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}/>
 
         {isHovering && <p id='auxToggle'>B&W Map option for Color Blind disability</p>}
       </FormControl>
