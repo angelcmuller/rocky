@@ -7,6 +7,10 @@ const client = new MongoClient(Db, {
  
 var _db;
  
+
+// This method was implemented by Gabriel and uses a modified version from the MongoDB Mern tutorial (https://www.mongodb.com/languages/mern-stack-tutorial)
+// ensures connection to the specific database (pindatabase )
+
 module.exports = {
   connectToServer: function (callback) {
     client.connect(function (err, db) {

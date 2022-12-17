@@ -9,6 +9,8 @@ app.use(require("./routes/record"));
 // get driver connection
 const dbo = require("./db/conn");
  
+// This method was implemented by Gabriel and uses a modified version from the MongoDB Mern tutorial (https://www.mongodb.com/languages/mern-stack-tutorial)
+
 app.listen(port, () => {
   // perform a database connection when server starts
   dbo.connectToServer(function (err) {
