@@ -1,3 +1,9 @@
+#Project Rocky Road
+#Author: Gabriel Moretenson, Tristan Bailey
+#DLM (Date Last Modified): 12/16/2022
+#Desc:
+#   Drive file for testing if the database hanlder pytohn object works as intended
+#   for making bulk updats to the MongoDB. Code developed by Tristan and Gabriel.
 # use libraries for CNNs and ML traning
 import numpy as np
 # from tensorflow import keras
