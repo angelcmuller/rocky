@@ -21,7 +21,7 @@ import {
   MenuItemOption,
   AlertDialog,
 } from '@chakra-ui/react'
-import { FaLocationArrow, FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
+import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
  import {
   useJsApiLoader,
@@ -36,7 +36,7 @@ import RequestMap from "./Request";
 const center = { lat: 39.5437, lng: -119.8142}
 
 
-  
+//Developed by Aaron Ramirez and Gabriel Mortensen
 // alert(markers)
 let x = null;
 async function fun(){
@@ -46,6 +46,7 @@ async function fun(){
 }
 x = fun();
 console.log(x);
+//Developed by Aaron Ramirez
 function Map() {
   let mapIDx = "f7844d0f315f8d35";
   const { isLoaded } = useJsApiLoader({
@@ -148,6 +149,8 @@ function Map() {
       w='100vw'
     >
       <Box position= 'absolute' h='100%' w='100%'>
+
+      {/* Developed by Aaron Ramirez*/}
         {/* Google Map Box */}
         <GoogleMap
           center={center}
@@ -181,6 +184,7 @@ function Map() {
           </Marker>
 
           )}
+          {/* Developed by Aaron Ramirez and Gabriel Mortensen*/}
 {x.map(({ Pid, Classification, Lattitude, Longitude}) => (
         <Marker
           key={Pid}
@@ -198,6 +202,7 @@ function Map() {
           ) : null}
         </Marker>
       ))}
+      {/* Developed by Aaron Ramirez using tutorials from Leigh Halliday*/}
           {directionsResponse && (
           <div>
             <DirectionsRenderer
@@ -221,7 +226,7 @@ function Map() {
         p={2}
         borderRadius='lg'
         m={4}
-        bgColor='White'
+        bgColor='white'
         shadow='base'
         minW='container.md'
         zIndex='1'
@@ -230,7 +235,7 @@ function Map() {
         <HStack spacing={2} justifyContent='space-between'>
           <Box flexGrow={1} >
             <Autocomplete>
-              <Input type='text' placeholder='Origin'ref={originRef} />
+              <Input type='text'color='teal' backgroundColor='white' placeholder='Origin'ref={originRef} />
             </Autocomplete>
           </Box>
           <Box flexGrow={1}>
@@ -238,6 +243,8 @@ function Map() {
               <Input
                 type='text'
                 placeholder='Destination'
+                color='teal'
+                backgroundColor='white'
                 ref={destRef}
               />
             </Autocomplete>
@@ -249,6 +256,7 @@ function Map() {
             <IconButton
               aria-label='center back'
               icon={<FaTimes />}
+              color='teal'
               onClick={clearRoute}
             />
             <IconButton
@@ -276,8 +284,8 @@ function Map() {
     <MenuItem icon={<FaCloud />} command='⌘W'>
       Weather
     </MenuItem>
-    <MenuItem icon={<FaCloud />} command='⌘W' onClick = {showRequestMap}>
-     Request Service
+    <MenuItem icon={<FaCarAlt />} command='⌘W' onClick = {showRequestMap}>
+     Request Service Location
     </MenuItem>
     <MenuItem icon={<FaEyeSlash />} command='⌘H'>
       Hide other user comments
@@ -338,7 +346,4 @@ function Map() {
    
   )
 }
-
-
  export default Map
-
