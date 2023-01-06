@@ -29,3 +29,4 @@ SNC_prototype/INS_topic.csv
 SNC_prototype/trax1_FSL_EO_image_rect.mp4
 src_con/.env
 src/info.env
+src_con/info.env
