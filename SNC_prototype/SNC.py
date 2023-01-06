@@ -19,7 +19,7 @@ def main():
     print("========Converting Video ========")
 
     # read the csv
-    INSdata = read_csv("SNC_data\INS_topic.csv")
+    INSdata = read_csv("SNC_prototype\INS_topic.csv")
 
     # convert columns of csv to list
     realtime_INS = INSdata['dt'].tolist()

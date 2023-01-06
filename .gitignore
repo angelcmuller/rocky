@@ -26,3 +26,5 @@ yarn-error.log*
 SNC Senior Test/trax1_FSL_EO_image_rect.mp4
 SNC_data/trax1_FSL_EO_image_rect.mp4
 SNC_prototype/INS_topic.csv
+SNC_prototype/trax1_FSL_EO_image_rect.mp4
+src_con/.env
