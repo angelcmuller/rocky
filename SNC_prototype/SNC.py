@@ -52,8 +52,8 @@ def VideoBreakdown(realtime_INS, longitude_INS, latitude_INS):
     # declare variables
     framerate = 0  # frame rate
     currentframe = 0  # current frame value
-    video = "SNC_data\\trax1_FSL_EO_image_rect.mp4"
-    file_path = "SNC_data\\data"
+    video = "SNC_prototype\\trax1_FSL_EO_image_rect.mp4"
+    file_path = "SNC_prototype\\data"
     # read the video
     cam = cv2.VideoCapture(video)
 
