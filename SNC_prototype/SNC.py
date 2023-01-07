@@ -19,7 +19,7 @@ def main():
     print("========Converting Video ========")
 
     # read the csv
-    INSdata = read_csv("SNC_prototype\INS_topic.csv")
+    INSdata = read_csv("SNC_prototype/INS_topic.csv")
 
     # convert columns of csv to list
     realtime_INS = INSdata['dt'].tolist()
@@ -52,8 +52,8 @@ def VideoBreakdown(realtime_INS, longitude_INS, latitude_INS):
     # declare variables
     framerate = 0  # frame rate
     currentframe = 0  # current frame value
-    video = "SNC_prototype\\trax1_FSL_EO_image_rect.mp4"
-    file_path = "SNC_prototype\\data"
+    video = "SNC_prototype/trax1_FSL_EO_image_rect.mp4"
+    file_path = "SNC_prototype/data"
     # read the video
     cam = cv2.VideoCapture(video)
 
