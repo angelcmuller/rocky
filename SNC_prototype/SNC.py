@@ -18,8 +18,11 @@ from pandas import *
 def main():
     print("========Converting Video ========")
 
+    # change directory to SNC_prototype
+    os.chdir("SNC_prototype")
+
     # read the csv
-    INSdata = read_csv("SNC_prototype/INS_topic.csv")
+    INSdata = read_csv("INS_topic.csv")
 
     # convert columns of csv to list
     realtime_INS = INSdata['dt'].tolist()
@@ -43,17 +46,19 @@ def Coordinates(realtime_INS, longitude_INS, latitude_INS, time):
     # use index in GPS coordinates
     latitude = str(latitude_INS[similar_index])
     longitude = str(longitude_INS[similar_index])
-    return ("|" + latitude + "," + longitude)
+    return ("_" + latitude + "_" + longitude)
 
 
 # breaks provided video down into snapshots
 def VideoBreakdown(realtime_INS, longitude_INS, latitude_INS):
-    # ======================================
+
     # declare variables
-    framerate = 0  # frame rate
+    framerate = 24  # frame rate
     currentframe = 0  # current frame value
-    video = "SNC_prototype/trax1_FSL_EO_image_rect.mp4"
-    file_path = "SNC_prototype/data"
+    video = "trax1_FSL_EO_image_rect.mp4"
+    file_path = "data"
+    coordinates_image = "a"
+
     # read the video
     cam = cv2.VideoCapture(video)
 
@@ -73,6 +78,9 @@ def VideoBreakdown(realtime_INS, longitude_INS, latitude_INS):
     except OSError:
         print('Error: Directory error for data file. Try changing file_path variable.')
 
+    # change directory to temporary data file
+    os.chdir(file_path)
+
     # cycle through the video
     while(True):
 
@@ -82,29 +90,31 @@ def VideoBreakdown(realtime_INS, longitude_INS, latitude_INS):
         # if frame exists create image
         if ret:
 
-            # name the videos based off of # of second in video (currentframe/framerate)
-            # add cor
-            name = file_path + '/frame' + str(currentframe) + Coordinates(
-                realtime_INS, longitude_INS, latitude_INS, current_seconds) + '.jpg'
-            print('Creating...' + name)
+            coordinates_image = Coordinates(
+                realtime_INS, longitude_INS, latitude_INS, current_seconds)
 
-            # increment tracking of time with variable
-            current_seconds = current_seconds + frametime
+            # name the videos based off off frame and coordinates
+            name = "frame" + str(currentframe) + coordinates_image + '.jpg'
 
             # writing the extracted images
-            cv2.imwrite(name, frame)
+            if(cv2.imwrite(name, frame)):
+                print('Creating...' + name)
+            else:
+                print("Unable to create " + name)
 
             # increasing counter so that it will
             # show how many frames are created
             currentframe += 1
+            # increment tracking of time with variable
+            current_seconds = current_seconds + frametime
 
         else:
-            print(str(currentframe) + " images created...")
+            print("Video breakdown complete")
             break
 
     # # Release all space and windows once done
     cam.release()
-    # cv2.destroyAllWindows()
+    cv2.destroyAllWindows()
 
 
 # main function guarente
