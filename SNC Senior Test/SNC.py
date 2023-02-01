@@ -7,8 +7,8 @@ import os
 # declare variables
 framerate = 0  # frame rate
 currentframe = 0  # current frame value
-imagecount = 0  # image count
-video = "trax1_FSL_EO_image_rect.mp4"
+framecount = 0  # frame count
+video = "SNC Senior Test/trax1_FSL_EO_image_rect.mp4"
 
 
 # read the video
@@ -26,19 +26,20 @@ try:
 except OSError:
     print('Error: Something happened when creating directory for data')
 
+video_choice = input()
 
 # cycle through the video
 while(True):
 
     # reading the frame
     ret, frame = cam.read()
-
+    
     # if frame exists create image
     if ret:
         # want the first frame of every second so use % framerate
-        if(currentframe % framerate == 0):
+        
             # name the videos based off of # of second in video (currentframe/framerate)
-            name = './data/frame' + str(currentframe/framerate) + '.jpg'
+            name = './data/frame' + str(framecount) + '.jpg'
             print('Creating...' + name)
 
             # writing the extracted images
@@ -46,10 +47,10 @@ while(True):
 
             # increasing counter so that it will
             # show how many frames are created
-            imagecount += 1
-        currentframe += 1
+            framecount += 1
+
     else:
-        print(imagecount + " images created...")
+        print("images from video created...")
         break
 
 # # Release all space and windows once done
