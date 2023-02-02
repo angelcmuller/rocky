@@ -9,9 +9,9 @@ const rootElement = document.getElementById('root')
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-    <ChakraProvider>
-      <App />
-    </ChakraProvider>
+      <ChakraProvider>
+        <App />
+      </ChakraProvider>
     </Router>
   </React.StrictMode>, 
   rootElement
