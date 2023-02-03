@@ -60,7 +60,7 @@ function About() {
                 <p id='description'> Angel's text</p>
                 <br/>
                 <p id='names'> Gabriel Mortensen </p>
-                <p id='description'> Gabriel's text</p>
+                <p id='description'>Gabriel was born local here in Reno. His hobbies include writing, reading, and going on camping trips. His primary topics of study include machine learning and big data. He hopes to one day use these interests to progress the efficiency of medicine and hospital operations. After this semester Gabriel will continue with school where he will get a master’s degree in CSE in Spring 2024 and an MBA in Spring 2025.</p>
                 <br/>
                 <p id='names'> Tristan Bailey </p>
                 <p id='description'> Tristan's text</p>
