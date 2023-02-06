@@ -20,20 +20,18 @@ import {
   MenuItem,
   MenuItemOption,
   AlertDialog,
+  Center,
 } from '@chakra-ui/react'
 import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
- import {
-  useJsApiLoader,
-  GoogleMap,
-  Marker,
-  Autocomplete,
-  DirectionsRenderer,
-  InfoWindow,
- } from '@react-google-maps/api'
-import { useRef, useState, useMemo} from 'react'
+import { useRef, useState, useMemo, useEffect} from 'react'
 import RequestMap from "./Request";
-const center = { lat: 39.5437, lng: -119.8142}
+import ReactMapGL, { Marker, Popup } from "react-map-gl";
+
+
+import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+ 
+mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
 
 //Developed by Aaron Ramirez and Gabriel Mortensen

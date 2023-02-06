@@ -57,7 +57,12 @@ function About() {
                 <p id='description'> Aaron's text</p>
                 <br/>
                 <p id='names'> Angel Carranco Muller </p>
-                <p id='description'> Angel's text</p>
+                <p id='description'> Angel Carranco Muller was born and raised in Oaxaca, Mexico. His family business
+                was arcade videogame locations throuhout the city which is were he got his love for computers, and digital
+                machines. Angel moved to Reno, Nevada in 2013. Here Angel got his Associates in Science at Truckee Meadows
+                Community College. He joined the Army to continue his studies and now he is on the right track
+                to graduate with a Bachelors in Computer Science and Engineering, with a minor in Mathematics. 
+                Angel's interests are now Virtual Reality and Machine Learning amongst others. </p>
                 <br/>
                 <p id='names'> Gabriel Mortensen </p>
                 <p id='description'> Gabriel's text</p>

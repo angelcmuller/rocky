@@ -14,13 +14,13 @@
 
 #menuSettings {
   font-size: 35px;
-  background-color: beige;
+  background-color: rgb(188, 247, 228);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 #menuSettings2 {
   font-size: 30px;
-  background-color: bisque;
+  background-color: rgb(226, 255, 248);
   font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
@@ -28,7 +28,7 @@
   padding-left: 5px;
   padding-top: 3px;
   padding-bottom: 3px;
-  border-bottom: 2px solid azure;
+  border-bottom: 2px solid rgb(45, 123, 123);
   cursor: pointer;
 }
 
@@ -36,7 +36,7 @@
   padding-left: 5px;
   padding-top: 3px;
   padding-bottom: 3px;
-  border-bottom: 2px solid azure;
+  border-bottom: 2px solid rgb(45, 123, 123);
   cursor: pointer;
 }
 
