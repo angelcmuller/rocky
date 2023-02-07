@@ -124,7 +124,7 @@ function About() {
                 <br/>
                 <h1 id='meetTeam'> The Team </h1>
                 <p id='names'> Aaron Ramirez </p>
-                <p id='description'> Aaron's text</p>
+                <p id='description'> Aaron is a a Computer Science and Engineering major with a minor in math and Unmanned Autonomous systems. He is interested in working in the field of AI and Data Science. Currently, he is working as a Tech Support at Clear Capital, where he can help people navigate and troubleshoot the problems they encounter within the app called ClearInsight. Through this project he is looking for opportunities to develop his Software Engineering skills.</p>
                 <br/>
                 <p id='names'> Angel Carranco Muller </p>
                 <p id='description'> Angel Carranco Muller was born and raised in Oaxaca, Mexico. His family business
@@ -138,7 +138,7 @@ function About() {
                 <p id='description'>Gabriel was born local here in Reno. His hobbies include writing, reading, and going on camping trips. His primary topics of study include machine learning and big data. He hopes to one day use these interests to progress the efficiency of medicine and hospital operations. After this semester Gabriel will continue with school where he will get a master’s degree in CSE in Spring 2024 and an MBA in Spring 2025.</p>
                 <br/>
                 <p id='names'> Tristan Bailey </p>
-                <p id='description'> Tristan's text</p>
+                <p id='description'> Tristian is currently a Senior at the University of Nevada, Reno and has been developing software using Python and C/C++ since his last year of high school, over four years ago. In this time he has developed several systems for his college classes, ranging from a generic SQLite clone database management system, to a big data driven regression prediction model for solar power output. He has also leveraged his skills in industry by interning as an SDE for Amazon, where he leveraged his networking, docker, and bash scripting skills to accelerate other developers' testing and development workflows. He loves to learn new topics, both in software development and outside of it, which has allowed him to make the Dean's list for the College of Engineering every semester for the past three years. Through his time at the University of Nevada, Reno he  focused on Big Data applications, specifically machine learning, for his area of study. Additionally, he developed a strong fundamental basis for algorithms, data structures, and mathematics, which are essential for efficient and scalable software.  </p>
 
             <br/>
             
