@@ -28,9 +28,8 @@ import { useRef, useState, useMemo, useEffect} from 'react'
 import RequestMap from "./Request";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
 
+import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
-import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
- 
 mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
 
@@ -70,7 +69,7 @@ setLat(map.current.getCenter().lat.toFixed(4));
 setZoom(map.current.getZoom().toFixed(2));
 });
 });
- 
+
 return (
 <Flex  position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
     <Center  position = 'relative' h='100' bg='green.500'>
@@ -79,7 +78,7 @@ return (
       <HStack spacing = '0' >
       <Box bg='red' h ='100' w = '20%'> Descriptions</Box>
       
-       <div ref={mapContainer} className="map-container" style={{width: 'auto', height: 'auto'}}/>
+    <div ref={mapContainer} className="map-container" style={{width: 'auto', height: 'auto'}}/>
       
       </HStack>
 </Flex>

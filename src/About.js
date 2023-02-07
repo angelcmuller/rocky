@@ -3,13 +3,17 @@ import {Route, Link, Routes, useNavigate, redirect} from 'react-router-dom';
 import { Button } from '@chakra-ui/react';
 import './About.css';
 import teampic from './images/IMG_9033-1.jpg';
+import App from './App';
 
 function About() {
     const navigate = useNavigate();
-    const goBack = () => {
-		navigate(-1);
+    const [showResults, setShowResults] = React.useState(true)
+
+    const navigatetoApp = () => {
+        setShowResults(current => !current);
+        navigate('/')
         document.location.reload();
-	}
+      }
 
     return(
         <div>
@@ -73,8 +77,13 @@ function About() {
             </div>
             <div id='button'>
                 <br/> <br/>
-                <Button colorScheme='pink' onClick={ goBack }>Back</Button>
+                <Button colorScheme='pink' onClick={ navigatetoApp }>Back</Button>
                 <br/> <br/>
+            </div>
+            <div>
+                <Routes>
+                    <Route path="/App" element={<App/>} />
+                </Routes>
             </div>
         </div>
         
