@@ -27,11 +27,9 @@ import './App.css'
 import { useRef, useState, useMemo, useEffect} from 'react'
 import RequestMap from "./Request";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
+import React from 'react';
 
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-
-mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
-
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 // alert(markers)
@@ -43,45 +41,54 @@ async function fun(){
 }
 x = fun();
 console.log(x);
+
 //Developed by Aaron Ramirez
 function Map() {
+
+  mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
+
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [lng, setLng] = useState(-119.8138027);
   const [lat, setLat] = useState(39.5296336);
-  const [zoom, setZoom] = useState(10);
- 
-useEffect(() => {
-if (map.current) return; // initialize map only once
-map.current = new mapboxgl.Map({
-container: mapContainer.current,
-style: 'mapbox://styles/mapbox/streets-v12',
-center: [lng, lat],
-zoom: zoom
-});
-});
- 
-useEffect(() => {
-if (!map.current) return; // wait for map to initialize
-map.current.on('move', () => {
-setLng(map.current.getCenter().lng.toFixed(4));
-setLat(map.current.getCenter().lat.toFixed(4));
-setZoom(map.current.getZoom().toFixed(2));
-});
-});
+  const [zoom, setZoom] = useState(8);
 
-return (
-<Flex  position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-    <Center  position = 'relative' h='100' bg='green.500'>
-      <Text>Box 1</Text>
-    </Center>
+  //Initialize Map only once
+  useEffect(() => {
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12?optimize=true',
+      center: [lng, lat],
+      zoom: zoom
+    });
+
+    map.addControl(new mapboxgl.FullscreenControl());
+
+    //displaying marker onto map
+    const marker = new mapboxgl.Marker()
+      .setLngLat([-119.81, 39.529],
+        [-119.81, 40], [-119.81, 43],
+        [-119.81, 39.529], [-119.81, 39.529])
+      .addTo(map);
+
+    return () => {
+      map.remove();
+    };
+  });
+
+  return (
+    <Flex  position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
+      <Center  position = 'relative' h='100' bg='green.500'>
+        <Text>Box 1</Text>
+      </Center>
+      
       <HStack spacing = '0' >
-      <Box bg='red' h ='100' w = '20%'> Descriptions</Box>
-      
-    <div ref={mapContainer} className="map-container" style={{width: 'auto', height: 'auto'}}/>
-      
+        <Box bg='red' h ='100' w = '20%'> Descriptions</Box>
+        
+        <div ref={mapContainer} className="map-container" style={{width: 'auto', height: 'auto'}}/>
       </HStack>
-</Flex>
-);
+    </Flex>
+  );
 }
- export default Map
+
+export default Map
