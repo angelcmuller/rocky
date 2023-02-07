@@ -19,8 +19,35 @@ css format will need to start with #
     height: auto;
 }
 
+.container {
+    align-items: center;
+  }
+
+#tinyText{
+    font-style: italic;
+}
+
+
+#PersonText{
+    font-style: italic;
+    font-size: large;
+    font-weight: 500;
+}
+
+.top-margin {
+    padding-top: 10px;
+  }
+  
+#UNRPicture{
+    float: left;
+    width:100px;
+    height:100px;
+    margin-right:10px;
+}
+
 #team {
     font-size: 30px;
+    font-style: italic;
     text-align: center;
     margin-top: -15px;
     font-family: Georgia, 'Times New Roman', Times, serif;
@@ -45,6 +72,33 @@ css format will need to start with #
     padding-left: 10px;
 }
 
+#book{
+    font-size: 16px;
+    margin-left: 40px;
+    text-align: justify;
+}
+
+#bookinfo{
+    font-size: 14px;
+    margin-left: 80px;
+    text-align: left;
+}
+
+#subtopic {
+    padding-left: 10px;
+    font-weight: 700;
+    font-size: 19px;
+    font-style: italic;
+}
+
+#s_description {
+    font-size: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    text-align: justify;
+}
+
+
 #description {
     font-size: 20px;
     padding-left: 15px;
@@ -53,7 +107,10 @@ css format will need to start with #
 }
 
 #button1 {
-    padding-left: 20px;
+    display: flex;
+  align-items: center;
+  justify-content: center;
+    
 }
 #button {
     text-align: center;
