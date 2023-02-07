@@ -78,6 +78,14 @@ css format will need to start with #
     text-align: justify;
 }
 
+#booklink{
+    color: blue;
+    font-size: 16px;
+    margin-left: 40px;
+    text-align: justify;
+}
+
+
 #bookinfo{
     font-size: 14px;
     margin-left: 80px;
