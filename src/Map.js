@@ -1,6 +1,11 @@
 import JsonListReturn from "./components/recordList";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import {
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
   Box,
   Button,
   ButtonGroup,
@@ -25,13 +30,21 @@ import {
   MenuList,
   MenuItem,
   MenuItemOption,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
   AlertDialog,
   Center,
   Radio,
   RadioGroup,
   useBoolean,
+  useDisclosure
 } from '@chakra-ui/react'
-import { HamburgerIcon } from "@chakra-ui/icons";
+import { HamburgerIcon, PhoneIcon } from "@chakra-ui/icons";
 import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
 import './Map.css'
@@ -62,7 +75,8 @@ function Map() {
   const map = useRef(null);
   const [lng, setLng] = useState(-119.8138027);
   const [lat, setLat] = useState(39.5296336);
-  const [zoom, setZoom] = useState(8);
+  const [zoom, setZoom] = useState(1);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   //Initialize Map only once
   useEffect(() => {
@@ -101,7 +115,7 @@ function Map() {
   function WithPopoverAnchor() {
     const [isEditing, setIsEditing] = useBoolean()
     const [color, setColor] = React.useState('')
-  
+
     return (
       <Popover
         isOpen={isEditing}
@@ -123,20 +137,20 @@ function Map() {
           </PopoverAnchor>
   
           <PopoverTrigger>
-            <Button h='40px' colorScheme='orange'>
+            <Button h='40px' colorScheme='facebook' size='xs'>
               {isEditing ? 'Save' : 'Edit'}
             </Button>
           </PopoverTrigger>
         </HStack>
   
         <PopoverContent>
-          <PopoverBody>
+          <PopoverBody  bg='gray'>
             Select a new Map Style:
             <RadioGroup value={color} onChange={(newColor) => setColor(newColor)}>
-              <Radio value='red'> Streets </Radio>
-              <Radio value='blue'> Light </Radio>
-              <Radio value='green'> Dark </Radio>
-              <Radio value='purple'> outdoors </Radio>
+              <Radio value='streets' id='streets-v12' colorScheme='orange'> Streets </Radio>
+              <Radio value='light' id='light-v11'> Light </Radio>
+              <Radio value='dark' id='dark-v11'> Dark </Radio>
+              <Radio value='outdoors' id='outdoors-v12'> outdoors </Radio>
             </RadioGroup>
           </PopoverBody>
         </PopoverContent>
@@ -145,7 +159,7 @@ function Map() {
   }
 
   return (
-    <Flex  position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
+    <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Center  position = 'relative' h='50' bg='green.300'>
         <div id="menu">
           <input id="streets-v12" type="radio" name="rtoggle" value="streets"/>
@@ -157,14 +171,97 @@ function Map() {
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
           <label for="outdoors-v12"> outdoors </label>
         </div>
-        <Text>
-          Box1
-        </Text>
         <WithPopoverAnchor/>
-        <Menu>
-          <MenuButton as={IconButton} aria-label='Options' icon={<HamburgerIcon />} variant='outline'/>
+        <Menu variant='roundleft'>
+          <MenuButton as={IconButton} aria-label='Options' icon={<HamburgerIcon />} variant='outline' position='relative' float='right'/>
             <MenuList>
-              <MenuItem> Contact Road Side Assistance </MenuItem>
+              <MenuItem onClick={onOpen}> Contact Road Side Assistance </MenuItem>
+                <Modal isOpen={isOpen} onClose={onClose}>
+                  <ModalOverlay />
+                  <ModalContent>
+                    <ModalHeader> Road Assistance </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                      <Accordion defaultIndex={[0]} allowMultiple>
+                      <AccordionItem>
+                          <h2>
+                            <AccordionButton>
+                              <Box as="span" flex='1' textAlign='left'>
+                                AAA
+                              </Box>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={10}>
+                            <a>800-400-4222 </a>
+                            <a href="tel:8004004222" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton
+                                colorScheme='teal'
+                                aria-label='Call Segun'
+                                size='sm'
+                                icon={<PhoneIcon />}
+                                href="tel:+8004004222"
+                              />
+                              </a>
+                          </AccordionPanel>
+                        </AccordionItem>
+
+                        <AccordionItem>
+                          <h2>
+                            <AccordionButton>
+                              <Box as="span" flex='1' textAlign='left'>
+                                Progressive
+                              </Box>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={10}>
+                            <a>800-776-4737 </a>
+                            <a href="tel:8007764737" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton
+                                colorScheme='teal'
+                                aria-label='Call Segun'
+                                size='sm'
+                                icon={<PhoneIcon />}
+                                href="tel:+8007764737"
+                              />
+                              </a>
+                          </AccordionPanel>
+                        </AccordionItem>
+
+                        <AccordionItem>
+                          <h2>
+                            <AccordionButton>
+                              <Box as="span" flex='1' textAlign='left'>
+                                StateFarm
+                              </Box>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={10}>
+                            <a>855-259-8568 </a>
+                            <a href="tel:5558920234" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton
+                                colorScheme='teal'
+                                aria-label='Call Segun'
+                                size='sm'
+                                icon={<PhoneIcon />}
+                                href="tel:+8552598568"
+                              />
+                              </a>
+                          </AccordionPanel>
+                        </AccordionItem>
+                      </Accordion>
+                    </ModalBody>
+
+                    <ModalFooter>
+                      <Button colorScheme='blue' mr={3} onClick={onClose}>
+                        Close
+                      </Button>
+                      <Button variant='ghost'> Call? </Button>
+                    </ModalFooter>
+                  </ModalContent>
+                </Modal>
               <MenuItem> Something else </MenuItem>
               <MenuItem> Make a Comment </MenuItem>
             </MenuList>

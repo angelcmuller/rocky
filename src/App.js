@@ -2,7 +2,7 @@
 import React from 'react';
 // Components from other sources
 import { BrowserRouter as Router, Route, useNavigate, Routes } from 'react-router-dom';
-import { Button } from '@chakra-ui/react';
+import { Button, Menu } from '@chakra-ui/react';
 import { Switch, FormControl, FormLabel } from '@chakra-ui/react';
 import { useState } from 'react';
 import { Sling as Hamburger } from 'hamburger-react'
@@ -15,7 +15,10 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
+  MenuButton,
+  IconButton
 } from '@chakra-ui/react'
+import { HamburgerIcon } from '@chakra-ui/icons';
 // Files from within our directory
 import Map from './Map.js';
 import './App.css';
@@ -55,19 +58,19 @@ function App () {
         showResults && (
           <div id='body'>
             <div id='menu'>
-              <Hamburger onToggle={onOpen} size={30} direction="right"
-              duration={0.5} distance="lg" color="#008151" easing="ease-in"
-              rounded label='Show Menu'/>
-              <Drawer placement={placement} onClose={onClose} isOpen={isOpen}>
-                <DrawerOverlay/>
-                <DrawerContent>
-                  <DrawerHeader borderBottomWidth='2px' id='menuSettings'> Menu </DrawerHeader>
-                  <DrawerBody id='menuSettings2'>
-                    <p onClick = {navigatetoAbout} id='aboutUs'> About </p>
-                    <p onClick = {navigatetoContact} id='contactUs'> Contact Us </p>
-                  </DrawerBody>
-                </DrawerContent>
-              </Drawer>
+              <Menu>
+                <MenuButton as={IconButton} aria-label='Options' icon={<HamburgerIcon />} onClick={onOpen} bg='#80cbc4'/>
+                  <Drawer placement={placement} onClose={onClose} isOpen={isOpen}>
+                    <DrawerOverlay/>
+                    <DrawerContent>
+                      <DrawerHeader borderBottomWidth='2px' id='menuSettings'> Menu </DrawerHeader>
+                      <DrawerBody id='menuSettings2'>
+                        <p onClick = {navigatetoAbout} id='aboutUs'> About </p>
+                        <p onClick = {navigatetoContact} id='contactUs'> Contact Us </p>
+                      </DrawerBody>
+                    </DrawerContent>
+                  </Drawer>
+              </Menu>
             </div>
             <br />
             <br />
