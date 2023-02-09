@@ -1,0 +1,91 @@
+/* CSS For Landing Page App.js by Angel C. Muller*/
+#body {
+  background-color: rgba(185, 222, 203, 100);
+  min-height: auto;
+  min-width: auto;
+  align-items: center;
+  text-align: center;
+}
+
+#menu {
+  float: left;
+  padding: 8px;
+}
+
+#menuSettings {
+  font-size: 35px;
+  background-color: rgb(188, 247, 228);
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+#menuSettings2 {
+  font-size: 30px;
+  background-color: rgb(226, 255, 248);
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+#aboutUs {
+  padding-left: 5px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border-bottom: 2px solid rgb(45, 123, 123);
+  cursor: pointer;
+}
+
+#contactUs {
+  padding-left: 5px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border-bottom: 2px solid rgb(45, 123, 123);
+  cursor: pointer;
+}
+
+#welcome {
+  color: rgb(0,0,0);
+  font-size: 45px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-align: center;
+  top: 500px;
+}
+
+#Logo {
+  height: 400px;
+  width: 400px;
+  text-align: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#introtext {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  position:relative;
+  width: 700px;
+  /*overflow: hidden;
+  white-space: nowrap;*/
+  text-overflow: ellipsis;
+}
+
+#introtext:hover {
+  overflow: visible;
+  white-space: normal;
+  transition: 0.5s;
+  opacity: 50;
+}
+
+#auxToggle {
+  border-radius: 8px;
+  font-family:sans-serif;
+  padding: 3px;
+  font-size: 12px;
+  background-color:white;
+  display:inline-flex;
+  box-shadow: 2px 1px 2px;
+}
+
+#colorblind {
+  margin-left: 10px;
+}
