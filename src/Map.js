@@ -1,5 +1,11 @@
 import JsonListReturn from "./components/recordList";
+import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import {
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
   Box,
   Button,
   ButtonGroup,
@@ -12,29 +18,45 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  PopoverCloseButton,
+  PopoverHeader,
   PopoverBody,
+  PopoverFooter,
+  PopoverArrow,
+  PopoverCloseButton,
+  Portal,
+  PopoverAnchor,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
   MenuItemOption,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
   AlertDialog,
+  Center,
+  Radio,
+  RadioGroup,
+  useBoolean,
+  useDisclosure
 } from '@chakra-ui/react'
+import { HamburgerIcon, PhoneIcon } from "@chakra-ui/icons";
 import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
- import {
-  useJsApiLoader,
-  GoogleMap,
-  Marker,
-  Autocomplete,
-  DirectionsRenderer,
-  InfoWindow,
- } from '@react-google-maps/api'
-import { useRef, useState, useMemo} from 'react'
+import './Map.css'
+import { useRef, useState, useMemo, useEffect} from 'react'
 import RequestMap from "./Request";
-const center = { lat: 39.5437, lng: -119.8142}
-
+import ReactMapGL, { Marker, Popup } from "react-map-gl";
+import React from 'react';
+import LightPic from './images/Light.svg';
+import DarkPic from './images/Dark.svg';
+import OutsidePic from './images/Outdoors.svg';
+import Streetic from './images/Streets.svg';
+import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 // alert(markers)
@@ -46,304 +68,233 @@ async function fun(){
 }
 x = fun();
 console.log(x);
+
 //Developed by Aaron Ramirez
 function Map() {
-  let mapIDx = "f7844d0f315f8d35";
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyAoEmPPMmB44ozXVRVb486UMHGiDrMJo64",
-    libraries: ['places'],
-  })
-  const [isShown, setIsShown] = useState(false);
-  const [isShownComment, setIsShownComment] = useState(false);
-  const [markerPosition, setmarkerpos] = useState();
-  const [addCommentbtn, setcommentbtn] = useState(false);
-  const [commentWindow, setcommentwindow] = useState(false);
-  const [showRequest, setRequestMap] = useState(false);
-  const [colorBlind, setColorBlind] = useState('f7844d0f315f8d35');
 
-  
-  const [activeMarker, setActiveMarker] = useState(null);
-  const handleActiveMarker = (marker) => {
-    if (marker === activeMarker) {
-      return;
+  mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
+
+  const mapContainer = useRef(null);
+  //const map = useRef(null);
+  const [lng, setLng] = useState(-119.8138027);
+  const [lat, setLat] = useState(39.5296336);
+  const [zoom, setZoom] = useState(10);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  //Initialize Map only once
+  useEffect(() => {
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12?optimize=true',
+      center: [lng, lat],
+      zoom: zoom
+    });
+
+    map.addControl(new mapboxgl.FullscreenControl());
+
+    const layerList = document.getElementById('menu');
+    const inputs = layerList.getElementsByTagName('input');
+    
+    for (const input of inputs) {
+      input.onclick = (layer) => {
+        const layerId = layer.target.id;
+        map.setStyle('mapbox://styles/mapbox/' + layerId);
+      };
     }
-    setActiveMarker(marker);
-  };
 
-  const [map, setMap] = useState(/** @type google.maps.Map */ (null))
-  const [directionsResponse, setDirectionsResponse] = useState(null)
-  const [distance, setDistance] = useState('')
-  const [duration, setDuration] = useState('')
-   /** @type React.MutableRefObject<HTMLInputElement> */
-  const originRef = useRef()
-  /** @type React.MutableRefObject<HTMLInputElement> */
-  const destRef = useRef()
-  const markerRef = useRef()
-   if (!isLoaded) {
-    return <SkeletonText />
-  } 
-  
-  let markerPos = null
-  const markerClick = event => {
-    // 👇️ toggle shown state
-    if(addCommentbtn){
-      console.log(addCommentbtn);
-      markerPos = event.latLng
-      console.log("latitude = ", event.latLng.lat());
-      console.log("longtitude = ", event.latLng.lng());
-      console.log(markerPos.lat());
-      console.log(markerPos.lng());
-      setmarkerpos(event.latLng);
-      setIsShownComment(current => !current);
-      setcommentbtn(false);
-    }
-  };
-  const commentMarkerWindow= event => {
-    // 👇️ toggle shown state
-    setcommentwindow(current => !current);
-  };
+    //displaying marker onto map
+    const marker = new mapboxgl.Marker()
+      .setLngLat([-119.81, 39.529],
+        [-119.81, 40], [-119.81, 43],
+        [-119.81, 39.529], [-119.81, 39.529])
+      .addTo(map);
 
-   async function calculateRoute() {
-    if (originRef.current.value === '' || destRef.current.value === '') {
-      return
-    }
-    // eslint-disable-next-line no-undef
-    const directionsService = new google.maps.DirectionsService()
-    const results = await directionsService.route({
-      origin: originRef.current.value,
-      destination: destRef.current.value,
-      // eslint-disable-next-line no-undef
-      travelMode: google.maps.TravelMode.DRIVING,
-      provideRouteAlternatives: true,
-    })
-    setDirectionsResponse(results)
-    //Need to change this into picking the most optimal route
-    setIsShown(current => !current);
-    setDistance(results.routes[0].legs[0].distance.text)
-    setDuration(results.routes[0].legs[0].duration.text) 
-  }
-  function clearRoute() {
-    setDirectionsResponse(null)
-    setDistance('')
-    setDuration('')
-    originRef.current.value = ''
-    destRef.current.value = ''
-  }
-  const showRequestMap = event => {
-    setRequestMap(current => !current);
+    return () => {
+      map.remove();
+    };
+  });
 
-  }
-  const changeMap = event => {
-    mapIDx = "735a32cd73f3a468";
-    setColorBlind("735a32cd73f3a468");
-    console.log(colorBlind);
-    console.log(mapIDx);
+  //function to select Map Style Angel C. Muller
+  function WithPopoverAnchor() {
+    const [isEditing, setIsEditing] = useBoolean()
+    const [color, setColor] = React.useState('')
 
-  }
-   return (
-    <Flex
-      position='relative'
-      flexDirection='column'
-      alignItems='center'
-      h='100vh'
-      w='100vw'
-    >
-      <Box position= 'absolute' h='100%' w='100%'>
-
-      {/* Developed by Aaron Ramirez*/}
-        {/* Google Map Box */}
-        <GoogleMap
-          center={center}
-          zoom={15}
-          mapContainerStyle={{ width: '100%', height: '100%' }}
-          tilt={45} 
-          key = {changeMap}
-          options={{
-            mapId: {colorBlind}
-          }}
-          onLoad={map => setMap(map)}
-          onClick={markerClick}
-          >
-          { isShownComment &&(
-            
-          <Marker
-          position={markerPosition}
-          onClick = {commentMarkerWindow}
-          icon = {{
-            url: './comment.png',
-            scaledSize:  new window.google.maps.Size(30,30)
-          }}
-          >
-            { commentWindow &&(
-              <InfoWindow>
-                <p>This is a comment</p>
-              </InfoWindow>
-
-            )}
-
-          </Marker>
-
-          )}
-          {/* Developed by Aaron Ramirez and Gabriel Mortensen*/}
-{x.map(({ Pid, Classification, Lattitude, Longitude}) => (
-        <Marker
-          key={Pid}
-          position = {new window.google.maps.LatLng(parseFloat(Lattitude),parseFloat(Longitude))}
-          onClick={() => handleActiveMarker(Pid)}
-          icon = {{
-            url: './marker.png',
-            scaledSize:  new window.google.maps.Size(30,30)
-          }}
-        >
-          {activeMarker === Pid ? (
-            <InfoWindow onCloseClick={() => setActiveMarker(null)}>
-              <div>{Classification}</div>
-            </InfoWindow>
-          ) : null}
-        </Marker>
-      ))}
-      {/* Developed by Aaron Ramirez using tutorials from Leigh Halliday*/}
-          {directionsResponse && (
-          <div>
-            <DirectionsRenderer
-            directions={directionsResponse}
-            routeIndex = {0}
-             />
-             <DirectionsRenderer
-            directions={directionsResponse}
-            routeIndex = {1}
-             />
-            </div>
-          )}
-        </GoogleMap>
-        { showRequest && (
-        <RequestMap/>
-        )
-        }
-      </Box>
-      <Box
-        position = 'absolute'
-        p={2}
-        borderRadius='lg'
-        m={4}
-        bgColor='white'
-        shadow='base'
-        minW='container.md'
-        zIndex='1'
-        top={5}
+    return (
+      <Popover
+        isOpen={isEditing}
+        onOpen={setIsEditing.on}
+        onClose={setIsEditing.off}
+        closeOnBlur={false}
+        isLazy
+        lazyBehavior='keepMounted'
       >
-        <HStack spacing={2} justifyContent='space-between'>
-          <Box flexGrow={1} >
-            <Autocomplete>
-              <Input type='text'color='teal' backgroundColor='white' placeholder='Origin'ref={originRef} />
-            </Autocomplete>
-          </Box>
-          <Box flexGrow={1}>
-            <Autocomplete>
-              <Input
-                type='text'
-                placeholder='Destination'
-                color='teal'
-                backgroundColor='white'
-                ref={destRef}
-              />
-            </Autocomplete>
-          </Box>
-          <ButtonGroup>
-            <Button colorScheme='yellow' type='submit' onClick={calculateRoute} >
-              Directions
+        {/* <HStack>
+          <PopoverAnchor>
+            <Input
+              color={color}
+              w='auto'
+              display='inline-flex'
+              isDisabled={!isEditing}
+              defaultValue='Color Blind?'
+            />
+          </PopoverAnchor>
+  
+          <PopoverTrigger>
+            <Button h='40px' colorScheme='facebook' size='xs'>
+              {isEditing ? 'Save' : 'Edit'}
             </Button>
-            <IconButton
-              aria-label='center back'
-              icon={<FaTimes />}
-              color='teal'
-              onClick={clearRoute}
-            />
-            <IconButton
-              aria-label='center back'
-              icon={<FaEye />}
-              onClick={changeMap}
-            />
-            <Menu>
-            <MenuButton
-    as={IconButton}
-    aria-label='Options'
-    icon={<FaServer/>}
-    variant='outline'
-  />
-    <MenuList>
-    <MenuItem icon={<FaLocationArrow />} command='⌘C' onClick = {() => {
-              map.panTo(center)
-              map.setZoom(15)
-            }}>
-      Center
-    </MenuItem>
-    <MenuItem icon={<FaCalendar />} command='⌘D' type="datetime-local">
-      Date
-    </MenuItem>
-    <MenuItem icon={<FaCloud />} command='⌘W'>
-      Weather
-    </MenuItem>
-    <MenuItem icon={<FaCarAlt />} command='⌘W' onClick = {showRequestMap}>
-     Request Service Location
-    </MenuItem>
-    <MenuItem icon={<FaEyeSlash />} command='⌘H'>
-      Hide other user comments
-    </MenuItem>
-    <MenuItem icon={<FaCommentAlt />} command='⌘C'  onClick = {() => {
-              setcommentbtn(true);
-            }} >
-      Add comment
-    </MenuItem>
-  </MenuList>
-           </Menu>
-           
-        <Popover>
-        <PopoverTrigger>
-          <Button colorScheme='gray'>Roadside Assitance</Button>
-        </PopoverTrigger>
+          </PopoverTrigger>
+        </HStack> */}
+  
         <PopoverContent>
-          <PopoverCloseButton />
-          <PopoverBody>
-            <p>Please enter your insurance provider</p>
-            <Input          type='text'
-                placeholder='Insurance Provider' />
-            </PopoverBody>
+          <PopoverBody  bg='gray'>
+            Select a new Map Style:
+            <RadioGroup value={color} onChange={(newColor) => setColor(newColor)}>
+              <Radio value='streets' id='streets-v12' colorScheme='orange'> Streets </Radio>
+              <Radio value='light' id='light-v11'> Light </Radio>
+              <Radio value='dark' id='dark-v11'> Dark </Radio>
+              <Radio value='outdoors' id='outdoors-v12'> outdoors </Radio>
+            </RadioGroup>
+          </PopoverBody>
         </PopoverContent>
       </Popover>
-          </ButtonGroup>
-        </HStack>
-      </Box>
-      {isShown && (
-      <Box
-        position = 'absolute'
-        p={2}
-        borderRadius='lg'
-        m={0}
-        background = '#000000'
-        color =  '#fff'
-        shadow='base'
-        minW= "sm"
-        zIndex='1'
-        bottom = {150}
-        left = {20}
-      >
-        <h1>This box only appears when calculate route is clicked </h1>
-        <h1>The style on this box needs to be changed </h1>
-        <h1>Distance: {distance}</h1>
-        <h1>Duration: {duration}</h1>
-          <h1>Route Descriptions: </h1>
-          <p>The route is blocked by a pothole and your travel time will be</p>
-          <img className = "pothole" src = "/pothole.jpeg"
-          alt = "pothole"
-          height = '100'
-          width = '250'
-          />
-    </Box>
-      )}
+    )
+  }
+
+  return (
+    <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
+      <Center  position = 'relative'  h='15vh' bg='rgba(185, 222, 203, 100);'>
+        <div id="menu">
+          <input id="streets-v12" type="radio" name="rtoggle" value="streets"/>
+          <label for="streets-v12"> <img src={LightPic} alt="street"/>  <span>Light</span> </label>
+          <input id="light-v11" type="radio" name="rtoggle" value="light" />
+          <label for="light-v11">   <img src={DarkPic} alt="street"/> <span>Dark</span> </label>
+          <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
+          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span>Street</span></label>
+          <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
+          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span>Outdoors</span> </label>
+        </div>
+        
+      
+
+        
+       
+        <WithPopoverAnchor/>
+        <Menu variant='roundleft'>
+          <MenuButton as={IconButton} aria-label='Options'  style={{ backgroundColor: "white" }} icon={<HamburgerIcon />} variant='outline' position='relative' float='right'/>
+            <MenuList>
+              <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
+                <Modal isOpen={isOpen} onClose={onClose}>
+                  <ModalOverlay />
+                  <ModalContent>
+                    <ModalHeader> Road Assistance </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                      <Accordion defaultIndex={[0]} allowMultiple>
+                      <AccordionItem>
+                     
+
+                          <h2>
+                            <AccordionButton>
+                              <Box as="span" flex='1' textAlign='left'>
+                                AAA
+                              </Box>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={10}>
+                            <a>800-400-4222 </a>
+                            <a href="tel:8004004222" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton
+                                colorScheme='teal'
+                                aria-label='Call Segun'
+                                size='sm'
+                                icon={<PhoneIcon />}
+                                href="tel:+8004004222"
+                              />
+                              </a>
+                          </AccordionPanel>
+                        </AccordionItem>
+
+                        <AccordionItem>
+                          <h2>
+                            <AccordionButton>
+                              <Box as="span" flex='1' textAlign='left'>
+                                Progressive
+                              </Box>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={10}>
+                            <a>800-776-4737 </a>
+                            <a href="tel:8007764737" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton
+                                colorScheme='teal'
+                                aria-label='Call Segun'
+                                size='sm'
+                                icon={<PhoneIcon />}
+                                href="tel:+8007764737"
+                              />
+                              </a>
+                          </AccordionPanel>
+                        </AccordionItem>
+
+                        <AccordionItem>
+                          <h2>
+                            <AccordionButton>
+                              <Box as="span" flex='1' textAlign='left'>
+                                StateFarm
+                              </Box>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={10}>
+                            <a>855-259-8568 </a>
+                            <a href="tel:5558920234" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton
+                                colorScheme='teal'
+                                aria-label='Call Segun'
+                                size='sm'
+                                icon={<PhoneIcon />}
+                                href="tel:+8552598568"
+                              />
+                              </a>
+                          </AccordionPanel>
+                          <h2>Type your insurance below to do a Google Search:</h2>
+                        <form action="https://www.google.com/search?q=phone+number+">
+                          <input type="text" name="q"/>
+                          <input type="submit" value="Google Search"/>
+                        </form>
+                        </AccordionItem>
+                      </Accordion>
+                    </ModalBody>
+
+                    <ModalFooter>
+                      <Button colorScheme='blue' mr={3} onClick={onClose}>
+                        Close
+                      </Button>
+                      <Button variant='ghost'> Call? </Button>
+                    </ModalFooter>
+                  </ModalContent>
+                </Modal>
+              <MenuItem style={{ color: "black" }}> Request Location </MenuItem>
+              <MenuItem style={{ color: "black" }}> Make a Comment </MenuItem>
+            </MenuList>
+        </Menu> 
+      </Center>
+      
+
+      {/* Gabriel worked on format of map and description location  */}
+      <HStack spacing = '0' > // space between map and description box 
+        <Box bg='green.300' h = '100vh' w = '30%'> <p id="Description">Descriptions</p> </Box> // description size 
+        
+        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
+
+       
+      </HStack>
+
     </Flex>
-   
-   
-  )
+  );
 }
- export default Map
+
+export default Map
