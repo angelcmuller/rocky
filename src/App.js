@@ -26,6 +26,7 @@ import Submit from './Submit.js';
 import './App.css';
 import logo from './images/Logo.png';
 import About from './About.js';
+import HowTo from './HowTo.js';
 
 // Main Landing Page function by Angel C. Muller
 function App () {
@@ -52,6 +53,10 @@ function App () {
     navigate('/Submit')
   }
 
+  const navigatetoHowTo = () => {
+    setShowResults(current => !current);
+    navigate('/HowTo')
+  }
 
   // const variable to manage the collapsible menu
   const { isOpen, onOpen, onClose} = useDisclosure()
@@ -76,6 +81,7 @@ function App () {
                       <DrawerBody id='menuSettings2'>
                         <p onClick = {navigatetoAbout} id='aboutUs'> About </p>
                         <p onClick = {navigatetoSubmit} id='aboutUs'> Submit Data </p>
+                        <p onClick = {navigatetoHowTo} id='aboutUs'> Instructions </p>
                         <p onClick = {navigatetoContact} id='contactUs'> Contact Us </p>
                       </DrawerBody>
                     </DrawerContent>
@@ -101,6 +107,7 @@ function App () {
           <Route path="/Map" element={<Map/>} />
           <Route path="/About" element={<About/>} />
           <Route path="/Submit" element={<Submit/>} />
+          <Route path="/Howto" element={<HowTo/>} />
         </Routes>
       </div>
     </div>

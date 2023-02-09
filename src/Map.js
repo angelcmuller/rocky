@@ -184,7 +184,7 @@ function Map() {
           <MenuButton as={IconButton} aria-label='Options'  style={{ backgroundColor: "white" }} icon={<HamburgerIcon />} variant='outline' position='relative' float='right'/>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
-                <Modal isOpen={isOpen} onClose={onClose}>
+                <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
                   <ModalOverlay />
                   <ModalContent>
                     <ModalHeader> Road Assistance </ModalHeader>
@@ -260,6 +260,7 @@ function Map() {
                               />
                               </a>
                           </AccordionPanel>
+                          <br/>
                           <h2>Type your insurance below to do a Google Search:</h2>
                         <form action="https://www.google.com/search?q=phone+number+">
                           <input type="text" name="q"/>
@@ -273,7 +274,6 @@ function Map() {
                       <Button colorScheme='blue' mr={3} onClick={onClose}>
                         Close
                       </Button>
-                      <Button variant='ghost'> Call? </Button>
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
