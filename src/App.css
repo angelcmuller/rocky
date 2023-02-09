@@ -1,16 +1,21 @@
 /* CSS For Landing Page App.js by Angel C. Muller*/
 #body {
   background-color: rgba(185, 222, 203, 100);
-  min-height: auto;
+
   min-width: auto;
   align-items: center;
   text-align: center;
 }
 
+
 #menu {
-  float: left;
-  padding: 8px;
+  display: flex;
+  justify-content: space-between;
 }
+
+
+
+
 
 #menuSettings {
   font-size: 35px;
