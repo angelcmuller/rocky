@@ -78,7 +78,7 @@ function Map() {
   //const map = useRef(null);
   const [lng, setLng] = useState(-119.8138027);
   const [lat, setLat] = useState(39.5296336);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(10);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   //Initialize Map only once
