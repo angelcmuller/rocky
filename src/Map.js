@@ -52,7 +52,10 @@ import { useRef, useState, useMemo, useEffect} from 'react'
 import RequestMap from "./Request";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
 import React from 'react';
-
+import LightPic from './images/Light.svg';
+import DarkPic from './images/Dark.svg';
+import OutsidePic from './images/Outdoors.svg';
+import Streetic from './images/Streets.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
@@ -72,7 +75,7 @@ function Map() {
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
   const mapContainer = useRef(null);
-  const map = useRef(null);
+  //const map = useRef(null);
   const [lng, setLng] = useState(-119.8138027);
   const [lat, setLat] = useState(39.5296336);
   const [zoom, setZoom] = useState(1);
@@ -125,7 +128,7 @@ function Map() {
         isLazy
         lazyBehavior='keepMounted'
       >
-        <HStack>
+        {/* <HStack>
           <PopoverAnchor>
             <Input
               color={color}
@@ -141,7 +144,7 @@ function Map() {
               {isEditing ? 'Save' : 'Edit'}
             </Button>
           </PopoverTrigger>
-        </HStack>
+        </HStack> */}
   
         <PopoverContent>
           <PopoverBody  bg='gray'>
@@ -160,22 +163,27 @@ function Map() {
 
   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Center  position = 'relative' h='50' bg='green.300'>
+      <Center  position = 'relative'  h='15vh' bg='rgba(185, 222, 203, 100);'>
         <div id="menu">
           <input id="streets-v12" type="radio" name="rtoggle" value="streets"/>
-          <label for="streets-v12"> streets </label>
+          <label for="streets-v12"> <img src={LightPic} alt="street"/>  <span>Light</span> </label>
           <input id="light-v11" type="radio" name="rtoggle" value="light" />
-          <label for="light-v11"> light </label>
+          <label for="light-v11">   <img src={DarkPic} alt="street"/> <span>Dark</span> </label>
           <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-          <label for="dark-v11"> dark </label>
+          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span>Street</span></label>
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
-          <label for="outdoors-v12"> outdoors </label>
+          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span>Outdoors</span> </label>
         </div>
+        
+      
+
+        
+       
         <WithPopoverAnchor/>
         <Menu variant='roundleft'>
-          <MenuButton as={IconButton} aria-label='Options' icon={<HamburgerIcon />} variant='outline' position='relative' float='right'/>
+          <MenuButton as={IconButton} aria-label='Options'  style={{ backgroundColor: "white" }} icon={<HamburgerIcon />} variant='outline' position='relative' float='right'/>
             <MenuList>
-              <MenuItem onClick={onOpen}> Contact Road Side Assistance </MenuItem>
+              <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
                 <Modal isOpen={isOpen} onClose={onClose}>
                   <ModalOverlay />
                   <ModalContent>
@@ -184,6 +192,8 @@ function Map() {
                     <ModalBody>
                       <Accordion defaultIndex={[0]} allowMultiple>
                       <AccordionItem>
+                     
+
                           <h2>
                             <AccordionButton>
                               <Box as="span" flex='1' textAlign='left'>
@@ -250,6 +260,11 @@ function Map() {
                               />
                               </a>
                           </AccordionPanel>
+                          <h2>Type your insurance below to do a Google Search:</h2>
+                        <form action="https://www.google.com/search?q=phone+number+">
+                          <input type="text" name="q"/>
+                          <input type="submit" value="Google Search"/>
+                        </form>
                         </AccordionItem>
                       </Accordion>
                     </ModalBody>
@@ -262,18 +277,22 @@ function Map() {
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
-              <MenuItem> Something else </MenuItem>
-              <MenuItem> Make a Comment </MenuItem>
+              <MenuItem style={{ color: "black" }}> Request Location </MenuItem>
+              <MenuItem style={{ color: "black" }}> Make a Comment </MenuItem>
             </MenuList>
-        </Menu>
+        </Menu> 
       </Center>
       
-      <HStack spacing = '0' >
-        <Box bg='red' h ='100' w = '20%'> Descriptions</Box>
-        
-        <div ref={mapContainer} className="map-container" style={{width: 'auto', height: 'auto'}}/>
 
+      {/* Gabriel worked on format of map and description location  */}
+      <HStack spacing = '0' > // space between map and description box 
+        <Box bg='green.300' h = '100vh' w = '30%'> <p id="Description">Descriptions</p> </Box> // description size 
+        
+        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
+
+       
       </HStack>
+
     </Flex>
   );
 }

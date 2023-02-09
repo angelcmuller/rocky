@@ -75,13 +75,14 @@ function App () {
             <br />
             <br />
             <h1 id='welcome'> Welcome to Rocky Road Project </h1>
-            <br /><br />
+            <br />
             <Introduction />
-            <br /><br />
+            
             <Button size='lg' colorScheme='teal' variant='solid' onClick = {navigatetoMap}>
               Start your Journey
             </Button>
-            <ColorB />
+            <br />  <br />  <br />  <br />
+            {/* <ColorB /> */}
           </div>
         )
       }
@@ -102,41 +103,42 @@ const Introduction = (props) => {
       <img src={logo} id='Logo' alt='rockylogo'/>
       <br />
       <br />
-      <p id='introtext'>
+      {/* <p id='introtext'>
         Rocky Road is here to provide useful information
         that will prevent road based inconveniences, injuries, and fatalities.
         Thank you for joining us in this project.
-      </p>
+      </p> */}
     </div>
   )
 }
 
 // Color Blind switch and events related to it
-const ColorB = (props) => {
-  const [isHovering, setIsHovering] = useState(false)
+// May not need anymore due to Google API change up 
+// const ColorB = (props) => {
+//   const [isHovering, setIsHovering] = useState(false)
 
-  const handleMouseOver = () => {
-    setIsHovering(true);
-  }
+//   const handleMouseOver = () => {
+//     setIsHovering(true);
+//   }
 
-  const handleMouseOut = () => {
-    setIsHovering(false);
-  }
+//   const handleMouseOut = () => {
+//     setIsHovering(false);
+//   }
 
-  return(
-    <div id='colorblind'>
-      <br />
-      <FormControl display='flex' alignItems='center'>
-        <FormLabel htmlFor='email-alerts' mb='0'>
-          Color Blind
-        </FormLabel>
-        <Switch id='color-blind' size='lg' colorScheme='orange'
-        onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}/>
+//   return(
+//     <div id='colorblind'>
+//       <br />
+//       <FormControl display='flex' alignItems='center'>
+//         <FormLabel htmlFor='email-alerts' mb='0'>
+//           Color Blind
+//         </FormLabel>
+//         <Switch id='color-blind' size='lg' colorScheme='orange'
+//         onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}/>
 
-        {isHovering && <p id='auxToggle'>B&W Map option for Color Blind disability</p>}
-      </FormControl>
-    </div>
-  )
-}
+//         {isHovering && <p id='auxToggle'>B&W Map option for Color Blind disability</p>}
+//       </FormControl>
+//     </div>
+//   )
+// }
 
 export default App;
