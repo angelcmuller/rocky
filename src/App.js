@@ -19,8 +19,10 @@ import {
   IconButton
 } from '@chakra-ui/react'
 import { HamburgerIcon } from '@chakra-ui/icons';
+
 // Files from within our directory
 import Map from './Map.js';
+import Submit from './Submit.js';
 import './App.css';
 import logo from './images/Logo.png';
 import About from './About.js';
@@ -30,6 +32,7 @@ function App () {
   // const variables to manage the navigation to other Pages (/Map)
   const navigate = useNavigate();
   const [showResults, setShowResults] = React.useState(true)
+  
   const navigatetoMap = () => {
     setShowResults(current => !current);
     navigate('/Map')
@@ -43,6 +46,12 @@ function App () {
   const navigatetoContact = () => {
     window.open('https://docs.google.com/forms/d/e/1FAIpQLSff_rPAGKkdMLYkDDCkXMyrl-wzdikLA3MBAI-2Hr9IW3ktiQ/viewform?usp=sf_link');
   }
+
+  const navigatetoSubmit = () => {
+    setShowResults(current => !current);
+    navigate('/Submit')
+  }
+
 
   // const variable to manage the collapsible menu
   const { isOpen, onOpen, onClose} = useDisclosure()
@@ -66,6 +75,7 @@ function App () {
                       <DrawerHeader borderBottomWidth='2px' id='menuSettings'> Menu </DrawerHeader>
                       <DrawerBody id='menuSettings2'>
                         <p onClick = {navigatetoAbout} id='aboutUs'> About </p>
+                        <p onClick = {navigatetoSubmit} id='aboutUs'> Submit Data </p>
                         <p onClick = {navigatetoContact} id='contactUs'> Contact Us </p>
                       </DrawerBody>
                     </DrawerContent>
@@ -90,6 +100,7 @@ function App () {
         <Routes>
           <Route path="/Map" element={<Map/>} />
           <Route path="/About" element={<About/>} />
+          <Route path="/Submit" element={<Submit/>} />
         </Routes>
       </div>
     </div>
