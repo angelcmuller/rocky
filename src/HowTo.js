@@ -6,6 +6,7 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import App from './App';
 
 function HowTo() {
+    //navigate hook to help navigate to (/) the landing page
     const navigate = useNavigate();
     const [showResults, setShowResults] = React.useState(true)
 
@@ -20,7 +21,7 @@ function HowTo() {
     const handleSliderChange = (event) => {
         setTabIndex(parseInt(event.target.value, 10))
     }
-    
+
     const handleTabsChange = (index) => {
         setTabIndex(index)
     }
