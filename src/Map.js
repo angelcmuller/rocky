@@ -90,8 +90,10 @@ function Map() {
       zoom: zoom
     });
 
+    // Adding the FullScreen Control to Map
     map.addControl(new mapboxgl.FullscreenControl());
 
+    // Controlling the Color Blind Modes and changing the Map Styles
     const layerList = document.getElementById('menu');
     const inputs = layerList.getElementsByTagName('input');
     
@@ -104,9 +106,7 @@ function Map() {
 
     //displaying marker onto map
     const marker = new mapboxgl.Marker()
-      .setLngLat([-119.81, 39.529],
-        [-119.81, 40], [-119.81, 43],
-        [-119.81, 39.529], [-119.81, 39.529])
+      .setLngLat([-119.81, 39.529])
       .addTo(map);
 
     return () => {
@@ -128,23 +128,6 @@ function Map() {
         isLazy
         lazyBehavior='keepMounted'
       >
-        {/* <HStack>
-          <PopoverAnchor>
-            <Input
-              color={color}
-              w='auto'
-              display='inline-flex'
-              isDisabled={!isEditing}
-              defaultValue='Color Blind?'
-            />
-          </PopoverAnchor>
-  
-          <PopoverTrigger>
-            <Button h='40px' colorScheme='facebook' size='xs'>
-              {isEditing ? 'Save' : 'Edit'}
-            </Button>
-          </PopoverTrigger>
-        </HStack> */}
   
         <PopoverContent>
           <PopoverBody  bg='gray'>
@@ -174,10 +157,6 @@ function Map() {
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
           <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span>Outdoors</span> </label>
         </div>
-        
-      
-
-        
        
         <WithPopoverAnchor/>
         <Menu variant='roundleft'>
