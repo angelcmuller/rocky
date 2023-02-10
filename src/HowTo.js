@@ -15,12 +15,12 @@ function HowTo() {
         document.location.reload();
     }
 
+    // Functions to handle the progress of the tutorial
     const [tabIndex, setTabIndex] = useState(0)
-
     const handleSliderChange = (event) => {
         setTabIndex(parseInt(event.target.value, 10))
     }
-
+    
     const handleTabsChange = (index) => {
         setTabIndex(index)
     }
