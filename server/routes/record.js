@@ -27,4 +27,22 @@ recordRoutes.route("/record").get(function (req, res) {
    });
 });
  
+
+// const MongoClient = require('mongodb').MongoClient;
+//     const uri = "mongodb+srv://tristanbailey:RockyRoadKey2022@cluster0.fpy1pqs.mongodb.net/?retryWrites=true&w=majority";
+//     const client = new MongoClient(uri, { useNewUrlParser: true });
+//     client.connect(err => {
+//       const db = client.db("pinDatabase");
+//       const collection = db.collection("Pins");
+//       collection.find({}).toArray(function(err, items) {
+//         if (err) {
+//           console.error(err);
+//         } else {
+//           console.log(JSON.stringify(items));
+//         }
+//         client.close();
+//       });
+// });
+
+
 module.exports = recordRoutes;
