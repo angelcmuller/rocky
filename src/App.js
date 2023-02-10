@@ -67,8 +67,7 @@ function App () {
     <div>
       {
         // JS for lading page and its Components
-        // Used the burger menu from https://hamburger-react.netlify.app/
-        // and the drawer events from chakra-ui
+        // drawer events from chakra-ui
         showResults && (
           <div id='body'>
             <div id='menu'>
@@ -107,7 +106,7 @@ function App () {
           <Route path="/Map" element={<Map/>} />
           <Route path="/About" element={<About/>} />
           <Route path="/Submit" element={<Submit/>} />
-          <Route path="/Howto" element={<HowTo/>} />
+          <Route path="/HowTo" element={<HowTo/>} />
         </Routes>
       </div>
     </div>
@@ -121,42 +120,8 @@ const Introduction = (props) => {
       <img src={logo} id='Logo' alt='rockylogo'/>
       <br />
       <br />
-      {/* <p id='introtext'>
-        Rocky Road is here to provide useful information
-        that will prevent road based inconveniences, injuries, and fatalities.
-        Thank you for joining us in this project.
-      </p> */}
     </div>
   )
 }
-
-// Color Blind switch and events related to it
-// May not need anymore due to Google API change up 
-// const ColorB = (props) => {
-//   const [isHovering, setIsHovering] = useState(false)
-
-//   const handleMouseOver = () => {
-//     setIsHovering(true);
-//   }
-
-//   const handleMouseOut = () => {
-//     setIsHovering(false);
-//   }
-
-//   return(
-//     <div id='colorblind'>
-//       <br />
-//       <FormControl display='flex' alignItems='center'>
-//         <FormLabel htmlFor='email-alerts' mb='0'>
-//           Color Blind
-//         </FormLabel>
-//         <Switch id='color-blind' size='lg' colorScheme='orange'
-//         onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}/>
-
-//         {isHovering && <p id='auxToggle'>B&W Map option for Color Blind disability</p>}
-//       </FormControl>
-//     </div>
-//   )
-// }
 
 export default App;
