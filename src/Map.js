@@ -60,18 +60,28 @@ import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loade
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
-let x = null;
-async function fun(){
-  x = await GeoJsonListReturn();
-  console.log(x);
-  return x;
-}
+async function displayRecords() {
+  let data = await GeoJsonListReturn();
+  return data
+  }
+  
+  async function checkJson() {
+  const example = await displayRecords();
+  return example;
+  }
+  
+  const result = checkJson();
+  
 
-const a = fun();
+
+
 
 
 //Developed by Aaron Ramirez
 function Map() {
+
+  
+    
 
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
@@ -105,12 +115,14 @@ function Map() {
       };
     }
 
+    
+
+    
 
 
     ////////////////
-
-    const data = [a];
-
+    result.then(data => {
+  
     
     const geoJsonData = {
       type: 'FeatureCollection',
@@ -146,7 +158,7 @@ function Map() {
         'type': 'symbol',
         'source': 'markers',
         'layout': {
-          'icon-image': 'marker-13',
+          'icon-image': 'star',
           'text-field': '{title}',
           'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
           'text-offset': [0, 0.6],
@@ -156,7 +168,7 @@ function Map() {
     });
     
 
-
+  });  
     ///////////////
 
 
