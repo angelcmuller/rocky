@@ -1,4 +1,4 @@
-import JsonListReturn from "./components/recordList";
+import GeoJsonListReturn from "./components/recordList";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import {
   Accordion,
@@ -59,18 +59,29 @@ import Streetic from './images/Streets.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
-// alert(markers)
-let x = null;
-async function fun(){
-  x = await JsonListReturn();
-  console.log(x);
-  return x;
-}
-x = fun();
-console.log(x);
+
+async function displayRecords() {
+  let data = await GeoJsonListReturn();
+  return data
+  }
+  
+  async function checkJson() {
+  const example = await displayRecords();
+  return example;
+  }
+  
+  const result = checkJson();
+  
+
+
+
+
 
 //Developed by Aaron Ramirez
 function Map() {
+
+  
+    
 
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
@@ -103,6 +114,67 @@ function Map() {
         map.setStyle('mapbox://styles/mapbox/' + layerId);
       };
     }
+
+    
+
+    
+
+
+    ////////////////
+    result.then(data => {
+  
+    
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: data.map(item => {
+        return {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [item.Longitude, item.Lattitude]
+          },
+          properties: {
+            title: item.Classification,
+            measurementDate: item.MeasurementDate,
+            degree: item.Degree
+          }
+        };
+      })
+    };
+    
+
+
+    map.on('load', function() {
+      // Add the GeoJSON data to the map
+      
+      map.addSource('markers', {
+        'type': 'geojson',
+        'data': geoJsonData
+      });
+    
+      // Add a layer to display the markers
+      map.addLayer({
+        'id': 'markers',
+        'type': 'symbol',
+        'source': 'markers',
+        'layout': {
+          'icon-image': 'star',
+          'text-field': '{title}',
+          'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+          'text-offset': [0, 0.6],
+          'text-anchor': 'top'
+        }
+      });
+    });
+    
+
+  });  
+    ///////////////
+
+
+
+
+
 
     //displaying marker onto map
     const marker = new mapboxgl.Marker()
@@ -145,6 +217,25 @@ function Map() {
   }
 
   return (
+
+    // {x.map(({ Pid, Classification, Lattitude, Longitude}) => (
+    //   <Marker
+    //     key={Pid}
+    //     position = {new window.google.maps.LatLng(parseFloat(Lattitude),parseFloat(Longitude))}
+    //     onClick={() => handleActiveMarker(Pid)}
+    //     icon = {{
+    //       url: './marker.png',
+    //       scaledSize:  new window.google.maps.Size(30,30)
+    //     }}
+    //   >
+    //     {activeMarker === Pid ? (
+    //       <InfoWindow onCloseClick={() => setActiveMarker(null)}>
+    //         <div>{Classification}</div>
+    //       </InfoWindow>
+    //     ) : null}
+    //   </Marker>
+    // ))}
+    
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Center  position = 'relative'  h='15vh' bg='rgba(185, 222, 203, 100);'>
         <div id="menu">
