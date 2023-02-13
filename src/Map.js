@@ -1,4 +1,4 @@
-import GeoJsonListReturn from "./components/recordList";
+import JsonListReturn from "./components/recordList";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import {
   Accordion,
@@ -56,36 +56,29 @@ import LightPic from './images/Light.svg';
 import DarkPic from './images/Dark.svg';
 import OutsidePic from './images/Outdoors.svg';
 import Streetic from './images/Streets.svg';
+import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
-async function displayRecords() {
-  let data = await GeoJsonListReturn();
-  return data
+  //This function returns records from the MongoDB database 
+  async function MongoRecords() {
+    const example = await JsonListReturn();
+    return example;
   }
   
-  async function checkJson() {
-  const example = await displayRecords();
-  return example;
-  }
+  //assign full JSON results from MongoDB to result variable 
+  const result = MongoRecords();
   
-  const result = checkJson();
-  
-
-
-
-
-
-//Developed by Aaron Ramirez
+//Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
 
-  
-    
+  //Araon Ramirez Map Loading Procedures Below 
 
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
   const mapContainer = useRef(null);
+ 
   //const map = useRef(null);
   const [lng, setLng] = useState(-119.8138027);
   const [lat, setLat] = useState(39.5296336);
@@ -101,6 +94,32 @@ function Map() {
       zoom: zoom
     });
 
+    var userInput;
+    map.on('click', function(e) {
+      // Obtain coordinates on userinput 
+      var lngLat = e.lngLat;
+      console.log("Longitude: " + lngLat.lng + " Latitude: " + lngLat.lat);
+    
+      // If previous userinput exists, remove it 
+      if (userInput){
+        userInput.remove();
+      }
+    
+      // Displaying a made up marker onto map
+      var markerSVG = '<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#ff0000"/></svg>';
+      var markerElement = document.createElement('div');
+      markerElement.innerHTML = markerSVG;
+      userInput = new mapboxgl.Marker({ element: markerElement })
+        .setLngLat([ lngLat.lng , lngLat.lat])
+        .addTo(map);
+    });
+    
+
+    
+   
+
+
+
     // Adding the FullScreen Control to Map
     map.addControl(new mapboxgl.FullscreenControl());
 
@@ -115,76 +134,31 @@ function Map() {
       };
     }
 
-    
-
-    
-
-
-    ////////////////
+  
+    //Gabriel Mortensen Pin Display functions below     
+    //Waiting for data from MogoDB 
     result.then(data => {
   
-    
-    const geoJsonData = {
-      type: 'FeatureCollection',
-      features: data.map(item => {
-        return {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [item.Longitude, item.Lattitude]
-          },
-          properties: {
-            title: item.Classification,
-            measurementDate: item.MeasurementDate,
-            degree: item.Degree
-          }
-        };
-      })
-    };
-    
-
-
-    map.on('load', function() {
-      // Add the GeoJSON data to the map
-      
-      map.addSource('markers', {
-        'type': 'geojson',
-        'data': geoJsonData
-      });
-    
-      // Add a layer to display the markers
-      map.addLayer({
-        'id': 'markers',
-        'type': 'symbol',
-        'source': 'markers',
-        'layout': {
-          'icon-image': 'star',
-          'text-field': '{title}',
-          'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-          'text-offset': [0, 0.6],
-          'text-anchor': 'top'
-        }
-      });
-    });
-    
-
+    // Loop through the marker data and create markers
+    for (var i = 0; i < data.length; i++) {
+      console.log(typeof  data[i].Classification);
+      var marker = new mapboxgl.Marker()
+        .setLngLat([data[i].Longitude, data[i].Lattitude])
+        .setPopup(new mapboxgl.Popup({ offset: 25 })
+        .setHTML('<h3  style="color: black; font-size: 18px;"> ' + data[i].Classification + '</h3>'))
+        .addTo(map);
+    }
   });  
-    ///////////////
 
-
-
-
-
-
-    //displaying marker onto map
-    const marker = new mapboxgl.Marker()
-      .setLngLat([-119.81, 39.529])
-      .addTo(map);
-
+   
     return () => {
       map.remove();
     };
   });
+
+
+
+
 
   //function to select Map Style Angel C. Muller
   function WithPopoverAnchor() {
@@ -217,24 +191,6 @@ function Map() {
   }
 
   return (
-
-    // {x.map(({ Pid, Classification, Lattitude, Longitude}) => (
-    //   <Marker
-    //     key={Pid}
-    //     position = {new window.google.maps.LatLng(parseFloat(Lattitude),parseFloat(Longitude))}
-    //     onClick={() => handleActiveMarker(Pid)}
-    //     icon = {{
-    //       url: './marker.png',
-    //       scaledSize:  new window.google.maps.Size(30,30)
-    //     }}
-    //   >
-    //     {activeMarker === Pid ? (
-    //       <InfoWindow onCloseClick={() => setActiveMarker(null)}>
-    //         <div>{Classification}</div>
-    //       </InfoWindow>
-    //     ) : null}
-    //   </Marker>
-    // ))}
     
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Center  position = 'relative'  h='15vh' bg='rgba(185, 222, 203, 100);'>
