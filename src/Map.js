@@ -58,6 +58,8 @@ import OutsidePic from './images/Outdoors.svg';
 import Streetic from './images/Streets.svg';
 import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+var UserLat; 
+var UserLng; 
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
@@ -95,24 +97,33 @@ function Map() {
     });
 
     var userInput;
+
+  function Example() {
+    return(
     map.on('click', function(e) {
       // Obtain coordinates on userinput 
       var lngLat = e.lngLat;
-      console.log("Longitude: " + lngLat.lng + " Latitude: " + lngLat.lat);
-    
+      // console.log("Longitude: " + lngLat.lng + " Latitude: " + lngLat.lat);
+  
       // If previous userinput exists, remove it 
-      if (userInput){
+      if (userInput) {
         userInput.remove();
       }
-    
+  
       // Displaying a made up marker onto map
       var markerSVG = '<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#ff0000"/></svg>';
       var markerElement = document.createElement('div');
       markerElement.innerHTML = markerSVG;
       userInput = new mapboxgl.Marker({ element: markerElement })
-        .setLngLat([ lngLat.lng , lngLat.lat])
+        .setLngLat([lngLat.lng, lngLat.lat])
         .addTo(map);
-    });
+  
+      UserLng = lngLat.lng;
+      UserLat = lngLat.lat;
+    })
+    )
+  }
+    
     
 
     
@@ -141,7 +152,7 @@ function Map() {
   
     // Loop through the marker data and create markers
     for (var i = 0; i < data.length; i++) {
-      console.log(typeof  data[i].Classification);
+      // console.log(typeof  data[i].Classification);
       var marker = new mapboxgl.Marker()
         .setLngLat([data[i].Longitude, data[i].Lattitude])
         .setPopup(new mapboxgl.Popup({ offset: 25 })
@@ -189,6 +200,14 @@ function Map() {
       </Popover>
     )
   }
+
+
+  function SendUserRequest(){
+    return(
+      console.log("NEW THINGS: " + UserLng  +  " , " + UserLat)
+    )
+  }
+
 
   return (
     
@@ -307,6 +326,13 @@ function Map() {
               <MenuItem style={{ color: "black" }}> Make a Comment </MenuItem>
             </MenuList>
         </Menu> 
+        <br/>
+        <Button colorScheme='blue' mr={3} onClick={Example}>
+            Toogle Request
+        </Button>
+        <Button colorScheme='blue' mr={3} onClick={SendUserRequest}>
+            Submit Location 
+        </Button>
       </Center>
       
 
