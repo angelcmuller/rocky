@@ -246,6 +246,7 @@ function Map() {
     
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Center  position = 'relative'  h='15vh' bg='rgba(185, 222, 203, 100);'>
+        {/* Menu for dispaly options  */}
         <div id="menu">
           <input id="streets-v12" type="radio" name="rtoggle" value="streets"/>
           <label for="streets-v12"> <img src={LightPic} alt="street"/>  <span>Light</span> </label>
@@ -256,7 +257,19 @@ function Map() {
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
           <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span>Outdoors</span> </label>
         </div>
-       
+
+        {/* Request Location Buttons  */}
+        <Button colorScheme='blue' mr={3} onClick={RequestToggle}>
+            {btnName}
+        </Button>
+          {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
+          {requestState ? (
+          <Button colorScheme='purple' mr={3} onClick={SendUserRequest}>
+            Submit Location 
+          </Button>
+        ) : null}
+
+        {/* Hamburger Menu  */}
         <WithPopoverAnchor/>
         <Menu variant='roundleft'>
           <MenuButton as={IconButton} aria-label='Options'  style={{ backgroundColor: "white" }} icon={<HamburgerIcon />} variant='outline' position='relative' float='right'/>
@@ -355,22 +368,13 @@ function Map() {
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
-              <MenuItem style={{ color: "black" }}> Request Location </MenuItem>
               <MenuItem style={{ color: "black" }}> Make a Comment </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
-        <Button colorScheme='blue' mr={3} onClick={RequestToggle}>
-            {btnName}
-        </Button>
         
-        {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
-        {requestState ? (
-          <Button colorScheme='blue' mr={3} onClick={SendUserRequest}>
-            Submit Location 
-          </Button>
-        ) : null}
-
+        
+      
       </Center>
       
 
