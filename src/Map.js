@@ -58,6 +58,9 @@ import OutsidePic from './images/Outdoors.svg';
 import Streetic from './images/Streets.svg';
 import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
+
+
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
@@ -93,6 +96,15 @@ function Map() {
       center: [lng, lat],
       zoom: zoom
     });
+
+
+    const directions = new MapboxDirections({
+      accessToken: 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw',
+      unit: 'metric',
+      profile: 'mapbox/driving'
+    });
+
+    map.addControl(directions, 'top-left');
 
     var userInput;
     map.on('click', function(e) {
@@ -204,7 +216,6 @@ function Map() {
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
           <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span>Outdoors</span> </label>
         </div>
-       
         <WithPopoverAnchor/>
         <Menu variant='roundleft'>
           <MenuButton as={IconButton} aria-label='Options'  style={{ backgroundColor: "white" }} icon={<HamburgerIcon />} variant='outline' position='relative' float='right'/>
