@@ -43,7 +43,7 @@ import {
   RadioGroup,
   useBoolean,
   useDisclosure
-} from '@chakra-ui/react'
+} from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon } from "@chakra-ui/icons";
 import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
@@ -87,6 +87,19 @@ function Map() {
   const [zoom, setZoom] = useState(10);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+
+  const [btnName, setBtnName] = useState("Request Location");
+  const [requestState, setRState] = useState(false);
+
+  function RequestToggle(){
+    setRState(!requestState);
+    if (btnName === "Request Location") {
+      setBtnName("Turn off Request");
+    } else {
+      setBtnName("Request Location");
+    }
+  };
+
   //Initialize Map only once
   useEffect(() => {
     const map = new mapboxgl.Map({
@@ -98,38 +111,35 @@ function Map() {
 
     var userInput;
 
-  function Example() {
-    return(
-    map.on('click', function(e) {
-      // Obtain coordinates on userinput 
-      var lngLat = e.lngLat;
-      // console.log("Longitude: " + lngLat.lng + " Latitude: " + lngLat.lat);
   
-      // If previous userinput exists, remove it 
-      if (userInput) {
-        userInput.remove();
-      }
+    
   
-      // Displaying a made up marker onto map
-      var markerSVG = '<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#ff0000"/></svg>';
-      var markerElement = document.createElement('div');
-      markerElement.innerHTML = markerSVG;
-      userInput = new mapboxgl.Marker({ element: markerElement })
-        .setLngLat([lngLat.lng, lngLat.lat])
-        .addTo(map);
-  
-      UserLng = lngLat.lng;
-      UserLat = lngLat.lat;
-    })
-    )
-  }
+    // User request functionalty 
+    if (requestState) {
     
+      map.on('click', function(e) {
+        // Obtain coordinates on userinput 
+        var lngLat = e.lngLat;
+        // console.log("Longitude: " + lngLat.lng + " Latitude: " + lngLat.lat);
     
-
+        // If previous userinput exists, remove it 
+        if (userInput) {
+          userInput.remove();
+        }
     
+        // Displaying a made up marker onto map
+        var markerSVG = '<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#ff0000"/></svg>';
+        var markerElement = document.createElement('div');
+        markerElement.innerHTML = markerSVG;
+        userInput = new mapboxgl.Marker({ element: markerElement })
+          .setLngLat([lngLat.lng, lngLat.lat])
+          .addTo(map);
+    
+        UserLng = lngLat.lng;
+        UserLat = lngLat.lat;
+      })
+    }
    
-
-
 
     // Adding the FullScreen Control to Map
     map.addControl(new mapboxgl.FullscreenControl());
@@ -202,11 +212,33 @@ function Map() {
   }
 
 
-  function SendUserRequest(){
-    return(
-      console.log("NEW THINGS: " + UserLng  +  " , " + UserLat)
-    )
+  // Sends Request GPS data to shared google sheet 
+  //(https://docs.google.com/spreadsheets/d/11iZyiov0UIJRMlWrgV_G9RW5vSgjurjQYcT_pc37t5I/edit#gid=0)
+  function SendUserRequest() {
+
+    const url = 'https://sheetdb.io/api/v1/osywar9n3ec5d';
+    const data = {
+      data: [{ Latitude: UserLat,  Longitude: UserLng}]
+    };
+    const options = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    };
+
+    fetch(url, options)
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error(error));
+      
+    alert("Form Submitted!")
+
+
   }
+  
+
+
+  
 
 
   return (
@@ -327,12 +359,17 @@ function Map() {
             </MenuList>
         </Menu> 
         <br/>
-        <Button colorScheme='blue' mr={3} onClick={Example}>
-            Toogle Request
+        <Button colorScheme='blue' mr={3} onClick={RequestToggle}>
+            {btnName}
         </Button>
-        <Button colorScheme='blue' mr={3} onClick={SendUserRequest}>
+        
+        {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
+        {requestState ? (
+          <Button colorScheme='blue' mr={3} onClick={SendUserRequest}>
             Submit Location 
-        </Button>
+          </Button>
+        ) : null}
+
       </Center>
       
 
