@@ -22,6 +22,7 @@ import { HamburgerIcon } from '@chakra-ui/icons';
 
 // Files from within our directory
 import Map from './Map.js';
+import Submit from './Submit.js';
 import './App.css';
 import logo from './images/Logo.png';
 import About from './About.js';
@@ -48,7 +49,8 @@ function App () {
   }
 
   const navigatetoSubmit = () => {
-    window.open('https://docs.google.com/forms/d/e/1FAIpQLSff_rPAGKkdMLYkDDCkXMyrl-wzdikLA3MBAI-2Hr9IW3ktiQ/viewform?usp=sf_link');
+    setShowResults(current => !current);
+    navigate('/Submit')
   }
 
   const navigatetoHowTo = () => {
@@ -77,7 +79,7 @@ function App () {
                       <DrawerHeader borderBottomWidth='2px' id='menuSettings'> Menu </DrawerHeader>
                       <DrawerBody id='menuSettings2'>
                         <p onClick = {navigatetoAbout} id='aboutUs'> About </p>
-                        <p onClick = {navigatetoSubmit} id='aboutUs'> Requst Data Scan </p>
+                        <p onClick = {navigatetoSubmit} id='aboutUs'> Submit Data </p>
                         <p onClick = {navigatetoHowTo} id='aboutUs'> Instructions </p>
                         <p onClick = {navigatetoContact} id='contactUs'> Contact Us </p>
                       </DrawerBody>
@@ -103,6 +105,7 @@ function App () {
         <Routes>
           <Route path="/Map" element={<Map/>} />
           <Route path="/About" element={<About/>} />
+          <Route path="/Submit" element={<Submit/>} />
           <Route path="/HowTo" element={<HowTo/>} />
         </Routes>
       </div>
