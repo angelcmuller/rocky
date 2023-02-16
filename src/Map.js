@@ -58,8 +58,6 @@ import OutsidePic from './images/Outdoors.svg';
 import Streetic from './images/Streets.svg';
 import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
-import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 var UserLat; 
 var UserLng; 
 
@@ -110,12 +108,7 @@ function Map() {
       center: [lng, lat],
       zoom: zoom
     });
-    const directions = new MapboxDirections({
-      accessToken: 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw',
-      unit: 'metric',
-      profile: 'mapbox/driving'
-    });
-    map.addControl(directions, 'top-left');
+
     var userInput;
 
   
@@ -147,8 +140,6 @@ function Map() {
       })
     }
    
-
-    
 
     // Adding the FullScreen Control to Map
     map.addControl(new mapboxgl.FullscreenControl());
