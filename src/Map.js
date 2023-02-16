@@ -43,7 +43,7 @@ import {
   RadioGroup,
   useBoolean,
   useDisclosure
-} from '@chakra-ui/react'
+} from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon } from "@chakra-ui/icons";
 import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
@@ -56,30 +56,49 @@ import LightPic from './images/Light.svg';
 import DarkPic from './images/Dark.svg';
 import OutsidePic from './images/Outdoors.svg';
 import Streetic from './images/Streets.svg';
+import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+var UserLat; 
+var UserLng; 
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
-// alert(markers)
-let x = null;
-async function fun(){
-  x = await JsonListReturn();
-  console.log(x);
-  return x;
-}
-x = fun();
-console.log(x);
 
-//Developed by Aaron Ramirez
+  //This function returns records from the MongoDB database 
+  async function MongoRecords() {
+    const example = await JsonListReturn();
+    return example;
+  }
+  
+  //assign full JSON results from MongoDB to result variable 
+  const result = MongoRecords();
+  
+//Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
+
+  //Araon Ramirez Map Loading Procedures Below 
 
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
   const mapContainer = useRef(null);
+ 
   //const map = useRef(null);
   const [lng, setLng] = useState(-119.8138027);
   const [lat, setLat] = useState(39.5296336);
   const [zoom, setZoom] = useState(10);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+
+  const [btnName, setBtnName] = useState("Request Location");
+  const [requestState, setRState] = useState(false);
+
+  function RequestToggle(){
+    setRState(!requestState);
+    if (btnName === "Request Location") {
+      setBtnName("Turn off Request");
+    } else {
+      setBtnName("Request Location");
+    }
+  };
 
   //Initialize Map only once
   useEffect(() => {
@@ -89,6 +108,38 @@ function Map() {
       center: [lng, lat],
       zoom: zoom
     });
+
+    var userInput;
+
+  
+    
+  
+    // User request functionalty 
+    if (requestState) {
+    
+      map.on('click', function(e) {
+        // Obtain coordinates on userinput 
+        var lngLat = e.lngLat;
+        // console.log("Longitude: " + lngLat.lng + " Latitude: " + lngLat.lat);
+    
+        // If previous userinput exists, remove it 
+        if (userInput) {
+          userInput.remove();
+        }
+    
+        // Displaying a made up marker onto map
+        var markerSVG = '<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#ff0000"/></svg>';
+        var markerElement = document.createElement('div');
+        markerElement.innerHTML = markerSVG;
+        userInput = new mapboxgl.Marker({ element: markerElement })
+          .setLngLat([lngLat.lng, lngLat.lat])
+          .addTo(map);
+    
+        UserLng = lngLat.lng;
+        UserLat = lngLat.lat;
+      })
+    }
+   
 
     // Adding the FullScreen Control to Map
     map.addControl(new mapboxgl.FullscreenControl());
@@ -104,15 +155,31 @@ function Map() {
       };
     }
 
-    //displaying marker onto map
-    const marker = new mapboxgl.Marker()
-      .setLngLat([-119.81, 39.529])
-      .addTo(map);
+  
+    //Gabriel Mortensen Pin Display functions below     
+    //Waiting for data from MogoDB 
+    result.then(data => {
+  
+    // Loop through the marker data and create markers
+    for (var i = 0; i < data.length; i++) {
+      // console.log(typeof  data[i].Classification);
+      var marker = new mapboxgl.Marker()
+        .setLngLat([data[i].Longitude, data[i].Lattitude])
+        .setPopup(new mapboxgl.Popup({ offset: 25 })
+        .setHTML('<h3  style="color: black; font-size: 18px;"> ' + data[i].Classification + '</h3>'))
+        .addTo(map);
+    }
+  });  
 
+   
     return () => {
       map.remove();
     };
   });
+
+
+
+
 
   //function to select Map Style Angel C. Muller
   function WithPopoverAnchor() {
@@ -144,9 +211,42 @@ function Map() {
     )
   }
 
+
+  // Sends Request GPS data to shared google sheet 
+  //(https://docs.google.com/spreadsheets/d/11iZyiov0UIJRMlWrgV_G9RW5vSgjurjQYcT_pc37t5I/edit#gid=0)
+  //Sheetdb.io tutorial 
+  function SendUserRequest() {
+
+    const url = 'https://sheetdb.io/api/v1/osywar9n3ec5d';
+    const data = {
+      data: [{ Latitude: UserLat,  Longitude: UserLng}]
+    };
+    const options = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    };
+
+    fetch(url, options)
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error(error));
+      
+    alert("Form Submitted!")
+
+
+  }
+  
+
+
+  
+
+
   return (
+    
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Center  position = 'relative'  h='15vh' bg='rgba(185, 222, 203, 100);'>
+        {/* Menu for dispaly options  */}
         <div id="menu">
           <input id="streets-v12" type="radio" name="rtoggle" value="streets"/>
           <label for="streets-v12"> <img src={LightPic} alt="street"/>  <span>Light</span> </label>
@@ -157,7 +257,19 @@ function Map() {
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
           <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span>Outdoors</span> </label>
         </div>
-       
+
+        {/* Request Location Buttons  */}
+        <Button colorScheme='blue' mr={3} onClick={RequestToggle}>
+            {btnName}
+        </Button>
+          {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
+          {requestState ? (
+          <Button colorScheme='purple' mr={3} onClick={SendUserRequest}>
+            Submit Location 
+          </Button>
+        ) : null}
+
+        {/* Hamburger Menu  */}
         <WithPopoverAnchor/>
         <Menu variant='roundleft'>
           <MenuButton as={IconButton} aria-label='Options'  style={{ backgroundColor: "white" }} icon={<HamburgerIcon />} variant='outline' position='relative' float='right'/>
@@ -256,10 +368,13 @@ function Map() {
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
-              <MenuItem style={{ color: "black" }}> Request Location </MenuItem>
               <MenuItem style={{ color: "black" }}> Make a Comment </MenuItem>
             </MenuList>
         </Menu> 
+        <br/>
+        
+        
+      
       </Center>
       
 
