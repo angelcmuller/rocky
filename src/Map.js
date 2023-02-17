@@ -237,7 +237,49 @@ function Map() {
 
   }
   
+// Function sends Request 
+function RequestMongoDB(){
+  // const { MongoClient } = require('mongodb');
 
+  // // Replace the URI with your MongoDB connection string
+  // const uri = "mongodb://tristanbailey:RockyRoadKey2022@ac-ap9bbel-shard-00-00.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-01.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-02.fpy1pqs.mongodb.net:27017/?ssl=true&replicaSet=atlas-zrbeo7-shard-0&authSource=admin&retryWrites=true&w=majority";
+  
+  // const client = new MongoClient(uri);
+  
+  // async function run() {
+  //   try {
+  //     // Connect to the MongoDB cluster
+  //     await client.connect();
+  
+  //     // Make user request input a string 
+  //     const requestElement = document.getElementById("request-input");
+  //     const requestString = requestElement.value;
+      
+
+  //     // Create a new document to insert into the collection
+  //     const document = { 
+  //       User: "auto",
+  //       Reason: requestString, 
+  //       Lat: UserLat, 
+  //       Lng: UserLng 
+  //     };
+  
+  //     // Select the collection to insert the document into
+  //     const collection = client.db("pinDatabase").collection("RequestLog");
+  
+  //     // Insert the document
+  //     const result = await collection.insertOne(document);
+  
+  //    alert(`${result.insertedCount} documents were inserted with the _id: ${result.insertedId}`);
+  //   } finally {
+  //     // Close the connection to the MongoDB cluster
+  //     await client.close();
+  //   }
+  // }
+  
+  // run().catch(console.dir);
+
+}
 
   
 
@@ -262,12 +304,8 @@ function Map() {
         <Button colorScheme='blue' mr={3} onClick={RequestToggle}>
             {btnName}
         </Button>
-          {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
-          {requestState ? (
-          <Button colorScheme='purple' mr={3} onClick={SendUserRequest}>
-            Submit Location 
-          </Button>
-        ) : null}
+       
+
 
         {/* Hamburger Menu  */}
         <WithPopoverAnchor/>
@@ -372,15 +410,34 @@ function Map() {
             </MenuList>
         </Menu> 
         <br/>
-        
-        
-      
       </Center>
       
 
       {/* Gabriel worked on format of map and description location  */}
       <HStack spacing = '0' > // space between map and description box 
-        <Box bg='green.300' h = '100vh' w = '30%'> <p id="Description">Descriptions</p> </Box> // description size 
+        <Box bg='green.300' h = '100vh' w = '30%'  display='flex' flexDirection='column'  alignItems='center'>
+          
+          {/* Description box title  */}
+          <p id="Description">Descriptions</p>
+        
+        {/* Is visable only when user turns on Request */}
+        {requestState ? (
+          <Box bg='white' h = '40%' w = '90%'  display='flex' flexDirection='column'  alignItems='center'>
+           
+            {/* User text box that appears when user clicks scan request */}
+            <label for="request-input" class="black-text">Reason for Request</label>
+            <input type="text" id="request-input" name="R_Reason" class="stretch-box black-text" />
+            
+            <br/>
+            {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
+          
+              <Button colorScheme='purple' mr={3} onClick={SendUserRequest}>
+                Submit Location 
+              </Button>
+          </Box>
+         ) : null}
+
+        </Box> // description size 
         
         <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
 
