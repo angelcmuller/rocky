@@ -1,4 +1,5 @@
 import JsonListReturn from "./components/recordList";
+import { LogMongo } from "./components/Log";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import {
   Accordion,
@@ -63,6 +64,9 @@ var UserLng;
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
+
+
+  
   //This function returns records from the MongoDB database 
   async function MongoRecords() {
     const example = await JsonListReturn();
@@ -71,6 +75,7 @@ var UserLng;
   
   //assign full JSON results from MongoDB to result variable 
   const result = MongoRecords();
+
   
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
@@ -244,27 +249,17 @@ function SendUserRequest(){
   if (typeof UserLat === 'undefined' || typeof UserLng === 'undefined' ) {
     alert("Please click on map to select area to scan.")
   } 
-  // otherwise submit data to MongoDB
+  // otherwise....
   else {
-    const Username = "auto";
-    const Request_Reason = RequestElement.value;
-    const Latitude = UserLat;
-    const Longitude = UserLng;
-  
-    const axios = require('axios');
-    axios.post('http://localhost:3000/requestlog', {
-        stringVariable: Username,
-        floatVariable1: Request_Reason,
-        floatVariable2: Latitude,
-        floatVariable3: Longitude
-    })
-      .then(response => console.log(response.data))
-      .catch(error => console.error(error));
-      
-      alert("Form Submitted");
 
-    // Reset text box and toggle off request 
+    //turn text box info into a string 
     const RequestElement = document.getElementById("request-input");
+    const requestString = RequestElement.value.toString();
+
+    //submit data to MongoDB
+    LogMongo("auto", requestString, UserLat, UserLng );
+    
+    // Reset text box and toggle off request 
     RequestElement.value = "";
     RequestToggle()
   }
