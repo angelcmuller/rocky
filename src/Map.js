@@ -1,4 +1,5 @@
 import JsonListReturn from "./components/recordList";
+import { LogMongo } from "./components/Log";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import {
   Accordion,
@@ -63,6 +64,9 @@ var UserLng;
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
+
+
+  
   //This function returns records from the MongoDB database 
   async function MongoRecords() {
     const example = await JsonListReturn();
@@ -71,6 +75,7 @@ var UserLng;
   
   //assign full JSON results from MongoDB to result variable 
   const result = MongoRecords();
+
   
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
@@ -210,32 +215,6 @@ function Map() {
       </Popover>
     )
   }
-
-
-  // Sends Request GPS data to shared google sheet 
-  //(https://docs.google.com/spreadsheets/d/11iZyiov0UIJRMlWrgV_G9RW5vSgjurjQYcT_pc37t5I/edit#gid=0)
-  //Sheetdb.io tutorial 
-  // function SendUserRequest() {
-
-  //   const url = 'https://sheetdb.io/api/v1/osywar9n3ec5d';
-  //   const data = {
-  //     data: [{ Latitude: UserLat,  Longitude: UserLng}]
-  //   };
-  //   const options = {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify(data)
-  //   };
-
-  //   fetch(url, options)
-  //     .then(response => response.json())
-  //     .then(data => console.log(data))
-  //     .catch(error => console.error(error));
-      
-  //   alert("Form Submitted!")
-
-
-  // }
   
 // Function sends Request 
 function SendUserRequest(){
@@ -244,33 +223,33 @@ function SendUserRequest(){
   if (typeof UserLat === 'undefined' || typeof UserLng === 'undefined' ) {
     alert("Please click on map to select area to scan.")
   } 
-  // otherwise submit data to MongoDB
+  // otherwise....
   else {
-    const Username = "auto";
-    const Request_Reason = RequestElement.value;
-    const Latitude = UserLat;
-    const Longitude = UserLng;
-  
-    const axios = require('axios');
-    axios.post('http://localhost:3000/requestlog', {
-        stringVariable: Username,
-        floatVariable1: Request_Reason,
-        floatVariable2: Latitude,
-        floatVariable3: Longitude
-    })
-      .then(response => console.log(response.data))
-      .catch(error => console.error(error));
-      
-      alert("Form Submitted");
 
-    // Reset text box and toggle off request 
+    //turn text box info into a string 
     const RequestElement = document.getElementById("request-input");
+    const requestString = RequestElement.value.toString();
+
+    //submit data to MongoDB
+    LogMongo("auto", requestString, UserLat, UserLng );
+    
+    // Reset text box and toggle off request 
     RequestElement.value = "";
     RequestToggle()
   }
 }
 
-  
+  // Comment functionality 
+  function commentFunctionality(){
+    // Turn off request functionality if user wants to make comment 
+    // (by Gabriel)
+    if (requestState === true){
+      RequestToggle()
+    }
+
+    
+    
+  }
 
 
   return (
@@ -395,7 +374,9 @@ function SendUserRequest(){
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
-              <MenuItem style={{ color: "black" }}> Make a Comment </MenuItem>
+              <MenuItem onClick={commentFunctionality} style={{ color: "black" }} > 
+                Make a Comment 
+              </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
