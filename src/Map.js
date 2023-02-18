@@ -270,7 +270,17 @@ function SendUserRequest(){
   }
 }
 
-  
+  // Comment functionality 
+  function commentFunctionality(){
+    // Turn off request functionality if user wants to make comment 
+    // (by Gabriel)
+    if (requestState === true){
+      RequestToggle()
+    }
+
+    
+    
+  }
 
 
   return (
@@ -395,7 +405,9 @@ function SendUserRequest(){
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
-              <MenuItem style={{ color: "black" }}> Make a Comment </MenuItem>
+              <MenuItem onClick={commentFunctionality} style={{ color: "black" }} > 
+                Make a Comment 
+              </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
