@@ -215,70 +215,59 @@ function Map() {
   // Sends Request GPS data to shared google sheet 
   //(https://docs.google.com/spreadsheets/d/11iZyiov0UIJRMlWrgV_G9RW5vSgjurjQYcT_pc37t5I/edit#gid=0)
   //Sheetdb.io tutorial 
-  function SendUserRequest() {
+  // function SendUserRequest() {
 
-    const url = 'https://sheetdb.io/api/v1/osywar9n3ec5d';
-    const data = {
-      data: [{ Latitude: UserLat,  Longitude: UserLng}]
-    };
-    const options = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    };
+  //   const url = 'https://sheetdb.io/api/v1/osywar9n3ec5d';
+  //   const data = {
+  //     data: [{ Latitude: UserLat,  Longitude: UserLng}]
+  //   };
+  //   const options = {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify(data)
+  //   };
 
-    fetch(url, options)
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error(error));
+  //   fetch(url, options)
+  //     .then(response => response.json())
+  //     .then(data => console.log(data))
+  //     .catch(error => console.error(error));
       
-    alert("Form Submitted!")
+  //   alert("Form Submitted!")
 
 
-  }
-  
-// Function sends Request 
-function RequestMongoDB(){
-  // const { MongoClient } = require('mongodb');
-
-  // // Replace the URI with your MongoDB connection string
-  // const uri = "mongodb://tristanbailey:RockyRoadKey2022@ac-ap9bbel-shard-00-00.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-01.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-02.fpy1pqs.mongodb.net:27017/?ssl=true&replicaSet=atlas-zrbeo7-shard-0&authSource=admin&retryWrites=true&w=majority";
-  
-  // const client = new MongoClient(uri);
-  
-  // async function run() {
-  //   try {
-  //     // Connect to the MongoDB cluster
-  //     await client.connect();
-  
-  //     // Make user request input a string 
-  //     const requestElement = document.getElementById("request-input");
-  //     const requestString = requestElement.value;
-      
-
-  //     // Create a new document to insert into the collection
-  //     const document = { 
-  //       User: "auto",
-  //       Reason: requestString, 
-  //       Lat: UserLat, 
-  //       Lng: UserLng 
-  //     };
-  
-  //     // Select the collection to insert the document into
-  //     const collection = client.db("pinDatabase").collection("RequestLog");
-  
-  //     // Insert the document
-  //     const result = await collection.insertOne(document);
-  
-  //    alert(`${result.insertedCount} documents were inserted with the _id: ${result.insertedId}`);
-  //   } finally {
-  //     // Close the connection to the MongoDB cluster
-  //     await client.close();
-  //   }
   // }
   
-  // run().catch(console.dir);
+// Function sends Request 
+function SendUserRequest(){
 
+  // if no coordinates selected do nothing
+  if (typeof UserLat === 'undefined' || typeof UserLng === 'undefined' ) {
+    alert("Please click on map to select area to scan.")
+  } 
+  // otherwise submit data to MongoDB
+  else {
+    const Username = "auto";
+    const Request_Reason = RequestElement.value;
+    const Latitude = UserLat;
+    const Longitude = UserLng;
+  
+    const axios = require('axios');
+    axios.post('http://localhost:3000/requestlog', {
+        stringVariable: Username,
+        floatVariable1: Request_Reason,
+        floatVariable2: Latitude,
+        floatVariable3: Longitude
+    })
+      .then(response => console.log(response.data))
+      .catch(error => console.error(error));
+      
+      alert("Form Submitted");
+
+    // Reset text box and toggle off request 
+    const RequestElement = document.getElementById("request-input");
+    RequestElement.value = "";
+    RequestToggle()
+  }
 }
 
   

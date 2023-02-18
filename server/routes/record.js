@@ -1,50 +1,31 @@
 const express = require("express");
- 
-
-// This method was implemented by Gabriel and uses a modified version from the MongoDB Mern tutorial (https://www.mongodb.com/languages/mern-stack-tutorial)
-
-// recordRoutes is an instance of the express router.
-// We use it to define our routes.
-// The router will be added as a middleware and will take control of requests starting with path /record.
 const recordRoutes = express.Router();
- 
-// This will help us connect to the database
 const dbo = require("../db/conn");
- 
-// This help convert the id from string to ObjectId for the _id.
-const ObjectId = require("mongodb").ObjectId;
- 
 
- 
-// This section will help you get a list of all the Pins.
-recordRoutes.route("/record").get(function (req, res) {
+recordRoutes.route("/record").get(function(req, res) {
   let db_connect = dbo.getDb("pinDatabase");
-  db_connect
-    .collection("Pins")
-    .find({})
-    .toArray(function (err, result) {
-      if (err) throw err;
-      output = JSON.stringify(result);
-      console.log(output)
-      res.send(output);
-    });
- });
+  db_connect.collection("Pins").find({}).toArray(function(err, result) {
+    if (err) throw err;
+    let output = JSON.stringify(result);
+    console.log(output);
+    res.send(output);
+  });
+});
 
-// const MongoClient = require('mongodb').MongoClient;
-//     const uri = "mongodb+srv://tristanbailey:RockyRoadKey2022@cluster0.fpy1pqs.mongodb.net/?retryWrites=true&w=majority";
-//     const client = new MongoClient(uri, { useNewUrlParser: true });
-//     client.connect(err => {
-//       const db = client.db("pinDatabase");
-//       const collection = db.collection("Pins");
-//       collection.find({}).toArray(function(err, items) {
-//         if (err) {
-//           console.error(err);
-//         } else {
-//           console.log(JSON.stringify(items));
-//         }
-//         client.close();
-//       });
-// });
-
+recordRoutes.route("/requestlog").post(function(req, res) {
+  alert("HEY!")
+  // let db_connect = dbo.getDb("pinDatabase");
+  // let { stringVariable1, stringVariable2, floatVariable1, floatVariable2 } = req.body;
+  // db_connect.collection("RequestLog").insertOne({
+  //   User: stringVariable1,
+  //   Reason: stringVariable2,
+  //   Lat: floatVariable1,
+  //   Lng: floatVariable2
+  // }, function(err, result) {
+  //   if (err) throw err;
+  //   console.log(`Inserted data into RequestLog collection`);
+  //   res.send(`Successfully inserted data into RequestLog collection`);
+  // });
+});
 
 module.exports = recordRoutes;
