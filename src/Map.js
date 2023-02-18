@@ -215,32 +215,6 @@ function Map() {
       </Popover>
     )
   }
-
-
-  // Sends Request GPS data to shared google sheet 
-  //(https://docs.google.com/spreadsheets/d/11iZyiov0UIJRMlWrgV_G9RW5vSgjurjQYcT_pc37t5I/edit#gid=0)
-  //Sheetdb.io tutorial 
-  // function SendUserRequest() {
-
-  //   const url = 'https://sheetdb.io/api/v1/osywar9n3ec5d';
-  //   const data = {
-  //     data: [{ Latitude: UserLat,  Longitude: UserLng}]
-  //   };
-  //   const options = {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify(data)
-  //   };
-
-  //   fetch(url, options)
-  //     .then(response => response.json())
-  //     .then(data => console.log(data))
-  //     .catch(error => console.error(error));
-      
-  //   alert("Form Submitted!")
-
-
-  // }
   
 // Function sends Request 
 function SendUserRequest(){
