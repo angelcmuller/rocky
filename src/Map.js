@@ -1,4 +1,5 @@
 import JsonListReturn from "./components/recordList";
+import { LogMongo } from "./components/Log";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import {
   Accordion,
@@ -63,6 +64,9 @@ var UserLng;
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
+
+
+  
   //This function returns records from the MongoDB database 
   async function MongoRecords() {
     const example = await JsonListReturn();
@@ -71,6 +75,7 @@ var UserLng;
   
   //assign full JSON results from MongoDB to result variable 
   const result = MongoRecords();
+
   
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
@@ -210,36 +215,41 @@ function Map() {
       </Popover>
     )
   }
+  
+// Function sends Request 
+function SendUserRequest(){
 
+  // if no coordinates selected do nothing
+  if (typeof UserLat === 'undefined' || typeof UserLng === 'undefined' ) {
+    alert("Please click on map to select area to scan.")
+  } 
+  // otherwise....
+  else {
 
-  // Sends Request GPS data to shared google sheet 
-  //(https://docs.google.com/spreadsheets/d/11iZyiov0UIJRMlWrgV_G9RW5vSgjurjQYcT_pc37t5I/edit#gid=0)
-  //Sheetdb.io tutorial 
-  function SendUserRequest() {
+    //turn text box info into a string 
+    const RequestElement = document.getElementById("request-input");
+    const requestString = RequestElement.value.toString();
 
-    const url = 'https://sheetdb.io/api/v1/osywar9n3ec5d';
-    const data = {
-      data: [{ Latitude: UserLat,  Longitude: UserLng}]
-    };
-    const options = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    };
-
-    fetch(url, options)
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error(error));
-      
-    alert("Form Submitted!")
-
-
+    //submit data to MongoDB
+    LogMongo("auto", requestString, UserLat, UserLng );
+    
+    // Reset text box and toggle off request 
+    RequestElement.value = "";
+    RequestToggle()
   }
-  
+}
 
+  // Comment functionality 
+  function commentFunctionality(){
+    // Turn off request functionality if user wants to make comment 
+    // (by Gabriel)
+    if (requestState === true){
+      RequestToggle()
+    }
 
-  
+    
+    
+  }
 
 
   return (
@@ -262,12 +272,8 @@ function Map() {
         <Button colorScheme='blue' mr={3} onClick={RequestToggle}>
             {btnName}
         </Button>
-          {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
-          {requestState ? (
-          <Button colorScheme='purple' mr={3} onClick={SendUserRequest}>
-            Submit Location 
-          </Button>
-        ) : null}
+       
+
 
         {/* Hamburger Menu  */}
         <WithPopoverAnchor/>
@@ -368,19 +374,40 @@ function Map() {
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
-              <MenuItem style={{ color: "black" }}> Make a Comment </MenuItem>
+              <MenuItem onClick={commentFunctionality} style={{ color: "black" }} > 
+                Make a Comment 
+              </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
-        
-        
-      
       </Center>
       
 
       {/* Gabriel worked on format of map and description location  */}
       <HStack spacing = '0' > // space between map and description box 
-        <Box bg='green.300' h = '100vh' w = '30%'> <p id="Description">Descriptions</p> </Box> // description size 
+        <Box bg='green.300' h = '100vh' w = '30%'  display='flex' flexDirection='column'  alignItems='center'>
+          
+          {/* Description box title  */}
+          <p id="Description">Descriptions</p>
+        
+        {/* Is visable only when user turns on Request */}
+        {requestState ? (
+          <Box bg='white' h = '40%' w = '90%'  display='flex' flexDirection='column'  alignItems='center'>
+           
+            {/* User text box that appears when user clicks scan request */}
+            <label for="request-input" class="black-text">Reason for Request</label>
+            <input type="text" id="request-input" name="R_Reason" class="stretch-box black-text" />
+            
+            <br/>
+            {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
+          
+              <Button colorScheme='purple' mr={3} onClick={SendUserRequest}>
+                Submit Location 
+              </Button>
+          </Box>
+         ) : null}
+
+        </Box> // description size 
         
         <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
 
