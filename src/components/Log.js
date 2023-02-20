@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // This function submits data to the databse using the LogMongo.js script which was made with the help of chatGPT 
 // Gabriel Mortensen 
-export function LogMongo(stringVariable1, stringVariable2, floatVariable1, floatVariable2) {
+export function LogMongo(requestState, stringVariable1, stringVariable2, floatVariable1, floatVariable2) {
 
   axios.post('http://localhost:3000/request', {
     stringVariable1: stringVariable1,
