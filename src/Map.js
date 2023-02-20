@@ -244,12 +244,8 @@ function Map() {
     )
   }
   
-// Function send Comments to database 
-function SendComment(){
-  console.log("test comment sending")
-}
 
-// Function sends Request 
+// Function sends comment or request to database  
 function SendUserInfo(){
 
   // if no coordinates selected do nothing
@@ -268,7 +264,7 @@ function SendUserInfo(){
     const inputString = Element.value.toString();
 
     //submit data to MongoDB
-    console.log(requestState)
+    console.log('map.js rstate:', typeof requestState)
     LogMongo(requestState, "auto", inputString, UserLat, UserLng );
     
     // Reset text box and toggle off request 

@@ -9,19 +9,7 @@ recordRoutes.route("/request").post(function(req, res) {
   let db_connect = dbo.getDb("pinDatabase");
   let { requestState, stringVariable1, stringVariable2, floatVariable1, floatVariable2 } = req.body;
 
-  console.log('requestState:', requestState);
-  if (requestState) {
-    db_connect.collection("RequestLog").insertOne({
-      User: stringVariable1,
-      Reason: stringVariable2,
-      Lat: floatVariable1,
-      Lng: floatVariable2
-    }, function(err, result) {
-      if (err) throw err;
-      console.log(`Inserted data into RequestLog collection`);
-      res.send(`Successfully inserted data into RequestLog collection`);
-    });
-  } else {
+  if (requestState === false){
     db_connect.collection("Comments").insertOne({
       User: stringVariable1,
       Comment: stringVariable2,
@@ -33,6 +21,18 @@ recordRoutes.route("/request").post(function(req, res) {
       res.send(`Successfully inserted data into Comments collection`);
     });
   }
+  else {
+    db_connect.collection("RequestLog").insertOne({
+      User: stringVariable1,
+      Reason: stringVariable2,
+      Lat: floatVariable1,
+      Lng: floatVariable2
+    }, function(err, result) {
+      if (err) throw err;
+      console.log(`Inserted data into RequestLog collection`);
+      res.send(`Successfully inserted data into RequestLog collection`);
+    });
+  } 
 });
 
 
