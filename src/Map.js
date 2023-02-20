@@ -59,29 +59,13 @@ import OutsidePic from './images/Outdoors.svg';
 import Streetic from './images/Streets.svg';
 import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-var UserLat; 
-var UserLng; 
-
-//Developed by Aaron Ramirez and Gabriel Mortensen
-
-
-
-  
-  //This function returns records from the MongoDB database 
-  async function MongoRecords() {
-    const example = await JsonListReturn();
-    return example;
-  }
-  
-  //assign full JSON results from MongoDB to result variable 
-  const result = MongoRecords();
-
-  
+var UserLat; //used for comments and requests 
+var UserLng; //used for comments and requests 
+var userInput; //used for comments and requests 
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
 
-  //Araon Ramirez Map Loading Procedures Below 
-
+  //Araon Ramirez Map Loading Procedures Belo
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
   const mapContainer = useRef(null);
@@ -93,17 +77,51 @@ function Map() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
 
-  const [btnName, setBtnName] = useState("Request Location");
+  const [ReqName, setReqName] = useState("Request Location");
+  const [ComName, setComName] = useState("Make a Comment");
   const [requestState, setRState] = useState(false);
+  const [commentState, setCState] = useState(false);
 
-  function RequestToggle(){
-    setRState(!requestState);
-    if (btnName === "Request Location") {
-      setBtnName("Turn off Request");
-    } else {
-      setBtnName("Request Location");
+  function LimitFunctionality(Name){
+    if (commentState === false && requestState === true ){
+      Toggle("Request")
+    }
+    else if (requestState === false && commentState === true ){
+      Toggle("Comment")
+    }        
+  }
+  
+  function Toggle(Name){
+    //If request button pressed toggle 
+    if(Name === "Request"){
+      setRState(!requestState);
+      if (ReqName === "Request Location") {
+        setReqName("Turn off Request");
+        //Turn of comment if activated
+        if (commentState) {
+          setCState(false);
+          setComName("Make a Comment");
+        }
+      } else {
+        setReqName("Request Location");
+      }
+    }
+    //Engage comment functionality 
+    else{
+      setCState(!commentState);
+      if (ComName === "Make a Comment") {
+        setComName("Disregard Comment");
+      } else {
+        setComName("Make a Comment");
+      }
+      //Turn off request if activated
+      if (requestState) {
+        setRState(false);
+        setReqName("Request Location");
+      }
     }
   };
+  
 
   //Initialize Map only once
   useEffect(() => {
@@ -114,13 +132,13 @@ function Map() {
       zoom: zoom
     });
 
-    var userInput;
+  
 
   
     
   
     // User request functionalty 
-    if (requestState) {
+    if (requestState || commentState) {
     
       map.on('click', function(e) {
         // Obtain coordinates on userinput 
@@ -131,15 +149,14 @@ function Map() {
         if (userInput) {
           userInput.remove();
         }
-    
-        // Displaying a made up marker onto map
-        var markerSVG = '<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#ff0000"/></svg>';
-        var markerElement = document.createElement('div');
-        markerElement.innerHTML = markerSVG;
-        userInput = new mapboxgl.Marker({ element: markerElement })
-          .setLngLat([lngLat.lng, lngLat.lat])
+
+        // Add a title to the marker if commentState is true
+        // Tristan Bailey 
+        userInput = new mapboxgl.Marker({
+          color: (commentState ? '#006400' : '#ff0000')
+          }).setLngLat([lngLat.lng, lngLat.lat])
           .addTo(map);
-    
+
         UserLng = lngLat.lng;
         UserLat = lngLat.lat;
       })
@@ -161,8 +178,19 @@ function Map() {
     }
 
   
+    //This function returns records from the MongoDB database 
+    async function MongoRecords() {
+      const example = await JsonListReturn();
+      return example;
+    }
+
+    //assign full JSON results from MongoDB to result variable 
+    const result = MongoRecords();
+
+
     //Gabriel Mortensen Pin Display functions below     
-    //Waiting for data from MogoDB 
+    //Waiting for data from MogoDB
+    //Uses the result variable  
     result.then(data => {
   
     // Loop through the marker data and create markers
@@ -216,39 +244,65 @@ function Map() {
     )
   }
   
+// Function send Comments to database 
+function SendComment(){
+  console.log("test comment sending")
+}
+
 // Function sends Request 
-function SendUserRequest(){
+function SendUserInfo(){
 
   // if no coordinates selected do nothing
   if (typeof UserLat === 'undefined' || typeof UserLng === 'undefined' ) {
-    alert("Please click on map to select area to scan.")
+    if(requestState){
+      alert("Please click on map to select area to scan.")
+    }
+    else{
+      alert("Please click on map to select area to comment.")  
+    }
   } 
   // otherwise....
   else {
-
     //turn text box info into a string 
-    const RequestElement = document.getElementById("request-input");
-    const requestString = RequestElement.value.toString();
+    const Element = document.getElementById("input");
+    const inputString = Element.value.toString();
 
     //submit data to MongoDB
-    LogMongo("auto", requestString, UserLat, UserLng );
+    console.log(requestState)
+    LogMongo(requestState, "auto", inputString, UserLat, UserLng );
     
     // Reset text box and toggle off request 
-    RequestElement.value = "";
-    RequestToggle()
+    Element.value = "";
+
+    if(requestState){
+      Toggle("Request")
+    }
+    else{
+      Toggle("Comment")
+    }
   }
 }
 
   // Comment functionality 
   function commentFunctionality(){
-    // Turn off request functionality if user wants to make comment 
-    // (by Gabriel)
-    if (requestState === true){
-      RequestToggle()
-    }
+    // if no coordinates selected do nothing
+    if (typeof UserLat === 'undefined' || typeof UserLng === 'undefined' ) {
+      alert("Please click on map to select area to comment.")
+    } 
+    // otherwise....
+    else {
 
-    
-    
+      //turn text box info into a string 
+      const RequestElement = document.getElementById("input");
+      const requestString = RequestElement.value.toString();
+
+      //submit data to MongoDB
+      LogMongo("auto", requestString, UserLat, UserLng );
+      
+      // Reset text box and toggle off request 
+      RequestElement.value = "";
+      Toggle("Request")
+    }
   }
 
 
@@ -269,10 +323,13 @@ function SendUserRequest(){
         </div>
 
         {/* Request Location Buttons  */}
-        <Button colorScheme='blue' mr={3} onClick={RequestToggle}>
-            {btnName}
+        <Button colorScheme={requestState ? 'orange' : 'blue'} mr={3} onClick={() => Toggle("Request")}>
+          {ReqName}
         </Button>
-       
+
+        <Button colorScheme={commentState ? 'orange' : 'blue'}onClick={() => Toggle("Comment")} > 
+          {ComName}
+        </Button>
 
 
         {/* Hamburger Menu  */}
@@ -374,9 +431,6 @@ function SendUserRequest(){
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
-              <MenuItem onClick={commentFunctionality} style={{ color: "black" }} > 
-                Make a Comment 
-              </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
@@ -391,21 +445,25 @@ function SendUserRequest(){
           <p id="Description">Descriptions</p>
         
         {/* Is visable only when user turns on Request */}
-        {requestState ? (
+        {(requestState || commentState) ? (
           <Box bg='white' h = '40%' w = '90%'  display='flex' flexDirection='column'  alignItems='center'>
            
             {/* User text box that appears when user clicks scan request */}
-            <label for="request-input" class="black-text">Reason for Request</label>
-            <input type="text" id="request-input" name="R_Reason" class="stretch-box black-text" />
+            <label for="input" class="black-text">
+            {requestState ? 'Request Reason' : 'Comment Reason'}
+            </label>
+            
+            <input type="text" id="input" class="stretch-box black-text" />
             
             <br/>
             {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
           
-              <Button colorScheme='purple' mr={3} onClick={SendUserRequest}>
-                Submit Location 
+              <Button colorScheme='purple' mr={3} onClick={SendUserInfo}>
+                Submit 
               </Button>
           </Box>
          ) : null}
+
 
         </Box> // description size 
         
