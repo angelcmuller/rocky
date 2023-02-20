@@ -191,33 +191,27 @@ function Map() {
     //Gabriel Mortensen Pin Display functions below     
     //Waiting for data from MogoDB
     //Uses the result variable  
-    result.then(data => {
-  
+    Promise.all([result, comments]).then(values => {
+      const [pinData, commentData] = values;
+    
       // Loop through the marker data and create markers
-      for (var i = 0; i < data.length; i++) {
-        // console.log(typeof  data[i].Classification);
-        var marker = new mapboxgl.Marker()
-          .setLngLat([data[i].Longitude, data[i].Lattitude])
+      for (let i = 0; i < pinData.length; i++) {
+        const marker = new mapboxgl.Marker({ color: '#A020F0' })
+          .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
           .setPopup(new mapboxgl.Popup({ offset: 25 })
-          .setHTML('<h3  style="color: black; font-size: 18px;"> ' + data[i].Classification + '</h3>'))
+          .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
           .addTo(map);
       }
-    });  
-
-    comments.then(data => {
-  
-      // Loop through the marker data and create markers
-      for (var i = 0; i < data.length; i++) {
-        // console.log(typeof  data[i].Classification);
-        var marker = new mapboxgl.Marker({
-          color: '#ff0000'
-          })
-          .setLngLat([data[i].Lng, data[i].Lat])
+    
+      for (let i = 0; i < commentData.length; i++) {
+        const marker = new mapboxgl.Marker({ color: '#ff0000' })
+          .setLngLat([commentData[i].Lng, commentData[i].Lat])
           .setPopup(new mapboxgl.Popup({ offset: 25 })
-          .setHTML('<h3 style="color: black; font-size: 18px;">' + data[i].Comment + '</h3><p style="color: gray; font-size: 14px;">by ' + data[i].User + '</p>'))
+          .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
           .addTo(map);
       }
-    });  
+    });
+    
    
     return () => {
       map.remove();
