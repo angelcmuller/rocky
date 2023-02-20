@@ -179,31 +179,45 @@ function Map() {
 
   
     //This function returns records from the MongoDB database 
-    async function MongoRecords() {
-      const example = await JsonListReturn();
-      return example;
+    async function MongoRecords(link) {
+      const pinInfo = await JsonListReturn(link);
+      return pinInfo
     }
 
     //assign full JSON results from MongoDB to result variable 
-    const result = MongoRecords();
-
+    const result = MongoRecords(`http://localhost:3000/record/`);
+    const comments = MongoRecords(`http://localhost:3000/crecord/`);
 
     //Gabriel Mortensen Pin Display functions below     
     //Waiting for data from MogoDB
     //Uses the result variable  
     result.then(data => {
   
-    // Loop through the marker data and create markers
-    for (var i = 0; i < data.length; i++) {
-      // console.log(typeof  data[i].Classification);
-      var marker = new mapboxgl.Marker()
-        .setLngLat([data[i].Longitude, data[i].Lattitude])
-        .setPopup(new mapboxgl.Popup({ offset: 25 })
-        .setHTML('<h3  style="color: black; font-size: 18px;"> ' + data[i].Classification + '</h3>'))
-        .addTo(map);
-    }
-  });  
+      // Loop through the marker data and create markers
+      for (var i = 0; i < data.length; i++) {
+        // console.log(typeof  data[i].Classification);
+        var marker = new mapboxgl.Marker()
+          .setLngLat([data[i].Longitude, data[i].Lattitude])
+          .setPopup(new mapboxgl.Popup({ offset: 25 })
+          .setHTML('<h3  style="color: black; font-size: 18px;"> ' + data[i].Classification + '</h3>'))
+          .addTo(map);
+      }
+    });  
 
+    comments.then(data => {
+  
+      // Loop through the marker data and create markers
+      for (var i = 0; i < data.length; i++) {
+        // console.log(typeof  data[i].Classification);
+        var marker = new mapboxgl.Marker({
+          color: '#ff0000'
+          })
+          .setLngLat([data[i].Lng, data[i].Lat])
+          .setPopup(new mapboxgl.Popup({ offset: 25 })
+          .setHTML('<h3 style="color: black; font-size: 18px;">' + data[i].Comment + '</h3><p style="color: gray; font-size: 14px;">by ' + data[i].User + '</p>'))
+          .addTo(map);
+      }
+    });  
    
     return () => {
       map.remove();
