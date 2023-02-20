@@ -69,8 +69,8 @@ var UserLng;
     return example;
   }
   
-  //assign full JSON results from MongoDB to result variable 
-  const result = MongoRecords();
+//assign full JSON results from MongoDB to result variable 
+const result = MongoRecords();
   
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
@@ -82,6 +82,7 @@ function Map() {
   const mapContainer = useRef(null);
  
   //const map = useRef(null);
+  //sets start to RENO area
   const [lng, setLng] = useState(-119.8138027);
   const [lat, setLat] = useState(39.5296336);
   const [zoom, setZoom] = useState(10);
