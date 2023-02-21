@@ -318,7 +318,7 @@ function SendUserInfo(){
     
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Flex  position=""  h='13vh' bg='#31C4AE'>
-        {/* Menu for dispaly options  */}
+        {/* Menu for dispaly options */}
         <div id="menu">
           <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
           <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
@@ -329,11 +329,11 @@ function SendUserInfo(){
         </div>
 
         {/* Request Location Buttons  */}
-        <Button colorScheme={requestState ? 'orange' : 'blue'} mr={3} onClick={() => Toggle("Request")}>
+        <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} right='260' onClick={() => Toggle("Request")}>
           {ReqName}
         </Button>
 
-        <Button colorScheme={commentState ? 'orange' : 'blue'}onClick={() => Toggle("Comment")} > 
+        <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Comment")} > 
           {ComName}
         </Button>
 
