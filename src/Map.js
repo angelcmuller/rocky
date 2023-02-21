@@ -1,6 +1,5 @@
 import JsonListReturn from "./components/recordList";
 import { LogMongo } from "./components/Log";
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import {
   Accordion,
   AccordionItem,
@@ -53,10 +52,10 @@ import { useRef, useState, useMemo, useEffect} from 'react'
 import RequestMap from "./Request";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
 import React from 'react';
-import LightPic from './images/Light.svg';
+import LightPic from './images/Satellite.png';
 import DarkPic from './images/Dark.svg';
-import OutsidePic from './images/Outdoors.svg';
-import Streetic from './images/Streets.svg';
+import OutsidePic from './images/Outdoors.png';
+import Streetic from './images/darkMode2.png';
 import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 var UserLat; //used for comments and requests 
@@ -127,7 +126,7 @@ function Map() {
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12?optimize=true',
+      style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
       center: [lng, lat],
       zoom: zoom
     });
@@ -165,6 +164,11 @@ function Map() {
 
     // Adding the FullScreen Control to Map
     map.addControl(new mapboxgl.FullscreenControl());
+
+    // Adding NavigationControl to Map
+    var nav = new mapboxgl.NavigationControl();
+    map.addControl(nav, 'top-right');
+
 
     // Controlling the Color Blind Modes and changing the Map Styles
     const layerList = document.getElementById('menu');
@@ -313,17 +317,15 @@ function SendUserInfo(){
   return (
     
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Center  position = 'relative'  h='15vh' bg='rgba(185, 222, 203, 100);'>
+      <Flex  position=""  h='13vh' bg='#31C4AE'>
         {/* Menu for dispaly options  */}
         <div id="menu">
-          <input id="streets-v12" type="radio" name="rtoggle" value="streets"/>
-          <label for="streets-v12"> <img src={LightPic} alt="street"/>  <span>Light</span> </label>
-          <input id="light-v11" type="radio" name="rtoggle" value="light" />
-          <label for="light-v11">   <img src={DarkPic} alt="street"/> <span>Dark</span> </label>
+          <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
+          <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
           <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span>Street</span></label>
+          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
-          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span>Outdoors</span> </label>
+          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span> Outdoors </span> </label>
         </div>
 
         {/* Request Location Buttons  */}
@@ -337,9 +339,10 @@ function SendUserInfo(){
 
 
         {/* Hamburger Menu  */}
-        <WithPopoverAnchor/>
-        <Menu variant='roundleft'>
-          <MenuButton as={IconButton} aria-label='Options'  style={{ backgroundColor: "white" }} icon={<HamburgerIcon />} variant='outline' position='relative' float='right'/>
+        <WithPopoverAnchor style={{display: "flex"}}/>
+        <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
+          <MenuButton as={IconButton} position="absolute" top="5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
+          style={{ backgroundColor: "#0964ed"}}/>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
                 <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
@@ -438,7 +441,7 @@ function SendUserInfo(){
             </MenuList>
         </Menu> 
         <br/>
-      </Center>
+      </Flex>
       
 
       {/* Gabriel worked on format of map and description location  */}

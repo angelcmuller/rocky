@@ -26,6 +26,7 @@ import './App.css';
 import logo from './images/Logo.png';
 import About from './About.js';
 import HowTo from './HowTo.js';
+import SubmitRequest from './SubmitRequest.js';
 
 // Main Landing Page function by Angel C. Muller
 function App () {
@@ -47,8 +48,9 @@ function App () {
     window.open('https://docs.google.com/forms/d/e/1FAIpQLSff_rPAGKkdMLYkDDCkXMyrl-wzdikLA3MBAI-2Hr9IW3ktiQ/viewform?usp=sf_link');
   }
 
-  const navigatetoSubmit = () => {
-    window.open('https://docs.google.com/forms/d/e/1FAIpQLSff_rPAGKkdMLYkDDCkXMyrl-wzdikLA3MBAI-2Hr9IW3ktiQ/viewform?usp=sf_link');
+  const navigatetoSubmitRequest = () => {
+    setShowResults(current => !current);
+    navigate('/SubmitRequest')
   }
 
   const navigatetoHowTo = () => {
@@ -70,14 +72,14 @@ function App () {
           <div id='body'>
             <div id='menu'>
               <Menu>
-                <MenuButton as={IconButton} aria-label='Options' icon={<HamburgerIcon />} onClick={onOpen} bg='#80cbc4'/>
+                <MenuButton as={IconButton} position="absolute" top="2" left="2" aria-label='Options' icon={<HamburgerIcon />} onClick={onOpen} bg='#80cbc4'/>
                   <Drawer placement={placement} onClose={onClose} isOpen={isOpen}>
                     <DrawerOverlay/>
                     <DrawerContent>
                       <DrawerHeader borderBottomWidth='2px' id='menuSettings'> Menu </DrawerHeader>
                       <DrawerBody id='menuSettings2'>
                         <p onClick = {navigatetoAbout} id='aboutUs'> About </p>
-                        <p onClick = {navigatetoSubmit} id='aboutUs'> Requst Data Scan </p>
+                        <p onClick = {navigatetoSubmitRequest} id='aboutUs'> Request Scan </p>
                         <p onClick = {navigatetoHowTo} id='aboutUs'> Instructions </p>
                         <p onClick = {navigatetoContact} id='contactUs'> Contact Us </p>
                       </DrawerBody>
@@ -103,6 +105,7 @@ function App () {
         <Routes>
           <Route path="/Map" element={<Map/>} />
           <Route path="/About" element={<About/>} />
+          <Route path="/SubmitRequest" element={<SubmitRequest/>} />
           <Route path="/HowTo" element={<HowTo/>} />
         </Routes>
       </div>
