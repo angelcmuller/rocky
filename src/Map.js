@@ -44,7 +44,7 @@ import {
   useBoolean,
   useDisclosure
 } from '@chakra-ui/react'; 
-import { HamburgerIcon, PhoneIcon } from "@chakra-ui/icons";
+import { HamburgerIcon, PhoneIcon, ChatIcon } from "@chakra-ui/icons";
 import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
 import './Map.css'
@@ -122,7 +122,8 @@ function Map() {
   };
 
   let map;
-  //Initialize Map
+  // Initialize Map to give functionalities to the Map
+  // and display the different Map Styles - Angel C. Muller
   useEffect(() => {
     map = new mapboxgl.Map({
       container: mapContainer.current,
@@ -154,8 +155,7 @@ function Map() {
     };
   }, []);
 
-  // useEffect created by Gabriel and Tristan and modified by Angel to avoit Map re-rendering everytime a specific
-  // functionality is called.
+  // useEffect created by Gabriel and Tristan
   useEffect(() => {
     //This function returns records from the MongoDB database
     async function MongoRecords(link) {
@@ -163,24 +163,41 @@ function Map() {
       return pinInfo
     }
 
-    //Gabriel Mortensen Pin Display functions below     
+    //Gabriel Mortensen Pin Display functions below 
     //Waiting for data from MogoDB
     //Uses the result variable 
     async function displayMarkers() {
       // Wait for data from MongoDB
       const [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
-    
-      // Loop through the marker data and create markers
+
+      // Angel C. Muller loop through the marker data and create markers
+      // depending on the classification of road deficiency
       for (let i = 0; i < pinData.length; i++) {
-        const marker = new mapboxgl.Marker({ color: '#A020F0' })
+        let markerColor = '#f5c7f7'; // Default color
+        if (pinData[i].Classification === 'loose surface' || pinData[i].Classification === 'speed divit' || pinData[i].Classification === 'tar snake') {
+          markerColor = '#fcff82'; // Set color for a specific description
+        } else if (pinData[i].Classification === 'worn road' || pinData[i].Classification === 'pothole') {
+          markerColor = '#dc2f2f'; // Set color for another specific description
+        }
+
+        const marker = new mapboxgl.Marker({ color: markerColor })
           .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
           .setPopup(new mapboxgl.Popup({ offset: 25 })
           .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
           .addTo(map);
+
+          // Hover over pins and see immediate information
+          marker.getElement().addEventListener('mouseover', () => {
+            marker.togglePopup();
+          });
+        
+          marker.getElement().addEventListener('mouseout', () => {
+            marker.togglePopup();
+          });
       }
     
       for (let i = 0; i < commentData.length; i++) {
-        const marker = new mapboxgl.Marker({ color: '#ff0000' })
+        const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
           .setLngLat([commentData[i].Lng, commentData[i].Lat])
           .setPopup(new mapboxgl.Popup({ offset: 25 })
           .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
