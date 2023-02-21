@@ -120,83 +120,55 @@ function Map() {
       }
     }
   };
-  
 
-  //Initialize Map only once
+  let map;
+  //Initialize Map
   useEffect(() => {
-    const map = new mapboxgl.Map({
+    map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
       center: [lng, lat],
       zoom: zoom
     });
-
   
-
-  
-    
-  
-    // User request functionalty 
-    if (requestState || commentState) {
-    
-      map.on('click', function(e) {
-        // Obtain coordinates on userinput 
-        var lngLat = e.lngLat;
-        // console.log("Longitude: " + lngLat.lng + " Latitude: " + lngLat.lat);
-    
-        // If previous userinput exists, remove it 
-        if (userInput) {
-          userInput.remove();
-        }
-
-        // Add a title to the marker if commentState is true
-        // Tristan Bailey 
-        userInput = new mapboxgl.Marker({
-          color: (commentState ? '#006400' : '#ff0000')
-          }).setLngLat([lngLat.lng, lngLat.lat])
-          .addTo(map);
-
-        UserLng = lngLat.lng;
-        UserLat = lngLat.lat;
-      })
-    }
-   
-
     // Adding the FullScreen Control to Map
     map.addControl(new mapboxgl.FullscreenControl());
-
+  
     // Adding NavigationControl to Map
     var nav = new mapboxgl.NavigationControl();
     map.addControl(nav, 'top-right');
-
-
+  
     // Controlling the Color Blind Modes and changing the Map Styles
     const layerList = document.getElementById('menu');
     const inputs = layerList.getElementsByTagName('input');
-    
+  
     for (const input of inputs) {
       input.onclick = (layer) => {
         const layerId = layer.target.id;
         map.setStyle('mapbox://styles/mapbox/' + layerId);
       };
     }
-
   
-    //This function returns records from the MongoDB database 
+    return () => {
+      map.remove();
+    };
+  }, []);
+
+  // useEffect created by Gabriel and Tristan and modified by Angel to avoit Map re-rendering everytime a specific
+  // functionality is called.
+  useEffect(() => {
+    //This function returns records from the MongoDB database
     async function MongoRecords(link) {
       const pinInfo = await JsonListReturn(link);
       return pinInfo
     }
 
-    //assign full JSON results from MongoDB to result variable 
-    const result = MongoRecords(`http://localhost:3000/record/`);
-    const comments = MongoRecords(`http://localhost:3000/crecord/`);
-
     //Gabriel Mortensen Pin Display functions below     
     //Waiting for data from MogoDB
-    //Uses the result variable  
-    Promise.all([result, comments]).then(values => {
-      const [pinData, commentData] = values;
+    //Uses the result variable 
+    async function displayMarkers() {
+      // Wait for data from MongoDB
+      const [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
     
       // Loop through the marker data and create markers
       for (let i = 0; i < pinData.length; i++) {
@@ -214,16 +186,69 @@ function Map() {
           .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
           .addTo(map);
       }
-    });
+    }
+
+    // Function to add event listener for marking pins
+    function addPinListener() {
+      map.on('click', function(e) {
+        // Obtain coordinates on user input 
+        var lngLat = e.lngLat;
     
-   
+        // If previous user input exists, remove it 
+        if (userInput) {
+          userInput.remove();
+        }
+
+        // Add a title to the marker if commentState is true
+        userInput = new mapboxgl.Marker({
+          color: (commentState ? '#006400' : '#ff0000')
+          }).setLngLat([lngLat.lng, lngLat.lat])
+          .addTo(map);
+
+        UserLng = lngLat.lng;
+        UserLat = lngLat.lat;
+      });
+    }
+
+    // Initialize map
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
+      center: [lng, lat],
+      zoom: zoom
+    });
+
+    // Adding the FullScreen Control to Map
+    map.addControl(new mapboxgl.FullscreenControl());
+
+    // Adding NavigationControl to Map
+    var nav = new mapboxgl.NavigationControl();
+    map.addControl(nav, 'top-right');
+
+    // Controlling the Color Blind Modes and changing the Map Styles by Angel C. Muller
+    const layerList = document.getElementById('menu');
+    const inputs = layerList.getElementsByTagName('input');
+    
+    for (const input of inputs) {
+      input.onclick = (layer) => {
+        const layerId = layer.target.id;
+        map.setStyle('mapbox://styles/mapbox/' + layerId);
+      };
+    }
+
+    // Call functions to display markers and add pin listener
+    displayMarkers();
+    if (requestState || commentState) {
+      addPinListener();
+    }
+
+    // Clean up function
     return () => {
       map.remove();
     };
-  });
 
-
-
+    // Clean Up the requestState and commentState
+  }, [requestState, commentState]);
 
 
   //function to select Map Style Angel C. Muller
@@ -318,7 +343,7 @@ function SendUserInfo(){
     
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Flex  position=""  h='13vh' bg='#31C4AE'>
-        {/* Menu for dispaly options  */}
+        {/* Menu for dispaly options */}
         <div id="menu">
           <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
           <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
@@ -329,11 +354,11 @@ function SendUserInfo(){
         </div>
 
         {/* Request Location Buttons  */}
-        <Button colorScheme={requestState ? 'orange' : 'blue'} mr={3} onClick={() => Toggle("Request")}>
+        <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} right='260' onClick={() => Toggle("Request")}>
           {ReqName}
         </Button>
 
-        <Button colorScheme={commentState ? 'orange' : 'blue'}onClick={() => Toggle("Comment")} > 
+        <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Comment")} > 
           {ComName}
         </Button>
 
