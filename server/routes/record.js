@@ -12,5 +12,14 @@ recordRoutes.route("/record").get(function(req, res) {
   });
 });
 
+recordRoutes.route("/crecord").get(function(req, res) {
+  let db_connect = dbo.getDb("pinDatabase");
+  db_connect.collection("Comments").find({}).toArray(function(err, result) {
+    if (err) throw err;
+    let output = JSON.stringify(result);
+    console.log(output);
+    res.send(output);
+  });
+});
 
 module.exports = recordRoutes;
