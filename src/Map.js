@@ -57,11 +57,22 @@ import OutsidePic from './images/Outdoors.png';
 import Streetic from './images/darkMode2.png';
 import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import 'mapbox-gl/dist/mapbox-gl.css'; // css used for the traffic layer
+import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
+import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
+var UserLat; 
+var UserLng; 
+var userInput; //used for comments and requests
+//Developed by Aaron Ramirez and Gabriel Mortensen
 
-var UserLat; //used for comments and requests 
-var UserLng; //used for comments and requests 
-var userInput; //used for comments and requests 
+  //This function returns records from the MongoDB database 
+  async function MongoRecords() {
+    const example = await JsonListReturn();
+    return example;
+  }
+  
+//assign full JSON results from MongoDB to result variable 
+const result = MongoRecords();
+  
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
 
@@ -71,6 +82,7 @@ function Map() {
   const mapContainer = useRef(null);
  
   //const map = useRef(null);
+  //sets start to RENO area
   const [lng, setLng] = useState(-119.8138027);
   const [lat, setLat] = useState(39.5296336);
   const [zoom, setZoom] = useState(12);
@@ -129,6 +141,45 @@ function Map() {
       style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
       center: [lng, lat],
       zoom: zoom
+    });
+     // Creates new directions control instance
+     const directions = new MapboxDirections({
+      accessToken: mapboxgl.accessToken,
+      unit: 'metric',
+      profile: 'mapbox/driving',
+    });
+
+    // Integrates directions control with map
+    map.addControl(directions, 'top-left');
+  
+    // Adding Source and Layer onto the map
+    // to display live traffic lines for congestion areas
+    map.on('load', () => {
+      map.addSource('traffic', {
+        type: 'vector',
+        url: 'mapbox://mapbox.mapbox-traffic-v1'
+      });
+  
+      map.addLayer({
+        id: 'traffic-layer',
+        type: 'line',
+        source: 'traffic',
+        'source-layer': 'traffic',
+        paint: {
+          'line-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'density'],
+            0, 'rgb(0, 255, 0)', // No traffic
+            0.2, 'rgb(150, 255, 0)',
+            0.3, 'rgb(255, 255, 0)',
+            0.6, 'rgb(255, 150, 0)',
+            0.8, 'rgb(255, 0, 0)',
+            1, 'rgb(150, 0, 0)' // Worst traffic
+          ],
+          'line-width': 1
+        }
+      });
     });
   
     // Adding Source and Layer onto the map
