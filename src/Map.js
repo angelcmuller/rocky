@@ -58,6 +58,8 @@ import OutsidePic from './images/Outdoors.svg';
 import Streetic from './images/Streets.svg';
 import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
+import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 var UserLat; 
 var UserLng; 
 
@@ -109,6 +111,16 @@ function Map() {
       center: [lng, lat],
       zoom: zoom
     });
+
+     // Creates new directions control instance
+     const directions = new MapboxDirections({
+      accessToken: mapboxgl.accessToken,
+      unit: 'metric',
+      profile: 'mapbox/driving',
+    });
+
+    // Integrates directions control with map
+    map.addControl(directions, 'top-left');
 
     var userInput;
 
