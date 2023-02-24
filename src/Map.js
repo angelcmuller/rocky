@@ -8,7 +8,6 @@ import {
   AccordionIcon,
   Box,
   Button,
-  ButtonGroup,
   Flex,
   HStack,
   IconButton,
@@ -58,6 +57,8 @@ import OutsidePic from './images/Outdoors.png';
 import Streetic from './images/darkMode2.png';
 import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import 'mapbox-gl/dist/mapbox-gl.css'; // css used for the traffic layer
+
 var UserLat; //used for comments and requests 
 var UserLng; //used for comments and requests 
 var userInput; //used for comments and requests 
@@ -72,7 +73,7 @@ function Map() {
   //const map = useRef(null);
   const [lng, setLng] = useState(-119.8138027);
   const [lat, setLat] = useState(39.5296336);
-  const [zoom, setZoom] = useState(10);
+  const [zoom, setZoom] = useState(12);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
 
@@ -121,15 +122,43 @@ function Map() {
     }
   };
 
-  let map;
-  // Initialize Map to give functionalities to the Map
-  // and display the different Map Styles - Angel C. Muller
   useEffect(() => {
-    map = new mapboxgl.Map({
+    //Initialize the Map with current lng and lat
+    const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
       center: [lng, lat],
       zoom: zoom
+    });
+  
+    // Adding Source and Layer onto the map
+    // to display live traffic lines for congestion areas
+    map.on('load', () => {
+      map.addSource('traffic', {
+        type: 'vector',
+        url: 'mapbox://mapbox.mapbox-traffic-v1'
+      });
+  
+      map.addLayer({
+        id: 'traffic-layer',
+        type: 'line',
+        source: 'traffic',
+        'source-layer': 'traffic',
+        paint: {
+          'line-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'density'],
+            0, 'rgb(0, 255, 0)', // No traffic
+            0.2, 'rgb(150, 255, 0)',
+            0.3, 'rgb(255, 255, 0)',
+            0.6, 'rgb(255, 150, 0)',
+            0.8, 'rgb(255, 0, 0)',
+            1, 'rgb(150, 0, 0)' // Worst traffic
+          ],
+          'line-width': 1
+        }
+      });
     });
   
     // Adding the FullScreen Control to Map
@@ -149,14 +178,7 @@ function Map() {
         map.setStyle('mapbox://styles/mapbox/' + layerId);
       };
     }
-  
-    return () => {
-      map.remove();
-    };
-  }, []);
 
-  // useEffect created by Gabriel and Tristan
-  useEffect(() => {
     //This function returns records from the MongoDB database
     async function MongoRecords(link) {
       const pinInfo = await JsonListReturn(link);
@@ -227,46 +249,16 @@ function Map() {
       });
     }
 
-    // Initialize map
-    const map = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
-      center: [lng, lat],
-      zoom: zoom
-    });
-
-    // Adding the FullScreen Control to Map
-    map.addControl(new mapboxgl.FullscreenControl());
-
-    // Adding NavigationControl to Map
-    var nav = new mapboxgl.NavigationControl();
-    map.addControl(nav, 'top-right');
-
-    // Controlling the Color Blind Modes and changing the Map Styles by Angel C. Muller
-    const layerList = document.getElementById('menu');
-    const inputs = layerList.getElementsByTagName('input');
-    
-    for (const input of inputs) {
-      input.onclick = (layer) => {
-        const layerId = layer.target.id;
-        map.setStyle('mapbox://styles/mapbox/' + layerId);
-      };
-    }
-
     // Call functions to display markers and add pin listener
     displayMarkers();
     if (requestState || commentState) {
       addPinListener();
     }
-
-    // Clean up function
+  
     return () => {
       map.remove();
     };
-
-    // Clean Up the requestState and commentState
   }, [requestState, commentState]);
-
 
   //function to select Map Style Angel C. Muller
   function WithPopoverAnchor() {
