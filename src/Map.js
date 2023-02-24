@@ -62,7 +62,7 @@ import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-direct
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 var UserLat; 
 var UserLng; 
-
+var userInput; //used for comments and requests
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
   //This function returns records from the MongoDB database 
@@ -135,17 +135,15 @@ function Map() {
     }
   };
 
-  let map;
-  // Initialize Map to give functionalities to the Map
-  // and display the different Map Styles - Angel C. Muller
+
   useEffect(() => {
-    map = new mapboxgl.Map({
+    //Initialize the Map with current lng and lat
+    const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
       center: [lng, lat],
       zoom: zoom
     });
-
      // Creates new directions control instance
      const directions = new MapboxDirections({
       accessToken: mapboxgl.accessToken,
@@ -155,9 +153,43 @@ function Map() {
 
     // Integrates directions control with map
     map.addControl(directions, 'top-left');
-
-    var userInput;
-
+  
+    // Adding Source and Layer onto the map
+    // to display live traffic lines for congestion areas
+    map.on('load', () => {
+      map.addSource('traffic', {
+        type: 'vector',
+        url: 'mapbox://mapbox.mapbox-traffic-v1'
+      });
+  
+      map.addLayer({
+        id: 'traffic-layer',
+        type: 'line',
+        source: 'traffic',
+        'source-layer': 'traffic',
+        paint: {
+          'line-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'density'],
+            0, 'rgb(0, 255, 0)', // No traffic
+            0.2, 'rgb(150, 255, 0)',
+            0.3, 'rgb(255, 255, 0)',
+            0.6, 'rgb(255, 150, 0)',
+            0.8, 'rgb(255, 0, 0)',
+            1, 'rgb(150, 0, 0)' // Worst traffic
+          ],
+          'line-width': 1
+        }
+      });
+    });
+  
+    // Adding the FullScreen Control to Map
+    map.addControl(new mapboxgl.FullscreenControl());
+  
+    // Adding NavigationControl to Map
+    var nav = new mapboxgl.NavigationControl();
+    map.addControl(nav, 'top-right');
   
     // Controlling the Color Blind Modes and changing the Map Styles
     const layerList = document.getElementById('menu');
@@ -169,14 +201,7 @@ function Map() {
         map.setStyle('mapbox://styles/mapbox/' + layerId);
       };
     }
-  
-    return () => {
-      map.remove();
-    };
-  }, []);
 
-  // useEffect created by Gabriel and Tristan
-  useEffect(() => {
     //This function returns records from the MongoDB database
     async function MongoRecords(link) {
       const pinInfo = await JsonListReturn(link);
@@ -247,46 +272,16 @@ function Map() {
       });
     }
 
-    // Initialize map
-    const map = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
-      center: [lng, lat],
-      zoom: zoom
-    });
-
-    // Adding the FullScreen Control to Map
-    map.addControl(new mapboxgl.FullscreenControl());
-
-    // Adding NavigationControl to Map
-    var nav = new mapboxgl.NavigationControl();
-    map.addControl(nav, 'top-right');
-
-    // Controlling the Color Blind Modes and changing the Map Styles by Angel C. Muller
-    const layerList = document.getElementById('menu');
-    const inputs = layerList.getElementsByTagName('input');
-    
-    for (const input of inputs) {
-      input.onclick = (layer) => {
-        const layerId = layer.target.id;
-        map.setStyle('mapbox://styles/mapbox/' + layerId);
-      };
-    }
-
     // Call functions to display markers and add pin listener
     displayMarkers();
     if (requestState || commentState) {
       addPinListener();
     }
-
-    // Clean up function
+  
     return () => {
       map.remove();
     };
-
-    // Clean Up the requestState and commentState
   }, [requestState, commentState]);
-
 
   //function to select Map Style Angel C. Muller
   function WithPopoverAnchor() {
