@@ -64,7 +64,7 @@ function App () {
   const [setOpen] = useState(false)
 
   return (
-    <div>
+    <div id='page'>
       {
         // JS for lading page and its Components
         // drawer events from chakra-ui

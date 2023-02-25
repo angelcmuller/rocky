@@ -83,9 +83,9 @@ function Map() {
  
   //const map = useRef(null);
   //sets start to RENO area
-  const [lng, setLng] = useState(-119.8138027);
-  const [lat, setLat] = useState(39.5296336);
-  const [zoom, setZoom] = useState(12);
+  const [lng, setLng] = useState();
+  const [lat, setLat] = useState();
+  const [zoom, setZoom] = useState(11);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
 
@@ -116,15 +116,18 @@ function Map() {
         }
       } else {
         setReqName("Request Location");
+        setIsRVisible(false);
       }
     }
     //Engage comment functionality 
     else{
+      console.log(commentState);
       setCState(!commentState);
       if (ComName === "Make a Comment") {
         setComName("Disregard Comment");
       } else {
         setComName("Make a Comment");
+        setIsCVisible(false);
       }
       //Turn off request if activated
       if (requestState) {
@@ -134,182 +137,193 @@ function Map() {
     }
   };
 
+  // useEffect to retrieve the user's location with .getCurrentPosition() method
+  // and it updates the lng and lat to set the map center to these coordinates
+  // if questions ask Angel
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLng(position.coords.longitude);
+          setLat(position.coords.latitude);
+        },
+        () => {
+          console.error('Unable to retrieve your location');
+        }
+      );
+    } else {
+      console.error('Geolocation is not supported by this browser');
+    }
+  }, []);
+  
   useEffect(() => {
     //Initialize the Map with current lng and lat
-    const map = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
-      center: [lng, lat],
-      zoom: zoom
-    });
-     // Creates new directions control instance
-     const directions = new MapboxDirections({
-      accessToken: mapboxgl.accessToken,
-      unit: 'metric',
-      profile: 'mapbox/driving',
-    });
+    if(lng && lat){
+      const map = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
+        center: [lng, lat],
+        zoom: zoom
+      });
 
-    // Integrates directions control with map
-    map.addControl(directions, 'top-left');
-  
-    // Adding Source and Layer onto the map
-    // to display live traffic lines for congestion areas
-    map.on('load', () => {
-      map.addSource('traffic', {
-        type: 'vector',
-        url: 'mapbox://mapbox.mapbox-traffic-v1'
-      });
-  
-      map.addLayer({
-        id: 'traffic-layer',
-        type: 'line',
-        source: 'traffic',
-        'source-layer': 'traffic',
-        paint: {
-          'line-color': [
-            'interpolate',
-            ['linear'],
-            ['get', 'density'],
-            0, 'rgb(0, 255, 0)', // No traffic
-            0.2, 'rgb(150, 255, 0)',
-            0.3, 'rgb(255, 255, 0)',
-            0.6, 'rgb(255, 150, 0)',
-            0.8, 'rgb(255, 0, 0)',
-            1, 'rgb(150, 0, 0)' // Worst traffic
-          ],
-          'line-width': 1
+      // Add geolocate control to the map to show where the user is located
+      map.addControl(new mapboxgl.GeolocateControl({
+        fitBoundsOptions: {
+          maxZoom: 14
+        },
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        trackUserLocation: true,
+        circleStyle: {
+          fillColor: 'rgba(0, 128, 255, 0.4)',
+          strokeColor: 'rgba(0, 128, 255, 0.8)',
+          strokeWidth: 4
+        },
+        markerStyle: {
+          color: 'rgb(0, 128, 255)'
         }
+      }));
+
+      // Creates new directions control instance
+      const directions = new MapboxDirections({
+        accessToken: mapboxgl.accessToken,
+        unit: 'metric',
+        profile: 'mapbox/driving',
       });
-    });
-  
-    // Adding Source and Layer onto the map
-    // to display live traffic lines for congestion areas
-    map.on('load', () => {
-      map.addSource('traffic', {
-        type: 'vector',
-        url: 'mapbox://mapbox.mapbox-traffic-v1'
+
+      // Integrates directions control with map
+      map.addControl(directions, 'top-left');
+    
+      // Adding Source and Layer onto the map
+      // to display live traffic lines for congestion areas
+      map.on('load', () => {
+        map.addSource('traffic', {
+          type: 'vector',
+          url: 'mapbox://mapbox.mapbox-traffic-v1'
+        });
+    
+        map.addLayer({
+          id: 'traffic-layer',
+          type: 'line',
+          source: 'traffic',
+          'source-layer': 'traffic',
+          paint: {
+            'line-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'density'],
+              0, 'rgb(0, 255, 0)', // No traffic
+              0.2, 'rgb(150, 255, 0)',
+              0.3, 'rgb(255, 255, 0)',
+              0.6, 'rgb(255, 150, 0)',
+              0.8, 'rgb(255, 0, 0)',
+              1, 'rgb(150, 0, 0)' // Worst traffic
+            ],
+            'line-width': 1
+          }
+        });
       });
-  
-      map.addLayer({
-        id: 'traffic-layer',
-        type: 'line',
-        source: 'traffic',
-        'source-layer': 'traffic',
-        paint: {
-          'line-color': [
-            'interpolate',
-            ['linear'],
-            ['get', 'density'],
-            0, 'rgb(0, 255, 0)', // No traffic
-            0.2, 'rgb(150, 255, 0)',
-            0.3, 'rgb(255, 255, 0)',
-            0.6, 'rgb(255, 150, 0)',
-            0.8, 'rgb(255, 0, 0)',
-            1, 'rgb(150, 0, 0)' // Worst traffic
-          ],
-          'line-width': 1
+    
+      // Adding the FullScreen Control to Map
+      map.addControl(new mapboxgl.FullscreenControl());
+
+      // Adding NavigationControl to Map
+      var nav = new mapboxgl.NavigationControl();
+      map.addControl(nav, 'top-right');
+    
+      // Controlling the Color Blind Modes and changing the Map Styles
+      const layerList = document.getElementById('menu');
+      const inputs = layerList.getElementsByTagName('input');
+    
+      for (const input of inputs) {
+        input.onclick = (layer) => {
+          const layerId = layer.target.id;
+          map.setStyle('mapbox://styles/mapbox/' + layerId);
+        };
+      }
+
+      //This function returns records from the MongoDB database
+      async function MongoRecords(link) {
+        const pinInfo = await JsonListReturn(link);
+        return pinInfo
+      }
+
+      //Gabriel Mortensen Pin Display functions below 
+      //Waiting for data from MogoDB
+      //Uses the result variable 
+      async function displayMarkers() {
+        // Wait for data from MongoDB
+        const [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
+
+        // Angel C. Muller loop through the marker data and create markers
+        // depending on the classification of road deficiency
+        for (let i = 0; i < pinData.length; i++) {
+          let markerColor = '#f5c7f7'; // Default color
+          if (pinData[i].Classification === 'loose surface' || pinData[i].Classification === 'speed divit' || pinData[i].Classification === 'tar snake') {
+            markerColor = '#fcff82'; // Set color for a specific description
+          } else if (pinData[i].Classification === 'worn road' || pinData[i].Classification === 'pothole') {
+            markerColor = '#dc2f2f'; // Set color for another specific description
+          }
+
+          const marker = new mapboxgl.Marker({ color: markerColor })
+            .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
+            .setPopup(new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
+            .addTo(map);
+
+            // Hover over pins and see immediate information
+            marker.getElement().addEventListener('mouseover', () => {
+              marker.togglePopup();
+            });
+          
+            marker.getElement().addEventListener('mouseout', () => {
+              marker.togglePopup();
+            });
         }
-      });
-    });
-  
-    // Adding the FullScreen Control to Map
-    map.addControl(new mapboxgl.FullscreenControl());
-  
-    // Adding NavigationControl to Map
-    var nav = new mapboxgl.NavigationControl();
-    map.addControl(nav, 'top-right');
-  
-    // Controlling the Color Blind Modes and changing the Map Styles
-    const layerList = document.getElementById('menu');
-    const inputs = layerList.getElementsByTagName('input');
-  
-    for (const input of inputs) {
-      input.onclick = (layer) => {
-        const layerId = layer.target.id;
-        map.setStyle('mapbox://styles/mapbox/' + layerId);
+      
+        for (let i = 0; i < commentData.length; i++) {
+          const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
+            .setLngLat([commentData[i].Lng, commentData[i].Lat])
+            .setPopup(new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
+            .addTo(map);
+        }
+      }
+
+      // Function to add event listener for marking pins
+      function addPinListener() {
+        map.on('click', function(e) {
+          // Obtain coordinates on user input 
+          var lngLat = e.lngLat;
+      
+          // If previous user input exists, remove it 
+          if (userInput) {
+            userInput.remove();
+          }
+
+          // Add a title to the marker if commentState is true
+          userInput = new mapboxgl.Marker({
+            color: (commentState ? '#006400' : '#ff0000')
+            }).setLngLat([lngLat.lng, lngLat.lat])
+            .addTo(map);
+
+          UserLng = lngLat.lng;
+          UserLat = lngLat.lat;
+        });
+      }
+
+      // Call functions to display markers and add pin listener
+      displayMarkers();
+      if (requestState || commentState) {
+        addPinListener();
+      }
+    
+      return () => {
+        map.remove();
       };
     }
-
-    //This function returns records from the MongoDB database
-    async function MongoRecords(link) {
-      const pinInfo = await JsonListReturn(link);
-      return pinInfo
-    }
-
-    //Gabriel Mortensen Pin Display functions below 
-    //Waiting for data from MogoDB
-    //Uses the result variable 
-    async function displayMarkers() {
-      // Wait for data from MongoDB
-      const [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
-
-      // Angel C. Muller loop through the marker data and create markers
-      // depending on the classification of road deficiency
-      for (let i = 0; i < pinData.length; i++) {
-        let markerColor = '#f5c7f7'; // Default color
-        if (pinData[i].Classification === 'loose surface' || pinData[i].Classification === 'speed divit' || pinData[i].Classification === 'tar snake') {
-          markerColor = '#fcff82'; // Set color for a specific description
-        } else if (pinData[i].Classification === 'worn road' || pinData[i].Classification === 'pothole') {
-          markerColor = '#dc2f2f'; // Set color for another specific description
-        }
-
-        const marker = new mapboxgl.Marker({ color: markerColor })
-          .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
-          .setPopup(new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
-          .addTo(map);
-
-          // Hover over pins and see immediate information
-          marker.getElement().addEventListener('mouseover', () => {
-            marker.togglePopup();
-          });
-        
-          marker.getElement().addEventListener('mouseout', () => {
-            marker.togglePopup();
-          });
-      }
-    
-      for (let i = 0; i < commentData.length; i++) {
-        const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
-          .setLngLat([commentData[i].Lng, commentData[i].Lat])
-          .setPopup(new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
-          .addTo(map);
-      }
-    }
-
-    // Function to add event listener for marking pins
-    function addPinListener() {
-      map.on('click', function(e) {
-        // Obtain coordinates on user input 
-        var lngLat = e.lngLat;
-    
-        // If previous user input exists, remove it 
-        if (userInput) {
-          userInput.remove();
-        }
-
-        // Add a title to the marker if commentState is true
-        userInput = new mapboxgl.Marker({
-          color: (commentState ? '#006400' : '#ff0000')
-          }).setLngLat([lngLat.lng, lngLat.lat])
-          .addTo(map);
-
-        UserLng = lngLat.lng;
-        UserLat = lngLat.lat;
-      });
-    }
-
-    // Call functions to display markers and add pin listener
-    displayMarkers();
-    if (requestState || commentState) {
-      addPinListener();
-    }
-  
-    return () => {
-      map.remove();
-    };
-  }, [requestState, commentState]);
+  }, [requestState, commentState, lng, lat, zoom]);
 
   //function to select Map Style Angel C. Muller
   function WithPopoverAnchor() {
@@ -398,6 +412,25 @@ function SendUserInfo(){
     }
   }
 
+  // variables to control the states of the comments and requests
+  const [isCVisible, setIsCVisible] = useState(false);
+  const [isRVisible, setIsRVisible] = useState(false);
+  
+  // functions that handle the events of the buttons as they
+  // are used by the users
+  const handleCommentClick = () => {
+    if(isRVisible == false){
+      setIsCVisible(true)
+    }
+  }
+
+  const handleRequestClick = () => {
+    // condition that allows button to be visible only iff
+    // the other button is not being used
+    if(isCVisible == false){
+      setIsRVisible(true)
+    }
+  }
 
   return (
     
@@ -414,13 +447,17 @@ function SendUserInfo(){
         </div>
 
         {/* Request Location Buttons  */}
-        <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} right='260' onClick={() => Toggle("Request")}>
-          {ReqName}
-        </Button>
+        {isRVisible && (
+          <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Request")}>
+            {ReqName}
+          </Button>
+        )}
 
-        <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Comment")} > 
-          {ComName}
-        </Button>
+        {isCVisible && (
+          <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Comment")}>
+            {ComName}
+          </Button>
+        )}
 
 
         {/* Hamburger Menu  */}
@@ -523,6 +560,8 @@ function SendUserInfo(){
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
+              <MenuItem onClick={handleCommentClick} style={{ color: "black" }}> Make a Comment </MenuItem>
+              <MenuItem onClick={handleRequestClick} style={{ color: "black" }}> Make a Request </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
@@ -559,7 +598,7 @@ function SendUserInfo(){
 
         </Box> // description size 
         
-        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
+        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}} />
 
        
       </HStack>
