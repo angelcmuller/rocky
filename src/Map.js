@@ -40,6 +40,7 @@ import {
   Center,
   Radio,
   RadioGroup,
+  Switch,
   useBoolean,
   useDisclosure
 } from '@chakra-ui/react'; 
@@ -59,6 +60,9 @@ import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
+import MapboxTraffic from "./mapbox-gl-traffic.js";
+import "./mapbox-gl-traffic.css"
+
 var UserLat; 
 var UserLng; 
 var userInput; //used for comments and requests
@@ -117,6 +121,7 @@ function Map() {
       } else {
         setReqName("Request Location");
         setIsRVisible(false);
+        setIsRequestChecked(false);
       }
     }
     //Engage comment functionality 
@@ -128,6 +133,7 @@ function Map() {
       } else {
         setComName("Make a Comment");
         setIsCVisible(false);
+        setIsCommentChecked(false);
       }
       //Turn off request if activated
       if (requestState) {
@@ -195,43 +201,15 @@ function Map() {
       // Integrates directions control with map
       map.addControl(directions, 'top-left');
     
-      // Adding Source and Layer onto the map
-      // to display live traffic lines for congestion areas
-      map.on('load', () => {
-        map.addSource('traffic', {
-          type: 'vector',
-          url: 'mapbox://mapbox.mapbox-traffic-v1'
-        });
-    
-        map.addLayer({
-          id: 'traffic-layer',
-          type: 'line',
-          source: 'traffic',
-          'source-layer': 'traffic',
-          paint: {
-            'line-color': [
-              'interpolate',
-              ['linear'],
-              ['get', 'density'],
-              0, 'rgb(0, 255, 0)', // No traffic
-              0.2, 'rgb(150, 255, 0)',
-              0.3, 'rgb(255, 255, 0)',
-              0.6, 'rgb(255, 150, 0)',
-              0.8, 'rgb(255, 0, 0)',
-              1, 'rgb(150, 0, 0)' // Worst traffic
-            ],
-            'line-width': 1
-          }
-        });
-      });
-    
       // Adding the FullScreen Control to Map
       map.addControl(new mapboxgl.FullscreenControl());
 
       // Adding NavigationControl to Map
       var nav = new mapboxgl.NavigationControl();
       map.addControl(nav, 'top-right');
-    
+
+      map.addControl(new MapboxTraffic());
+
       // Controlling the Color Blind Modes and changing the Map Styles
       const layerList = document.getElementById('menu');
       const inputs = layerList.getElementsByTagName('input');
@@ -418,19 +396,35 @@ function SendUserInfo(){
   
   // functions that handle the events of the buttons as they
   // are used by the users
-  const handleCommentClick = () => {
-    if(isRVisible == false){
-      setIsCVisible(true)
+  const handleCommentClick = (event) => {
+    if(isCommentChecked == false){
+      setIsCommentChecked(event.target.checked);
+      if(isRVisible == false){
+        setIsCVisible(true);
+      }
+    } else {
+      setIsCommentChecked(false);
+      setIsCVisible(false);
+    } 
+  }
+
+  const handleRequestClick = (event) => {
+    // condition that allows button to be visible only iff
+    // the other button is not being used
+    if(isRequestChecked == false){
+      setIsRequestChecked(event.target.checked);
+      if(isCVisible == false){
+        setIsRVisible(true);
+      }
+    } else {
+      setIsRequestChecked(false);
+      setIsRVisible(false);
     }
   }
 
-  const handleRequestClick = () => {
-    // condition that allows button to be visible only iff
-    // the other button is not being used
-    if(isCVisible == false){
-      setIsRVisible(true)
-    }
-  }
+  // Event handlers for the Comment/Request Switches
+  const [isCommentChecked, setIsCommentChecked] = useState(false);
+  const [isRequestChecked, setIsRequestChecked] = useState(false);
 
   return (
     
@@ -560,8 +554,10 @@ function SendUserInfo(){
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
-              <MenuItem onClick={handleCommentClick} style={{ color: "black" }}> Make a Comment </MenuItem>
-              <MenuItem onClick={handleRequestClick} style={{ color: "black" }}> Make a Request </MenuItem>
+              <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
+                        onChange={handleCommentClick}/> </MenuItem>
+              <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
+                        isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
