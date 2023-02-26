@@ -1,4 +1,5 @@
 import JsonListReturn from "./components/recordList";
+import { Route } from "./Routing.js"
 import { LogMongo } from "./components/Log";
 import {
   Accordion,
@@ -58,8 +59,8 @@ import OutsidePic from './images/Outdoors.png';
 import Streetic from './images/darkMode2.png';
 import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
-import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
+import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
+import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
 var UserLat; 
 var UserLng; 
 var userInput; //used for comments and requests
@@ -144,19 +145,13 @@ function Map() {
       center: [lng, lat],
       zoom: zoom
     });
-     // Creates new directions control instance
-     const directions = new MapboxDirections({
-      accessToken: mapboxgl.accessToken,
-      unit: 'metric',
-      profile: 'mapbox/driving',
+    map.on('load', () => {
+      Route(map)
     });
-
-    // Integrates directions control with map
-    map.addControl(directions, 'top-left');
   
     // Adding Source and Layer onto the map
     // to display live traffic lines for congestion areas
-    map.on('load', () => {
+    /*map.on('load', () => {
       map.addSource('traffic', {
         type: 'vector',
         url: 'mapbox://mapbox.mapbox-traffic-v1'
@@ -182,7 +177,7 @@ function Map() {
           'line-width': 1
         }
       });
-    });
+    });*/
   
     // Adding the FullScreen Control to Map
     map.addControl(new mapboxgl.FullscreenControl());
