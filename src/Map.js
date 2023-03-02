@@ -1,6 +1,5 @@
 import JsonListReturn from "./components/recordList";
 import { LogMongo } from "./components/Log";
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import {
   Accordion,
   AccordionItem,
@@ -9,7 +8,6 @@ import {
   AccordionIcon,
   Box,
   Button,
-  ButtonGroup,
   Flex,
   HStack,
   IconButton,
@@ -45,7 +43,7 @@ import {
   useBoolean,
   useDisclosure
 } from '@chakra-ui/react'; 
-import { HamburgerIcon, PhoneIcon } from "@chakra-ui/icons";
+import { HamburgerIcon, PhoneIcon, ChatIcon } from "@chakra-ui/icons";
 import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
 import './Map.css'
@@ -53,15 +51,28 @@ import { useRef, useState, useMemo, useEffect} from 'react'
 import RequestMap from "./Request";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
 import React from 'react';
-import LightPic from './images/Light.svg';
+import LightPic from './images/Satellite.png';
 import DarkPic from './images/Dark.svg';
-import OutsidePic from './images/Outdoors.svg';
-import Streetic from './images/Streets.svg';
+import OutsidePic from './images/Outdoors.png';
+import Streetic from './images/darkMode2.png';
 import RedMarker from './marker-icons/mapbox-marker-icon-red.svg';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-var UserLat; //used for comments and requests 
-var UserLng; //used for comments and requests 
-var userInput; //used for comments and requests 
+import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
+import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
+var UserLat; 
+var UserLng; 
+var userInput; //used for comments and requests
+//Developed by Aaron Ramirez and Gabriel Mortensen
+
+  //This function returns records from the MongoDB database 
+  async function MongoRecords() {
+    const example = await JsonListReturn();
+    return example;
+  }
+  
+//assign full JSON results from MongoDB to result variable 
+const result = MongoRecords();
+  
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
 
@@ -71,9 +82,10 @@ function Map() {
   const mapContainer = useRef(null);
  
   //const map = useRef(null);
-  const [lng, setLng] = useState(-119.8138027);
-  const [lat, setLat] = useState(39.5296336);
-  const [zoom, setZoom] = useState(10);
+  //sets start to RENO area
+  const [lng, setLng] = useState();
+  const [lat, setLat] = useState();
+  const [zoom, setZoom] = useState(11);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
 
@@ -104,15 +116,18 @@ function Map() {
         }
       } else {
         setReqName("Request Location");
+        setIsRVisible(false);
       }
     }
     //Engage comment functionality 
     else{
+      console.log(commentState);
       setCState(!commentState);
       if (ComName === "Make a Comment") {
         setComName("Disregard Comment");
       } else {
         setComName("Make a Comment");
+        setIsCVisible(false);
       }
       //Turn off request if activated
       if (requestState) {
@@ -121,106 +136,194 @@ function Map() {
       }
     }
   };
-  
 
-  //Initialize Map only once
+  // useEffect to retrieve the user's location with .getCurrentPosition() method
+  // and it updates the lng and lat to set the map center to these coordinates
+  // if questions ask Angel
   useEffect(() => {
-    const map = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12?optimize=true',
-      center: [lng, lat],
-      zoom: zoom
-    });
-
-  
-
-  
-    
-  
-    // User request functionalty 
-    if (requestState || commentState) {
-    
-      map.on('click', function(e) {
-        // Obtain coordinates on userinput 
-        var lngLat = e.lngLat;
-        // console.log("Longitude: " + lngLat.lng + " Latitude: " + lngLat.lat);
-    
-        // If previous userinput exists, remove it 
-        if (userInput) {
-          userInput.remove();
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLng(position.coords.longitude);
+          setLat(position.coords.latitude);
+        },
+        () => {
+          console.error('Unable to retrieve your location');
         }
-
-        // Add a title to the marker if commentState is true
-        // Tristan Bailey 
-        userInput = new mapboxgl.Marker({
-          color: (commentState ? '#006400' : '#ff0000')
-          }).setLngLat([lngLat.lng, lngLat.lat])
-          .addTo(map);
-
-        UserLng = lngLat.lng;
-        UserLat = lngLat.lat;
-      })
+      );
+    } else {
+      console.error('Geolocation is not supported by this browser');
     }
-   
+  }, []);
+  
+  useEffect(() => {
+    //Initialize the Map with current lng and lat
+    if(lng && lat){
+      const map = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
+        center: [lng, lat],
+        zoom: zoom
+      });
 
-    // Adding the FullScreen Control to Map
-    map.addControl(new mapboxgl.FullscreenControl());
+      // Add geolocate control to the map to show where the user is located
+      map.addControl(new mapboxgl.GeolocateControl({
+        fitBoundsOptions: {
+          maxZoom: 14
+        },
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        trackUserLocation: true,
+        circleStyle: {
+          fillColor: 'rgba(0, 128, 255, 0.4)',
+          strokeColor: 'rgba(0, 128, 255, 0.8)',
+          strokeWidth: 4
+        },
+        markerStyle: {
+          color: 'rgb(0, 128, 255)'
+        }
+      }));
 
-    // Controlling the Color Blind Modes and changing the Map Styles
-    const layerList = document.getElementById('menu');
-    const inputs = layerList.getElementsByTagName('input');
+      // Creates new directions control instance
+      const directions = new MapboxDirections({
+        accessToken: mapboxgl.accessToken,
+        unit: 'metric',
+        profile: 'mapbox/driving',
+      });
+
+      // Integrates directions control with map
+      map.addControl(directions, 'top-left');
     
-    for (const input of inputs) {
-      input.onclick = (layer) => {
-        const layerId = layer.target.id;
-        map.setStyle('mapbox://styles/mapbox/' + layerId);
+      // Adding Source and Layer onto the map
+      // to display live traffic lines for congestion areas
+      map.on('load', () => {
+        map.addSource('traffic', {
+          type: 'vector',
+          url: 'mapbox://mapbox.mapbox-traffic-v1'
+        });
+    
+        map.addLayer({
+          id: 'traffic-layer',
+          type: 'line',
+          source: 'traffic',
+          'source-layer': 'traffic',
+          paint: {
+            'line-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'density'],
+              0, 'rgb(0, 255, 0)', // No traffic
+              0.2, 'rgb(150, 255, 0)',
+              0.3, 'rgb(255, 255, 0)',
+              0.6, 'rgb(255, 150, 0)',
+              0.8, 'rgb(255, 0, 0)',
+              1, 'rgb(150, 0, 0)' // Worst traffic
+            ],
+            'line-width': 1
+          }
+        });
+      });
+    
+      // Adding the FullScreen Control to Map
+      map.addControl(new mapboxgl.FullscreenControl());
+
+      // Adding NavigationControl to Map
+      var nav = new mapboxgl.NavigationControl();
+      map.addControl(nav, 'top-right');
+    
+      // Controlling the Color Blind Modes and changing the Map Styles
+      const layerList = document.getElementById('menu');
+      const inputs = layerList.getElementsByTagName('input');
+    
+      for (const input of inputs) {
+        input.onclick = (layer) => {
+          const layerId = layer.target.id;
+          map.setStyle('mapbox://styles/mapbox/' + layerId);
+        };
+      }
+
+      //This function returns records from the MongoDB database
+      async function MongoRecords(link) {
+        const pinInfo = await JsonListReturn(link);
+        return pinInfo
+      }
+
+      //Gabriel Mortensen Pin Display functions below 
+      //Waiting for data from MogoDB
+      //Uses the result variable 
+      async function displayMarkers() {
+        // Wait for data from MongoDB
+        const [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
+
+        // Angel C. Muller loop through the marker data and create markers
+        // depending on the classification of road deficiency
+        for (let i = 0; i < pinData.length; i++) {
+          let markerColor = '#f5c7f7'; // Default color
+          if (pinData[i].Classification === 'loose surface' || pinData[i].Classification === 'speed divit' || pinData[i].Classification === 'tar snake') {
+            markerColor = '#fcff82'; // Set color for a specific description
+          } else if (pinData[i].Classification === 'worn road' || pinData[i].Classification === 'pothole') {
+            markerColor = '#dc2f2f'; // Set color for another specific description
+          }
+
+          const marker = new mapboxgl.Marker({ color: markerColor })
+            .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
+            .setPopup(new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
+            .addTo(map);
+
+            // Hover over pins and see immediate information
+            marker.getElement().addEventListener('mouseover', () => {
+              marker.togglePopup();
+            });
+          
+            marker.getElement().addEventListener('mouseout', () => {
+              marker.togglePopup();
+            });
+        }
+      
+        for (let i = 0; i < commentData.length; i++) {
+          const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
+            .setLngLat([commentData[i].Lng, commentData[i].Lat])
+            .setPopup(new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
+            .addTo(map);
+        }
+      }
+
+      // Function to add event listener for marking pins
+      function addPinListener() {
+        map.on('click', function(e) {
+          // Obtain coordinates on user input 
+          var lngLat = e.lngLat;
+      
+          // If previous user input exists, remove it 
+          if (userInput) {
+            userInput.remove();
+          }
+
+          // Add a title to the marker if commentState is true
+          userInput = new mapboxgl.Marker({
+            color: (commentState ? '#006400' : '#ff0000')
+            }).setLngLat([lngLat.lng, lngLat.lat])
+            .addTo(map);
+
+          UserLng = lngLat.lng;
+          UserLat = lngLat.lat;
+        });
+      }
+
+      // Call functions to display markers and add pin listener
+      displayMarkers();
+      if (requestState || commentState) {
+        addPinListener();
+      }
+    
+      return () => {
+        map.remove();
       };
     }
-
-  
-    //This function returns records from the MongoDB database 
-    async function MongoRecords(link) {
-      const pinInfo = await JsonListReturn(link);
-      return pinInfo
-    }
-
-    //assign full JSON results from MongoDB to result variable 
-    const result = MongoRecords(`http://localhost:3000/record/`);
-    const comments = MongoRecords(`http://localhost:3000/crecord/`);
-
-    //Gabriel Mortensen Pin Display functions below     
-    //Waiting for data from MogoDB
-    //Uses the result variable  
-    Promise.all([result, comments]).then(values => {
-      const [pinData, commentData] = values;
-    
-      // Loop through the marker data and create markers
-      for (let i = 0; i < pinData.length; i++) {
-        const marker = new mapboxgl.Marker({ color: '#A020F0' })
-          .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
-          .setPopup(new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
-          .addTo(map);
-      }
-    
-      for (let i = 0; i < commentData.length; i++) {
-        const marker = new mapboxgl.Marker({ color: '#ff0000' })
-          .setLngLat([commentData[i].Lng, commentData[i].Lat])
-          .setPopup(new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
-          .addTo(map);
-      }
-    });
-    
-   
-    return () => {
-      map.remove();
-    };
-  });
-
-
-
-
+  }, [requestState, commentState, lng, lat, zoom]);
 
   //function to select Map Style Angel C. Muller
   function WithPopoverAnchor() {
@@ -309,37 +412,59 @@ function SendUserInfo(){
     }
   }
 
+  // variables to control the states of the comments and requests
+  const [isCVisible, setIsCVisible] = useState(false);
+  const [isRVisible, setIsRVisible] = useState(false);
+  
+  // functions that handle the events of the buttons as they
+  // are used by the users
+  const handleCommentClick = () => {
+    if(isRVisible == false){
+      setIsCVisible(true)
+    }
+  }
+
+  const handleRequestClick = () => {
+    // condition that allows button to be visible only iff
+    // the other button is not being used
+    if(isCVisible == false){
+      setIsRVisible(true)
+    }
+  }
 
   return (
     
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Center  position = 'relative'  h='15vh' bg='rgba(185, 222, 203, 100);'>
-        {/* Menu for dispaly options  */}
+      <Flex  position=""  h='13vh' bg='#31C4AE'>
+        {/* Menu for dispaly options */}
         <div id="menu">
-          <input id="streets-v12" type="radio" name="rtoggle" value="streets"/>
-          <label for="streets-v12"> <img src={LightPic} alt="street"/>  <span>Light</span> </label>
-          <input id="light-v11" type="radio" name="rtoggle" value="light" />
-          <label for="light-v11">   <img src={DarkPic} alt="street"/> <span>Dark</span> </label>
+          <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
+          <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
           <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span>Street</span></label>
+          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
-          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span>Outdoors</span> </label>
+          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span> Outdoors </span> </label>
         </div>
 
         {/* Request Location Buttons  */}
-        <Button colorScheme={requestState ? 'orange' : 'blue'} mr={3} onClick={() => Toggle("Request")}>
-          {ReqName}
-        </Button>
+        {isRVisible && (
+          <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Request")}>
+            {ReqName}
+          </Button>
+        )}
 
-        <Button colorScheme={commentState ? 'orange' : 'blue'}onClick={() => Toggle("Comment")} > 
-          {ComName}
-        </Button>
+        {isCVisible && (
+          <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Comment")}>
+            {ComName}
+          </Button>
+        )}
 
 
         {/* Hamburger Menu  */}
-        <WithPopoverAnchor/>
-        <Menu variant='roundleft'>
-          <MenuButton as={IconButton} aria-label='Options'  style={{ backgroundColor: "white" }} icon={<HamburgerIcon />} variant='outline' position='relative' float='right'/>
+        <WithPopoverAnchor style={{display: "flex"}}/>
+        <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
+          <MenuButton as={IconButton} position="absolute" top="5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
+          style={{ backgroundColor: "#0964ed"}}/>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
                 <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
@@ -435,10 +560,12 @@ function SendUserInfo(){
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
+              <MenuItem onClick={handleCommentClick} style={{ color: "black" }}> Make a Comment </MenuItem>
+              <MenuItem onClick={handleRequestClick} style={{ color: "black" }}> Make a Request </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
-      </Center>
+      </Flex>
       
 
       {/* Gabriel worked on format of map and description location  */}
@@ -471,7 +598,7 @@ function SendUserInfo(){
 
         </Box> // description size 
         
-        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
+        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}} />
 
        
       </HStack>
