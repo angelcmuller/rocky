@@ -17,7 +17,7 @@ from pandas import *
 
 def main():
     print("========Converting Video ========")
-
+    print(cv2.__version__)
     # change directory to SNC_prototype
     os.chdir("SNC_prototype")
 

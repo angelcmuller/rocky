@@ -31,11 +31,11 @@ def main():
     video = ''
     csv = ''
     
-    print("===QUESTION?===")    
-    if (input("New user? (Y/N)") == "Y"):
+    ans = input("New user? (Y/N)") 
+    if (ans == "Y"):
        new_user(collection)
     
-    else:
+    elif (ans == "N"):
         #check username and pass
         video, csv = obtain_info(collection)
         
@@ -45,6 +45,9 @@ def main():
         else:
             print("Pushing information to database, please wait as calculations performed...")
             analyze_and_push(video, csv)
+    
+    else:
+        print("Invalid Input")
         
         
 def analyze_and_push(video, csv):
@@ -77,7 +80,6 @@ def new_user(collection):
         username = "".join(username.split())
         password = "".join(password.split())
 
-        print("===QUESTION?===")
         if (input("You want your username as '" + username + "' and your password as '" + password + "'... Is this correct? (Y/N)") == "Y"):
             if(existing_check(username, collection) == False):
                 confirmed = True
@@ -88,15 +90,14 @@ def new_user(collection):
     document = { "Username": username, "Password": password }
     result = collection.insert_one(document)
     if result.acknowledged:
-        print("Document inserted successfully:", result.inserted_id)
+        print("Account created successfully")
     else:
-        print("Insert failed:", result.raw_result)
+        print("Account creation failed")
 
     
-    
+#Obtain info from existing users on video and csv    
 def obtain_info(collection):
  
-   
     # get information from user 
     print("Type: username, password, path to video, path to csv")
     Userinput = input("<Project Rocky Road>")
@@ -112,14 +113,12 @@ def obtain_info(collection):
         # check if the Username field is present in the record
         if 'Username' in record:
             # Check Username and Password
-            print(record['Username'] )
             if(Userlist[0] == record['Username'] and Userlist[1] == record['Password']):
                 valid = True 
         else:
             # handle the case where the Username field is missing
             print('Username field is missing for particular record')
 
-    print(valid)
     if (valid == False):
         return "False", "False"
     else:
