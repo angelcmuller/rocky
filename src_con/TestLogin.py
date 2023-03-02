@@ -1,5 +1,5 @@
 #Test cases by Gabriel Mortensen 
-#Base case aided by ChatGPT 
+#getting test_new_user to run twice was aided by ChatGPT 
 
 import unittest
 from unittest.mock import patch
@@ -27,7 +27,7 @@ class TestLogin(unittest.TestCase):
                
                
     #new user tries to create account
-    @patch('builtins.input', side_effect=['Y', 'Unit', 'Tester', 'Y'])
+    @patch('builtins.input', side_effect=[('Y', 'Unit', 'Tester', 'Y'), ('Y', 'Unit', 'Tester', 'N')])
     def test_new_user(self, mock_input):
 
         #if unit tester account already exists, delete it   
@@ -50,7 +50,8 @@ class TestLogin(unittest.TestCase):
 
         #fresh user
         expected_output = "Account created successfully"
-            
+        expected_output2 = "Username already exists, please try again..."
+
         with io.StringIO() as out:
                 with redirect_stdout(out):
                     login.main()
@@ -59,8 +60,13 @@ class TestLogin(unittest.TestCase):
                     
                     print(f"expected_output: {expected_output}")
                     print(f"output: {output}")
-
-     
+                    
+        with io.StringIO() as out:
+                with redirect_stdout(out):
+                    login.main()
+                    output2 = out.getvalue().strip()
+                    self.assertTrue(expected_output2 in output2)
+            
                    
          
           
