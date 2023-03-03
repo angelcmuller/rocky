@@ -594,7 +594,7 @@ function SendUserInfo(){
 
         </Box> // description size 
         
-        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}} />
+        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
 
        
       </HStack>
