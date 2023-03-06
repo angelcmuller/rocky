@@ -35,7 +35,7 @@ def main():
     if (ans == "Y"):
        new_user(collection)
     
-    elif (ans == "N"):
+    if (ans == "N"):
         #check username and pass
         video, csv = obtain_info(collection)
         
@@ -46,7 +46,7 @@ def main():
             print("Pushing information to database, please wait as calculations performed...")
             analyze_and_push(video, csv)
     
-    else:
+    if (ans != "N" or ans != "Y"):
         print("Invalid Input")
         
         
@@ -81,19 +81,19 @@ def new_user(collection):
         password = "".join(password.split())
 
         if (input("You want your username as '" + username + "' and your password as '" + password + "'... Is this correct? (Y/N)") == "Y"):
-            if(existing_check(username, collection) == False):
-                confirmed = True
-            else:
-                print("Username already exists, please try again...")
+            confirmed = True     
+            
+    #check if users choice already exists, if so make input invalid 
+    if(existing_check(username, collection) == True):
+        print("Username already exists, account invalid")
 
-   # Add new user and pass to database 
-    document = { "Username": username, "Password": password }
-    result = collection.insert_one(document)
-    if result.acknowledged:
-        print("Account created successfully")
+    #if new user valid, add to system 
     else:
-        print("Account creation failed")
-
+        # Add new user and pass to database 
+        document = { "Username": username, "Password": password }
+        result = collection.insert_one(document)
+        if result.acknowledged:
+            print("Account created successfully")
     
 #Obtain info from existing users on video and csv    
 def obtain_info(collection):
