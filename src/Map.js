@@ -95,6 +95,7 @@ function Map() {
   const [ComName, setComName] = useState("Make a Comment");
   const [requestState, setRState] = useState(false);
   const [commentState, setCState] = useState(false);
+  const [routeState, setRouteState] = useState(true);
 
   function LimitFunctionality(Name){
     if (commentState === false && requestState === true ){
@@ -106,6 +107,7 @@ function Map() {
   }
   
   function Toggle(Name){
+    setRouteState(false);
     //If request button pressed toggle 
     if(Name === "Request"){
       setRState(!requestState);
@@ -118,6 +120,7 @@ function Map() {
         }
       } else {
         setReqName("Request Location");
+        setRouteState(true);
       }
     }
     //Engage comment functionality 
@@ -127,6 +130,7 @@ function Map() {
         setComName("Disregard Comment");
       } else {
         setComName("Make a Comment");
+        setRouteState(true);
       }
       //Turn off request if activated
       if (requestState) {
@@ -146,7 +150,11 @@ function Map() {
       zoom: zoom
     });
     map.on('load', () => {
-      Route(map)
+      //use to display input boxes if in routing mode
+      if (routeState === true){
+        console.log("Routing");
+        Route(map);
+      }
     });
   
     // Adding Source and Layer onto the map
