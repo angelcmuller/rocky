@@ -8,24 +8,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 import os
-
-
-def main():
-    print("========Image Classifier ========")
-    Classifer()
+from contributor_pins import add_cpin
 
 # Classifies images into categories
+def Classify(author, Mdate):
 
-
-def Classifer():
-    img = image.load_img(
-        "data\\frame0_39.56484544_-119.7043577.jpg")
-    plt.imshow(img)
-    # plt.show()
-    cv2.imread(
-        "data\\frame0_39.56484544_-119.7043577.jpg")
+    #rescaling image data window as done in youtube tutorial 
     train = ImageDataGenerator(rescale=1/255)
     validation = ImageDataGenerator(rescale=1/255)
+
     # resize images and assign label
     # given to neural network 3 images a time (batch size)
     train_dataset = train.flow_from_directory(
@@ -60,23 +51,25 @@ def Classifer():
                           epochs=30, validation_data=validation_dataset)
 
     # test the practice data set
-    dir_path = 'testing'
+    dir_path = input("Please enter the path of the file containing your testing information: ")
 
     for i in os.listdir(dir_path):
         img = image.load_img(dir_path + '\\' + i, target_size=(200, 200, 3))
-        plt.imshow(img)
-        plt.show()
-
+        
         X = image.img_to_array(img)
         X = np.expand_dims(X, axis=0)
         images = np.vstack([X])
         val = model.predict(images)
         if val == 0:
-            print("Bad road :(")
+            print("Bad road... adding pin to web application")
+                        
+            # Extract latitude and longitude from string
+            values = img.split("_")[1:3]  # Split string at underscores and take second and third elements
+            lat = float(values[0])  # Convert latitude string to float
+            lng = float(values[1])  # Convert longitude string to float
+            Udate = int(time.time()) #get current time in unix 
+            classification = "Bad Rode (Binary Classification)" #obtain current classification 
+            add_cpin(classification, lat, lng, Mdate, Udate, author)
+            
         else:
             print("Good road :)")
-
-
-    # main function guarente
-if __name__ == "__main__":
-    main()

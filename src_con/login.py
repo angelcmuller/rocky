@@ -1,8 +1,8 @@
 from pymongo import MongoClient
 import numpy as np
-from tensorflow import keras
-import tensorflow as tf
-import matplotlib.pyplot as plt
+# from tensorflow import keras
+# import tensorflow as tf
+# import matplotlib.pyplot as plt
 import csv
 import requests
 import pandas as pd
@@ -12,11 +12,14 @@ from Data_Manager import Data_Manager
 import ssl
 import certifi
 from bson.objectid import ObjectId
+#from MachineLearning.road_classifer import Classifier
+#from MachineLearning.video_breakdown import Convert
+from tqdm import tqdm
 
 #main function used to check MongoDB collection 
 def main():
     
-    
+   
     
     #connect to database 
     client = MongoClient("mongodb://tristanbailey:RockyRoadKey2022@ac-ap9bbel-shard-00-00.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-01.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-02.fpy1pqs.mongodb.net:27017/?ssl=true&replicaSet=atlas-zrbeo7-shard-0&authSource=admin&retryWrites=true&w=majority",
@@ -37,22 +40,49 @@ def main():
     
     if (ans == "N"):
         #check username and pass
-        video, csv = obtain_info(collection)
+        user, video, csv = obtain_info(collection)
         
         #if valid push to database 
         if (video == "False" and csv == "False"):
             print("Invalid identification, please try again")
         else:
             print("Pushing information to database, please wait as calculations performed...")
-            analyze_and_push(video, csv)
+            analyze_and_push(user, video, csv)
     
     if (ans != "N" or ans != "Y"):
         print("Invalid Input")
         
         
-def analyze_and_push(video, csv):
-    print("vid: " + video + " | csv: " + csv)
+def analyze_and_push(user, video, csv):
     
+    
+    # Ask user for date and time input
+    date = input("Enter date you measured data (Format YYYY-MM-DD): ")
+    time = input("Enter time you measured data (24 Hour Clock Format: HH:MM:SS): ")
+
+    DateTime = date + ' ' + time
+
+    #Chat GPT assistance with time object 
+    #==========================================================
+    # Parse datetime string into a datetime object
+    MDate_obj = datetime.datetime.strptime(DateTime, '%Y-%m-%d %H:%M:%S')
+    # Convert datetime object to Unix timestamp
+    Mdate = int(MDate_obj.timestamp())
+    #========================================================== 
+
+    print("Converting video to images...")
+    #loop below is only used for loading bar decoration (not an actual for loop)
+    #call convert function to breakdown video 
+    #for i in tqdm(range(100)):
+    #    Convert(video, csv)
+    
+    print("Analyzing Road Conditions...")
+
+    #loop below is only used for loading bar decoration (not an actual for loop)
+    #call Classify to classify images 
+    #for i in tqdm(range(100)):
+    #    Classifier(user, Mdate)
+
 
 #check if a username already exists in database 
 def existing_check(username, collection):
@@ -122,7 +152,7 @@ def obtain_info(collection):
     if (valid == False):
         return "False", "False"
     else:
-        return Userlist[2], Userlist[3]
+        return Userlist[0], Userlist[2], Userlist[3]
     
 # main guard
 if __name__ == "__main__":
