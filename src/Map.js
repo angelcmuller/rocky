@@ -12,6 +12,7 @@ import {
   Flex,
   HStack,
   IconButton,
+  Stack,
   Input,
   SkeletonText,
   Text,
@@ -46,7 +47,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon, ChatIcon } from "@chakra-ui/icons";
-import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
+import { FaSatellite, FaMountain,FaMoon, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
 import './Map.css'
 import { useRef, useState, useMemo, useEffect} from 'react'
@@ -63,6 +64,7 @@ import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-direct
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 import MapboxTraffic from "./mapbox-gl-traffic.js";
 import "./mapbox-gl-traffic.css"
+import * as polyline from '@mapbox/polyline';
 
 var UserLat; 
 var UserLng; 
@@ -172,7 +174,7 @@ function Map() {
     if(lng && lat){
       const map = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
+        style: 'mapbox://styles/rockroadunr/clf0m5u09001h01qknv3g429d',
         center: [lng, lat],
         zoom: zoom
       });
@@ -182,6 +184,7 @@ function Map() {
       if (routeState === true){
         console.log("Routing");
         Route(map);
+        
       }
     });
 
@@ -204,15 +207,6 @@ function Map() {
         }
       }));
 
-      // Creates new directions control instance
-      const directions = new MapboxDirections({
-        accessToken: mapboxgl.accessToken,
-        unit: 'metric',
-        profile: 'mapbox/driving',
-      });
-
-      // Integrates directions control with map
-      map.addControl(directions, 'top-left');
     
       // Adding the FullScreen Control to Map
       map.addControl(new mapboxgl.FullscreenControl());
@@ -226,7 +220,6 @@ function Map() {
       // Controlling the Color Blind Modes and changing the Map Styles
       const layerList = document.getElementById('menu');
       const inputs = layerList.getElementsByTagName('input');
-    
       for (const input of inputs) {
         input.onclick = (layer) => {
           const layerId = layer.target.id;
@@ -320,6 +313,7 @@ function Map() {
   function WithPopoverAnchor() {
     const [isEditing, setIsEditing] = useBoolean()
     const [color, setColor] = React.useState('')
+    
 
     return (
       <Popover
@@ -442,15 +436,29 @@ function SendUserInfo(){
   return (
     
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Flex  position=""  h='13vh' bg='#31C4AE'>
-        {/* Menu for dispaly options */}
-        <div id="menu">
-          <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
-          <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
+
+      {/* Gabriel worked on format of map and description location  */}
+        
+        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}>
+        <Box
+        p={1}
+        borderRadius='lg'
+        m={1}
+        bgColor='gray'
+        shadow='base'
+        left = '50%'
+        zIndex='1'
+        position = 'absolute'
+        >
+        <HStack  spacing = {0} justifyContent='space-between'>
+  {/* Menu for dispaly options */}
+  <div id="menu">
+          <input id="satellite-streets-v12" left ="10" type="radio" name="rtoggle" value="streets"/>
+          <label for="satellite-streets-v12"><img src={LightPic} alt="street"/>   <span> Satellite </span> </label>
           <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
+          <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
-          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span> Outdoors </span> </label>
+          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/><span> Outdoors </span> </label>
         </div>
 
         {/* Request Location Buttons  */}
@@ -466,11 +474,12 @@ function SendUserInfo(){
           </Button>
         )}
 
+        
 
         {/* Hamburger Menu  */}
         <WithPopoverAnchor style={{display: "flex"}}/>
         <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
-          <MenuButton as={IconButton} position="absolute" top="5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
+          <MenuButton as={IconButton} position="absolute"   aria-label='Options'icon={<HamburgerIcon />} variant='outline'
           style={{ backgroundColor: "#0964ed"}}/>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
@@ -573,20 +582,11 @@ function SendUserInfo(){
                         isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
             </MenuList>
         </Menu> 
-        <br/>
-      </Flex>
-      
-
-      {/* Gabriel worked on format of map and description location  */}
-      <HStack spacing = '0' > // space between map and description box 
-        <Box bg='green.300' h = '100vh' w = '30%'  display='flex' flexDirection='column'  alignItems='center'>
-          
-          {/* Description box title  */}
-          <p id="Description">Descriptions</p>
-        
-        {/* Is visable only when user turns on Request */}
-        {(requestState || commentState) ? (
-          <Box bg='white' h = '40%' w = '90%'  display='flex' flexDirection='column'  alignItems='center'>
+</HStack>
+</Box>
+{/* Is visable only when user turns on Request */}
+{(requestState || commentState) ? (
+          <Box bg='white' h = '40%' w = '90%'  display='flex' flexDirection='column' position='absolute' zIndex={1}  alignItems='center'>
            
             {/* User text box that appears when user clicks scan request */}
             <label for="input" class="black-text">
@@ -603,14 +603,10 @@ function SendUserInfo(){
               </Button>
           </Box>
          ) : null}
-
-
-        </Box> // description size 
-        
-        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
+</div>
+ 
 
        
-      </HStack>
 
     </Flex>
   );
