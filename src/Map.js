@@ -211,7 +211,7 @@ function Map() {
           color: 'rgb(0, 128, 255)'
         }
       }));
-
+      
       // Adding the FullScreen Control to Map
       map.addControl(new mapboxgl.FullscreenControl());
 
@@ -438,7 +438,7 @@ function SendUserInfo(){
 
   // function that handles the displaying of the comments onto the map
   const handleShowCommentClick = (event) => {
-    if(isRequestChecked == false){
+    if(isShowCommentChecked == false){
       setIsShowCommentChecked(event.target.checked);
       console.log("Display Comments now.")
     } else {
@@ -461,12 +461,6 @@ function SendUserInfo(){
    if ( markers.length > 0){
     toggleMarkers(isShowCommentChecked);
    } 
-
-
-
-
-
-
 
   return (
     
