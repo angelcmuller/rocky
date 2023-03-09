@@ -71,7 +71,7 @@ def analyze_and_push(user, video, csv):
     #loop below is only used for loading bar decoration (not an actual for loop)
     #call convert function to breakdown video 
     #for i in tqdm(range(100)):
-    #Convert(video, csv)
+    Convert(video, csv)
 
     print("===========================")
 

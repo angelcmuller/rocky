@@ -81,7 +81,7 @@ def VideoBreakdown(user_video, realtime_INS, longitude_INS, latitude_INS):
         ret, frame = cam.read()
 
         # if frame exists create image
-        if ret:
+        if (ret and currentframe < 1432):
 
             coordinates_image = Coordinates(
                 realtime_INS, longitude_INS, latitude_INS, current_seconds)
