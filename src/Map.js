@@ -97,6 +97,9 @@ function createDirections() {
   });
 }
 
+// create an array to store markers
+const markers = []; // declare markers array outside of useEffect
+
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
 
@@ -105,6 +108,9 @@ function Map() {
 
   const mapContainer = useRef(null);
  
+
+
+
   //const map = useRef(null);
   //sets start to RENO area
   const [lng, setLng] = useState();
@@ -186,6 +192,7 @@ function Map() {
     }
   }, []);
   
+
   useEffect(() => {
     //Initialize the Map with current lng and lat
     if(lng && lat){
@@ -260,17 +267,7 @@ function Map() {
           color: 'rgb(0, 128, 255)'
         }
       }));
-
-      // // Creates new directions control instance
-      // const directions = new MapboxDirections({
-      //   accessToken: mapboxgl.accessToken,
-      //   unit: 'metric',
-      //   profile: 'mapbox/driving',
-      // });
-
-      // // Integrates directions control with map
-      // map.addControl(directions, 'top-left');
-    
+      
       // Adding the FullScreen Control to Map
       map.addControl(new mapboxgl.FullscreenControl());
 
@@ -338,7 +335,10 @@ function Map() {
             .setPopup(new mapboxgl.Popup({ offset: 25 })
             .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
             .addTo(map);
+            // add the marker to the markers array
+          markers.push(marker);
         }
+       
       }
 
       // Function to add event listener for marking pins
@@ -373,7 +373,7 @@ function Map() {
         map.remove();
       };
     }
-  }, [requestState, commentState, lng, lat, zoom]);
+  }, [requestState, commentState, lng, lat, zoom, markers]);
 
   //function to select Map Style Angel C. Muller
   function WithPopoverAnchor() {
@@ -496,9 +496,9 @@ function SendUserInfo(){
 
   // function that handles the displaying of the comments onto the map
   const handleShowCommentClick = (event) => {
-    if(isRequestChecked == false){
+    if(isShowCommentChecked == false){
       setIsShowCommentChecked(event.target.checked);
-      console.alert("Display Comments now.")
+      console.log("Display Comments now.")
     } else {
       setIsShowCommentChecked(false);
     }
@@ -507,7 +507,18 @@ function SendUserInfo(){
   // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
-  const [isShowCommentChecked, setIsShowCommentChecked] = useState(false);
+  const [isShowCommentChecked, setIsShowCommentChecked] = useState(true);
+
+  // use a boolean function to turn markers on and off
+  function toggleMarkers(isShowCommentChecked) {
+    markers.forEach(marker => {
+      marker.getElement().style.opacity = isShowCommentChecked ? 1 : 0;
+    });
+  }
+  
+   if ( markers.length > 0){
+    toggleMarkers(isShowCommentChecked);
+   } 
 
   return (
     
