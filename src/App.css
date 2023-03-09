@@ -2,9 +2,14 @@
 #body {
   background-color: rgba(185, 222, 203, 100);
 
-  min-width: auto;
+  width: auto;
   align-items: center;
   text-align: center;
+}
+
+#page {
+  min-width: 100%;
+  min-height: 100%;
 }
 
 

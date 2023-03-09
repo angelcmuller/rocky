@@ -49,3 +49,16 @@ class Data_Manager(object):
         # Add data to the database
         Data_Manager.db.Pins.insert_many(data)
         Data_Manager.df = pd.DataFrame(columns=Data_Manager.df.columns)
+        
+    def user_check(self):
+        
+        
+        # iterate over every record in the collection
+        for record in    Data_Manager.db.Contributors.find():
+            # check if the "Name" field is present in the record
+            if 'Username' in record:
+                # do something with the "Name" field, e.g. print it
+                print(record['Username'])
+            else:
+                # handle the case where the "Name" field is missing
+                print('Username field is missing')
