@@ -8,10 +8,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 import os
-from MachineLearning.contributor_pins import add_cpin
+from contributor_pins import add_cpin
+import datetime
+import time 
+
+def main():
+    print("Uncomment code in main to run test")
+    # Classify("Code_Test", 1239231) 
 
 # Classifies images into categories
 def Classify(author, Mdate):
+
+    # testing_file = input("Testing file dir: ")
+    # validate_file = input("Validating file dir: ")
+    # training_file = input("Training file dir: ")
 
     #rescaling image data window as done in youtube tutorial 
     train = ImageDataGenerator(rescale=1/255)
@@ -51,25 +61,36 @@ def Classify(author, Mdate):
                           epochs=30, validation_data=validation_dataset)
 
     # test the practice data set
-    dir_path = input("Please enter the path of the file containing your testing information: ")
+    dir_path = "testing"
 
     for i in os.listdir(dir_path):
-        img = image.load_img(dir_path + '\\' + i, target_size=(200, 200, 3))
-        
+        if os.path.isfile(os.path.join(dir_path, i)):
+            img = image.load_img(os.path.join(dir_path, i), target_size=(200, 200, 3))
+
         X = image.img_to_array(img)
         X = np.expand_dims(X, axis=0)
         images = np.vstack([X])
         val = model.predict(images)
+
         if val == 0:
             print("Bad road... adding pin to web application")
-                        
+
+            specific_image = str(i)
+            print(i)
+            print(specific_image)
             # Extract latitude and longitude from string
-            values = img.split("_")[1:3]  # Split string at underscores and take second and third elements
-            lat = float(values[0])  # Convert latitude string to float
-            lng = float(values[1])  # Convert longitude string to float
+            values = specific_image.split("_")[1:3]  # Split string at underscores and take second and third elements
+            lng = float(values[1].split(".")[0])  # Convert longitude string to float, ignoring file extension
+            lat = float(values[0])
             Udate = int(time.time()) #get current time in unix 
             classification = "Bad Rode (Binary Classification)" #obtain current classification 
             add_cpin(classification, lat, lng, Mdate, Udate, author)
+
             
         else:
             print("Good road :)")
+
+
+            # main guard
+if __name__ == "__main__":
+    main()

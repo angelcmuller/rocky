@@ -73,14 +73,17 @@ def analyze_and_push(user, video, csv):
     #loop below is only used for loading bar decoration (not an actual for loop)
     #call convert function to breakdown video 
     #for i in tqdm(range(100)):
-    #    Convert(video, csv)
+    Convert(video, csv)
+
+    print("===========================")
+
+    print("Now that data file exists, please place data into validation, test, and training")   
+    variable_used_for_waiting = input("Press any key when ready to move to next step: ")
     
     print("Analyzing Road Conditions...")
-
     #loop below is only used for loading bar decoration (not an actual for loop)
     #call Classify to classify images 
-    #for i in tqdm(range(100)):
-    #    Classify(user, Mdate)
+    Classify(user, Mdate)
 
 
 #check if a username already exists in database 
