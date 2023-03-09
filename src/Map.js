@@ -12,7 +12,6 @@ import {
   Flex,
   HStack,
   IconButton,
-  Stack,
   Input,
   SkeletonText,
   Text,
@@ -47,7 +46,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon, ChatIcon } from "@chakra-ui/icons";
-import { FaSatellite, FaMountain,FaMoon, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
+import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css'
 import './Map.css'
 import { useRef, useState, useMemo, useEffect} from 'react'
@@ -64,7 +63,6 @@ import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-direct
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 import MapboxTraffic from "./mapbox-gl-traffic.js";
 import "./mapbox-gl-traffic.css"
-import * as polyline from '@mapbox/polyline';
 
 var UserLat; 
 var UserLng; 
@@ -80,6 +78,10 @@ var userInput; //used for comments and requests
 //assign full JSON results from MongoDB to result variable 
 const result = MongoRecords();
   
+// create an array to store markers
+const markers = []; // declare markers array outside of useEffect
+
+
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
 
@@ -88,6 +90,9 @@ function Map() {
 
   const mapContainer = useRef(null);
  
+
+
+
   //const map = useRef(null);
   //sets start to RENO area
   const [lng, setLng] = useState();
@@ -169,12 +174,13 @@ function Map() {
     }
   }, []);
   
+
   useEffect(() => {
     //Initialize the Map with current lng and lat
     if(lng && lat){
       const map = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/rockroadunr/clf0m5u09001h01qknv3g429d',
+        style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
         center: [lng, lat],
         zoom: zoom
       });
@@ -184,7 +190,6 @@ function Map() {
       if (routeState === true){
         console.log("Routing");
         Route(map);
-        
       }
     });
 
@@ -206,8 +211,7 @@ function Map() {
           color: 'rgb(0, 128, 255)'
         }
       }));
-
-    
+      
       // Adding the FullScreen Control to Map
       map.addControl(new mapboxgl.FullscreenControl());
 
@@ -220,6 +224,7 @@ function Map() {
       // Controlling the Color Blind Modes and changing the Map Styles
       const layerList = document.getElementById('menu');
       const inputs = layerList.getElementsByTagName('input');
+    
       for (const input of inputs) {
         input.onclick = (layer) => {
           const layerId = layer.target.id;
@@ -272,7 +277,10 @@ function Map() {
             .setPopup(new mapboxgl.Popup({ offset: 25 })
             .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
             .addTo(map);
+            // add the marker to the markers array
+          markers.push(marker);
         }
+       
       }
 
       // Function to add event listener for marking pins
@@ -307,13 +315,12 @@ function Map() {
         map.remove();
       };
     }
-  }, [requestState, commentState, lng, lat, zoom]);
+  }, [requestState, commentState, lng, lat, zoom, markers]);
 
   //function to select Map Style Angel C. Muller
   function WithPopoverAnchor() {
     const [isEditing, setIsEditing] = useBoolean()
     const [color, setColor] = React.useState('')
-    
 
     return (
       <Popover
@@ -429,36 +436,44 @@ function SendUserInfo(){
     }
   }
 
-  // Event handlers for the Comment/Request Switches
+  // function that handles the displaying of the comments onto the map
+  const handleShowCommentClick = (event) => {
+    if(isShowCommentChecked == false){
+      setIsShowCommentChecked(event.target.checked);
+      console.log("Display Comments now.")
+    } else {
+      setIsShowCommentChecked(false);
+    }
+  }
+
+  // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
+  const [isShowCommentChecked, setIsShowCommentChecked] = useState(true);
+
+  // use a boolean function to turn markers on and off
+  function toggleMarkers(isShowCommentChecked) {
+    markers.forEach(marker => {
+      marker.getElement().style.opacity = isShowCommentChecked ? 1 : 0;
+    });
+  }
+  
+   if ( markers.length > 0){
+    toggleMarkers(isShowCommentChecked);
+   } 
 
   return (
     
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-
-      {/* Gabriel worked on format of map and description location  */}
-        
-        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}>
-        <Box
-        p={1}
-        borderRadius='lg'
-        m={1}
-        bgColor='gray'
-        shadow='base'
-        left = '50%'
-        zIndex='1'
-        position = 'absolute'
-        >
-        <HStack  spacing = {0} justifyContent='space-between'>
-  {/* Menu for dispaly options */}
-  <div id="menu">
-          <input id="satellite-streets-v12" left ="10" type="radio" name="rtoggle" value="streets"/>
-          <label for="satellite-streets-v12"><img src={LightPic} alt="street"/>   <span> Satellite </span> </label>
+      <Flex  position=""  h='13vh' bg='#31C4AE'>
+        {/* Menu for dispaly options */}
+        <div id="menu">
+          <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
+          <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
           <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-          <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
+          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
-          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/><span> Outdoors </span> </label>
+          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span> Outdoors </span> </label>
         </div>
 
         {/* Request Location Buttons  */}
@@ -474,12 +489,11 @@ function SendUserInfo(){
           </Button>
         )}
 
-        
 
         {/* Hamburger Menu  */}
         <WithPopoverAnchor style={{display: "flex"}}/>
         <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
-          <MenuButton as={IconButton} position="absolute"   aria-label='Options'icon={<HamburgerIcon />} variant='outline'
+          <MenuButton as={IconButton} position="absolute" top="5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
           style={{ backgroundColor: "#0964ed"}}/>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
@@ -580,13 +594,24 @@ function SendUserInfo(){
                         onChange={handleCommentClick}/> </MenuItem>
               <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
                         isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
+              <MenuItem style={{ color: "black" }}> Show Comments &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='show-alert'
+                        isChecked={isShowCommentChecked} onChange={handleShowCommentClick}/> </MenuItem>
             </MenuList>
         </Menu> 
-</HStack>
-</Box>
-{/* Is visable only when user turns on Request */}
-{(requestState || commentState) ? (
-          <Box bg='white' h = '40%' w = '90%'  display='flex' flexDirection='column' position='absolute' zIndex={1}  alignItems='center'>
+        <br/>
+      </Flex>
+      
+
+      {/* Gabriel worked on format of map and description location  */}
+      <HStack spacing = '0' > // space between map and description box 
+        <Box bg='green.300' h = '100vh' w = '30%'  display='flex' flexDirection='column'  alignItems='center'>
+          
+          {/* Description box title  */}
+          <p id="Description">Descriptions</p>
+        
+        {/* Is visable only when user turns on Request */}
+        {(requestState || commentState) ? (
+          <Box bg='white' h = '40%' w = '90%'  display='flex' flexDirection='column'  alignItems='center'>
            
             {/* User text box that appears when user clicks scan request */}
             <label for="input" class="black-text">
@@ -603,10 +628,14 @@ function SendUserInfo(){
               </Button>
           </Box>
          ) : null}
-</div>
- 
+
+
+        </Box> // description size 
+        
+        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
 
        
+      </HStack>
 
     </Flex>
   );
