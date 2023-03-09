@@ -301,7 +301,7 @@ function Map() {
       //Uses the result variable 
       async function displayMarkers() {
         // Wait for data from MongoDB
-        const [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
+        const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
 
         // Angel C. Muller loop through the marker data and create markers
         // depending on the classification of road deficiency
@@ -338,6 +338,15 @@ function Map() {
             // add the marker to the markers array
           markers.push(marker);
         }
+
+        for (let i = 0; i < ContributData.length; i++) {
+          const marker = new mapboxgl.Marker({ color: '#AAFF00' })
+            .setLngLat([ContributData[i].Longitude, ContributData[i].Lattitude])
+            .setPopup(new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>`))
+            .addTo(map);
+        }
+
        
       }
 
