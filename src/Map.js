@@ -67,6 +67,11 @@ import "./mapbox-gl-traffic.css"
 var UserLat; 
 var UserLng; 
 var userInput; //used for comments and requests
+var directions = createDirections();
+var flip = true;
+var mapStyle = 'mapbox://styles/mapbox/outdoors-v12?optimize=true';
+
+
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
   //This function returns records from the MongoDB database 
@@ -77,7 +82,21 @@ var userInput; //used for comments and requests
   
 //assign full JSON results from MongoDB to result variable 
 const result = MongoRecords();
-  
+
+// Create a function to create the Mapbox Directions object
+function createDirections() {
+  return new MapboxDirections({
+    accessToken: mapboxgl.accessToken,
+    unit: 'metric',
+    profile: 'mapbox/driving-traffic',
+    interactive: false,
+    alternatives: 'true',
+    controls: {
+      instructions: false
+    }
+  });
+}
+
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
 
@@ -172,16 +191,33 @@ function Map() {
     if(lng && lat){
       const map = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/outdoors-v12?optimize=true',
+        style: mapStyle,
         center: [lng, lat],
         zoom: zoom
       });
-      
+
+      const dirs = createDirections();
+
+      map.addControl(dirs, 'top-left');
+
       map.on('load', () => {
       //use to display input boxes if in routing mode
       if (routeState === true){
+        //map.removeControl(directions)
         console.log("Routing");
-        Route(map);
+        // if(flip){
+        //   flip = false;
+        //   map.setStyle('mapbox://styles/mapbox/streets-v11');
+        // }
+        // else{
+        //   flip = true;
+        //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
+        // }
+        //map.setStyle(mapStyle);
+        //directions = createDirections();
+        //map.addControl(directions, 'top-left');
+        console.log("Routingx2");
+        Route(map, dirs);
       }
     });
 
@@ -231,6 +267,8 @@ function Map() {
         input.onclick = (layer) => {
           const layerId = layer.target.id;
           map.setStyle('mapbox://styles/mapbox/' + layerId);
+          mapStyle = 'mapbox://styles/mapbox/' + layerId;
+          console.log("Changed Theme");
         };
       }
 

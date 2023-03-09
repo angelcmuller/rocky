@@ -15,7 +15,7 @@ async function MongoRecords(link) {
   }
 
 //developed by Tristan Bailey
-export async function Route(map, startLat=0, startLong=0, endLat=0, endLong=0, routeCount=3){
+export async function Route(map, directions, startLat=0, startLong=0, endLat=0, endLong=0, routeCount=3){
     const [pins, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
     var geoJSON = pinDataToGeoJSON(pins);
     //scale hazards naively assuming they are 8 sqft
@@ -46,14 +46,7 @@ export async function Route(map, startLat=0, startLong=0, endLat=0, endLong=0, r
         });
     }
     //call to directions api to handle future route computations
-    const directions = new MapboxDirections({
-        accessToken: mapboxgl.accessToken,
-        unit: 'metric',
-        profile: 'mapbox/driving',
-        alternatives: 'false',
-        geometries: 'geojson'
-    });
-    map.addControl(directions, 'top-left');
+    //map.addControl(directions, 'top-left');
 
     directions.on('route', (event) => {
         //const reports = document.getElementById('reports');
