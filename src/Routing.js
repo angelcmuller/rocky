@@ -15,11 +15,8 @@ async function MongoRecords(link) {
   }
 
 //developed by Tristan Bailey
-export async function Route(map, startLat=0, startLong=0, endLat=0, endLong=0, routeCount=3){
+export async function Route(map, directions, startLat=0, startLong=0, endLat=0, endLong=0, routeCount=3){
     const [pins, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
-    var geoJSON = pinDataToGeoJSON(pins);
-    //scale hazards naively assuming they are 8 sqft
-    var obstructions = turf.buffer(geoJSON, 0.25, { units: 'kilometers'});
     
     //add routes layers to map limiting to a maximum of 10
     for (let i =0; i <= routeCount && i < 10; ++i){
@@ -46,16 +43,12 @@ export async function Route(map, startLat=0, startLong=0, endLat=0, endLong=0, r
         });
     }
     //call to directions api to handle future route computations
-    const directions = new MapboxDirections({
-        accessToken: mapboxgl.accessToken,
-        unit: 'metric',
-        profile: 'mapbox/driving',
-        alternatives: 'false',
-        geometries: 'geojson'
-    });
-    map.addControl(directions, 'top-left');
+    //map.addControl(directions, 'top-left');
 
     directions.on('route', (event) => {
+        var geoJSON = pinDataToGeoJSON(pins);
+        //scale hazards naively assuming they are 8 sqft
+        var obstructions = turf.buffer(geoJSON, 0.25, { units: 'kilometers'});
         //const reports = document.getElementById('reports');
         //reports.innerHTML = '';
         //const report = reports.appendChild(document.createElement('div'));
@@ -79,11 +72,12 @@ export async function Route(map, startLat=0, startLong=0, endLat=0, endLong=0, r
             
             map.getSource(`route${route.id}`).setData(routeLine);
             const isClear = turf.booleanDisjoint(obstructions, routeLine) === true;
-            //console.log(turf.booleanDisjoint(obstructions, routeLine));
             if (isClear) {
                 map.setPaintProperty(`route${route.id}`, 'line-color', '#31C4AF');
+                console.log("clear");
             } else {
                 map.setPaintProperty(`route${route.id}`, 'line-color', '#9933ff');
+                console.log("not clear");
             }
         }
     });
