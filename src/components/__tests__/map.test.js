@@ -7,7 +7,7 @@ const { JSDOM } = jsdom;
 
 // 
 test('Changing map style onClick of the input', () => {
-    // Create a mock Mapbox Map instance usinf .fn()
+    // Create a mock Mapbox Map instance using .fn()
     const mockMap = {
     setStyle: jest.fn()
     };
