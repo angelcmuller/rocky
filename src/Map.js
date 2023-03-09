@@ -1,4 +1,5 @@
 import JsonListReturn from "./components/recordList";
+import { Route } from "./Routing.js"
 import { LogMongo } from "./components/Log";
 import {
   Accordion,
@@ -97,6 +98,7 @@ function Map() {
   const [ComName, setComName] = useState("Make a Comment");
   const [requestState, setRState] = useState(false);
   const [commentState, setCState] = useState(false);
+  const [routeState, setRouteState] = useState(true);
 
   function LimitFunctionality(Name){
     if (commentState === false && requestState === true ){
@@ -108,6 +110,7 @@ function Map() {
   }
   
   function Toggle(Name){
+    setRouteState(false);
     //If request button pressed toggle 
     if(Name === "Request"){
       setRState(!requestState);
@@ -120,6 +123,7 @@ function Map() {
         }
       } else {
         setReqName("Request Location");
+        setRouteState(true);
         setIsRVisible(false);
         setIsRequestChecked(false);
       }
@@ -132,6 +136,7 @@ function Map() {
         setComName("Disregard Comment");
       } else {
         setComName("Make a Comment");
+        setRouteState(true);
         setIsCVisible(false);
         setIsCommentChecked(false);
       }
@@ -171,6 +176,14 @@ function Map() {
         center: [lng, lat],
         zoom: zoom
       });
+      
+      map.on('load', () => {
+      //use to display input boxes if in routing mode
+      if (routeState === true){
+        console.log("Routing");
+        Route(map);
+      }
+    });
 
       // Add geolocate control to the map to show where the user is located
       map.addControl(new mapboxgl.GeolocateControl({
