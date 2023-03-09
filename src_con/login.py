@@ -12,15 +12,14 @@ from Data_Manager import Data_Manager
 import ssl
 import certifi
 from bson.objectid import ObjectId
-#from MachineLearning.road_classifer import Classifier
-#from MachineLearning.video_breakdown import Convert
-from tqdm import tqdm
+from MachineLearning.road_classifer import Classify
+from MachineLearning.video_breakdown import Convert
+import datetime
 
 #main function used to check MongoDB collection 
 def main():
     
    
-    
     #connect to database 
     client = MongoClient("mongodb://tristanbailey:RockyRoadKey2022@ac-ap9bbel-shard-00-00.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-01.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-02.fpy1pqs.mongodb.net:27017/?ssl=true&replicaSet=atlas-zrbeo7-shard-0&authSource=admin&retryWrites=true&w=majority",
             tlsCAFile=certifi.where()) 
@@ -81,7 +80,7 @@ def analyze_and_push(user, video, csv):
     #loop below is only used for loading bar decoration (not an actual for loop)
     #call Classify to classify images 
     #for i in tqdm(range(100)):
-    #    Classifier(user, Mdate)
+    #    Classify(user, Mdate)
 
 
 #check if a username already exists in database 

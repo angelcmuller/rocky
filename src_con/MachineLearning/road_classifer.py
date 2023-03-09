@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 import os
-from contributor_pins import add_cpin
+from MachineLearning.contributor_pins import add_cpin
 
 # Classifies images into categories
 def Classify(author, Mdate):
