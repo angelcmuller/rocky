@@ -221,6 +221,27 @@ function Map() {
       }
     });
 
+    map.on('styledata', () => {
+      //use to display input boxes if in routing mode
+      if (routeState === true){
+        map.removeControl(directions)
+        console.log("Routing");
+        // if(flip){
+        //   flip = false;
+        //   map.setStyle('mapbox://styles/mapbox/streets-v11');
+        // }
+        // else{
+        //   flip = true;
+        //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
+        // }
+        map.setStyle(mapStyle);
+        //directions = createDirections();
+        //map.addControl(directions, 'top-left');
+        console.log("Routingx2");
+        Route(map, dirs);
+      }
+    });
+
       // Add geolocate control to the map to show where the user is located
       map.addControl(new mapboxgl.GeolocateControl({
         fitBoundsOptions: {
