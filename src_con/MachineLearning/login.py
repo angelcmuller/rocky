@@ -12,8 +12,8 @@ from Data_Manager import Data_Manager
 import ssl
 import certifi
 from bson.objectid import ObjectId
-from MachineLearning.road_classifer import Classify
-from MachineLearning.video_breakdown import Convert
+from road_classifer import Classify
+from video_breakdown import Convert
 import datetime
 
 #main function used to check MongoDB collection 
@@ -48,8 +48,6 @@ def main():
             print("Pushing information to database, please wait as calculations performed...")
             analyze_and_push(user, video, csv)
     
-    if (ans != "N" or ans != "Y"):
-        print("Invalid Input")
         
         
 def analyze_and_push(user, video, csv):
@@ -73,7 +71,7 @@ def analyze_and_push(user, video, csv):
     #loop below is only used for loading bar decoration (not an actual for loop)
     #call convert function to breakdown video 
     #for i in tqdm(range(100)):
-    Convert(video, csv)
+    #Convert(video, csv)
 
     print("===========================")
 
@@ -152,7 +150,7 @@ def obtain_info(collection):
             print('Username field is missing for particular record')
 
     if (valid == False):
-        return "False", "False"
+        return "False", "False", "False"
     else:
         return Userlist[0], Userlist[2], Userlist[3]
     

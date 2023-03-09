@@ -15,9 +15,6 @@ from tensorflow import keras
 # main funtion used to call video converter function
 def Convert(user_video, user_csv):
         
-    # change directory
-    os.chdir("MachineLearning")
-
     # read the csv provided by user 
     INSdata = read_csv(user_csv)
 
