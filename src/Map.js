@@ -435,9 +435,20 @@ function SendUserInfo(){
     }
   }
 
-  // Event handlers for the Comment/Request Switches
+  // function that handles the displaying of the comments onto the map
+  const handleShowCommentClick = (event) => {
+    if(isRequestChecked == false){
+      setIsShowCommentChecked(event.target.checked);
+      console.alert("Display Comments now.")
+    } else {
+      setIsShowCommentChecked(false);
+    }
+  }
+
+  // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
+  const [isShowCommentChecked, setIsShowCommentChecked] = useState(false);
 
   return (
     
@@ -571,6 +582,8 @@ function SendUserInfo(){
                         onChange={handleCommentClick}/> </MenuItem>
               <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
                         isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
+              <MenuItem style={{ color: "black" }}> Show Comments &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='show-alert'
+                        isChecked={isShowCommentChecked} onChange={handleShowCommentClick}/> </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
