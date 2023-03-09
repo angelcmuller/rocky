@@ -204,15 +204,15 @@ function Map() {
         }
       }));
 
-      // Creates new directions control instance
-      const directions = new MapboxDirections({
-        accessToken: mapboxgl.accessToken,
-        unit: 'metric',
-        profile: 'mapbox/driving',
-      });
+      // // Creates new directions control instance
+      // const directions = new MapboxDirections({
+      //   accessToken: mapboxgl.accessToken,
+      //   unit: 'metric',
+      //   profile: 'mapbox/driving',
+      // });
 
-      // Integrates directions control with map
-      map.addControl(directions, 'top-left');
+      // // Integrates directions control with map
+      // map.addControl(directions, 'top-left');
     
       // Adding the FullScreen Control to Map
       map.addControl(new mapboxgl.FullscreenControl());
@@ -437,7 +437,7 @@ function SendUserInfo(){
 
   // function that handles the displaying of the comments onto the map
   const handleShowCommentClick = (event) => {
-    if(isRequestChecked == false){
+    if(isShowCommentChecked == false){
       setIsShowCommentChecked(event.target.checked);
       console.alert("Display Comments now.")
     } else {

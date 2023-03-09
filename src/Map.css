@@ -84,3 +84,10 @@
     color: white;
     background-color: #4785ff;
   }
+
+.mapboxgl-ctrl-directions .suggestions {
+  background-color: #f39f18;
+}
+.mapboxgl-ctrl-directions .suggestions li {
+  color: black;
+}
