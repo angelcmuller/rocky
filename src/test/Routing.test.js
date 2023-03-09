@@ -113,6 +113,6 @@ function equalJSON(j1,j2) {
 }
 var some = temp(); 
 
-test('GeoJSON Converter: Testing converting pin data to geoJSON', () => {
+test('Testing converting pin data to geoJSON', () => {
     expect(equalJSON(output,Routing.pinDataToGeoJSON(some)));
 });
