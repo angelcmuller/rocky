@@ -47,8 +47,9 @@ import {
 } from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon, ChatIcon } from "@chakra-ui/icons";
 import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
-import './App.css'
-import './Map.css'
+import './App.css';
+import './Map.css';
+import { BrowserRouter as Router, useNavigate, Routes } from 'react-router-dom';
 import { useRef, useState, useMemo, useEffect} from 'react'
 import RequestMap from "./Request";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
@@ -62,7 +63,8 @@ import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loade
 import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 import MapboxTraffic from "./mapbox-gl-traffic.js";
-import "./mapbox-gl-traffic.css"
+import "./mapbox-gl-traffic.css";
+import App from "./App";
 
 var UserLat; 
 var UserLng; 
@@ -107,9 +109,16 @@ function Map() {
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
   const mapContainer = useRef(null);
- 
 
-
+  // const variables to manage the navigation to other Pages (/Map)
+  const navigate = useNavigate();
+  const [showResults, setShowResults] = React.useState(true)
+  
+  const navigatetoLandPage = () => {
+    setShowResults(current => !current);
+    navigate('/')
+    document.location.reload();
+  }
 
   //const map = useRef(null);
   //sets start to RENO area
@@ -530,9 +539,8 @@ function SendUserInfo(){
    } 
 
   return (
-    
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Flex  position=""  h='13vh' bg='#31C4AE'>
+      <Flex  position=""  h='11vh' bg='#31C4AE'>
         {/* Menu for dispaly options */}
         <div id="menu">
           <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
@@ -561,7 +569,7 @@ function SendUserInfo(){
         <WithPopoverAnchor style={{display: "flex"}}/>
         <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
           <MenuButton as={IconButton} position="absolute" top="5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
-          style={{ backgroundColor: "#0964ed"}}/>
+          bg='#0964ed'/>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
                 <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
@@ -642,10 +650,10 @@ function SendUserInfo(){
                           </AccordionPanel>
                           <br/>
                           <h2>Type your insurance below to do a Google Search:</h2>
-                        <form action="https://www.google.com/search?q=phone+number+">
-                          <input type="text" name="q"/>
-                          <input type="submit" value="Google Search"/>
-                        </form>
+                          <form action="https://www.google.com/search?q=phone+number+" target="_blank">
+                            <input type="text" name="q" />
+                            <input type="submit" value="Google Search" />
+                          </form>
                         </AccordionItem>
                       </Accordion>
                     </ModalBody>
@@ -663,6 +671,7 @@ function SendUserInfo(){
                         isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
               <MenuItem style={{ color: "black" }}> Show Comments &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='show-alert'
                         isChecked={isShowCommentChecked} onChange={handleShowCommentClick}/> </MenuItem>
+              <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Back </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
@@ -703,7 +712,9 @@ function SendUserInfo(){
 
        
       </HStack>
-
+      {/* <Routes>
+          <Route path="/App" element={<App />} />
+        </Routes> */}
     </Flex>
   );
 }

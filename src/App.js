@@ -72,7 +72,7 @@ function App () {
           <div id='body'>
             <div id='menu'>
               <Menu>
-                <MenuButton as={IconButton} position="absolute" top="2" left="2" aria-label='Options' icon={<HamburgerIcon />} onClick={onOpen} bg='#80cbc4'/>
+                <MenuButton as={IconButton} position="absolute" top="2" right="2" aria-label='Options' icon={<HamburgerIcon />} onClick={onOpen} bg='#80cbc4'/>
                   <Drawer placement={placement} onClose={onClose} isOpen={isOpen}>
                     <DrawerOverlay/>
                     <DrawerContent>
@@ -87,7 +87,6 @@ function App () {
                   </Drawer>
               </Menu>
             </div>
-            <br />
             <br />
             <h1 id='welcome'> Welcome to Rocky Road Project </h1>
             <br />
