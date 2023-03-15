@@ -73,6 +73,8 @@ var directions = createDirections();
 var flip = true;
 var mapStyle = 'mapbox://styles/mapbox/outdoors-v12?optimize=true';
 
+// Boolean to check if button Comment/Request are being used
+var buttonCommentRequest = false;
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
@@ -168,6 +170,8 @@ function Map() {
       setCState(!commentState);
       if (ComName === "Make a Comment") {
         setComName("Disregard Comment");
+        buttonCommentRequest = false;
+        console.log('button has been changed to ', buttonCommentRequest);
       } else {
         setComName("Make a Comment");
         setRouteState(true);
@@ -201,10 +205,12 @@ function Map() {
     }
   }, []);
   
-
   useEffect(() => {
     //Initialize the Map with current lng and lat
     if(lng && lat){
+      // Boolean to check if a marker was clicked
+      let markerClicked = false;
+      
       const map = new mapboxgl.Map({
         container: mapContainer.current,
         style: mapStyle,
@@ -217,46 +223,46 @@ function Map() {
       map.addControl(dirs, 'top-left');
 
       map.on('load', () => {
-      //use to display input boxes if in routing mode
-      if (routeState === true){
-        //map.removeControl(directions)
-        console.log("Routing");
-        // if(flip){
-        //   flip = false;
-        //   map.setStyle('mapbox://styles/mapbox/streets-v11');
-        // }
-        // else{
-        //   flip = true;
-        //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
-        // }
-        //map.setStyle(mapStyle);
-        //directions = createDirections();
-        //map.addControl(directions, 'top-left');
-        console.log("Routingx2");
-        Route(map, dirs);
-      }
-    });
+        //use to display input boxes if in routing mode
+        if (routeState === true){
+          //map.removeControl(directions)
+          console.log("Routing");
+          // if(flip){
+          //   flip = false;
+          //   map.setStyle('mapbox://styles/mapbox/streets-v11');
+          // }
+          // else{
+          //   flip = true;
+          //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
+          // }
+          //map.setStyle(mapStyle);
+          //directions = createDirections();
+          //map.addControl(directions, 'top-left');
+          console.log("Routingx2");
+          Route(map, dirs);
+        }
+      });
 
-    map.on('styledata', () => {
-      //use to display input boxes if in routing mode
-      if (routeState === true){
-        map.removeControl(directions)
-        console.log("Routing");
-        // if(flip){
-        //   flip = false;
-        //   map.setStyle('mapbox://styles/mapbox/streets-v11');
-        // }
-        // else{
-        //   flip = true;
-        //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
-        // }
-        map.setStyle(mapStyle);
-        //directions = createDirections();
-        //map.addControl(directions, 'top-left');
-        console.log("Routingx2");
-        Route(map, dirs);
-      }
-    });
+      map.on('styledata', () => {
+        //use to display input boxes if in routing mode
+        if (routeState === true){
+          map.removeControl(directions)
+          console.log("Routing");
+          // if(flip){
+          //   flip = false;
+          //   map.setStyle('mapbox://styles/mapbox/streets-v11');
+          // }
+          // else{
+          //   flip = true;
+          //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
+          // }
+          map.setStyle(mapStyle);
+          //directions = createDirections();
+          //map.addControl(directions, 'top-left');
+          console.log("Routingx2");
+          Route(map, dirs);
+        }
+      });
 
       // Add geolocate control to the map to show where the user is located
       map.addControl(new mapboxgl.GeolocateControl({
@@ -328,6 +334,11 @@ function Map() {
             .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
             .addTo(map);
 
+            // add click listener to marker
+            marker.getElement().addEventListener('click', () => {
+              markerClicked = true;
+            });
+
             // Hover over pins and see immediate information
             marker.getElement().addEventListener('mouseover', () => {
               marker.togglePopup();
@@ -344,8 +355,23 @@ function Map() {
             .setPopup(new mapboxgl.Popup({ offset: 25 })
             .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
             .addTo(map);
+            
             // add the marker to the markers array
-          markers.push(marker);
+            markers.push(marker);
+
+            // add click listener to marker
+            marker.getElement().addEventListener('click', () => {
+              markerClicked = true;
+            });
+
+            // Hover over pins and see immediate information
+            marker.getElement().addEventListener('mouseover', () => {
+              marker.togglePopup();
+            });
+          
+            marker.getElement().addEventListener('mouseout', () => {
+              marker.togglePopup();
+            });
         }
 
         for (let i = 0; i < ContributData.length; i++) {
@@ -354,9 +380,21 @@ function Map() {
             .setPopup(new mapboxgl.Popup({ offset: 25 })
             .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>`))
             .addTo(map);
-        }
 
-       
+            // add click listener to marker
+            marker.getElement().addEventListener('click', () => {
+              markerClicked = true;
+            });
+
+            // Hover over pins and see immediate information
+            marker.getElement().addEventListener('mouseover', () => {
+              marker.togglePopup();
+            });
+          
+            marker.getElement().addEventListener('mouseout', () => {
+              marker.togglePopup();
+            });
+        }
       }
 
       // Function to add event listener for marking pins
@@ -386,12 +424,59 @@ function Map() {
       if (requestState || commentState) {
         addPinListener();
       }
+
+      // Add a click event listener to the map
+      map.on('click', (e) => {
+        var lngLat = e.lngLat;
+        // condition to check if the user clicks anywhere else in the Map but on a marker, popup will show up
+        if (!markerClicked) {
+          // Create a popup dialog
+          const popup = new mapboxgl.Popup({ closeOnClick: true, closeButton: true})
+            .setLngLat(e.lngLat)
+            .setHTML('<div style="color: black;"><p> Would you like to create a: </p> <Button id="comment-btn"> Comment </Button> <br/> <Button id="request-btn"> Request </Button></div>')
+            .setMaxWidth('500px')
+            .addTo(map);
+
+            // Add click event listeners to the buttons
+            document.getElementById('comment-btn').addEventListener('click', () => {
+              // Code to handle comment button click
+              console.log('Comment button clicked');
+              setIsCommentChecked(true);
+              setIsCVisible(true);
+              Toggle("Comment");
+              popup.remove();
+              UserLng = lngLat.lng;
+              UserLat = lngLat.lat;
+            });
+
+            document.getElementById('request-btn').addEventListener('click', () => {
+              // Code to handle request button click
+              console.log('Request button clicked');
+              setIsRequestChecked(true);
+              setIsRVisible(true);
+              Toggle("Request");
+              popup.remove();
+              UserLng = lngLat.lng;
+              UserLat = lngLat.lat;
+            });
+        } else {
+          // if the user is clicking on an existing Marker, new popup won't be displayed
+          markerClicked = false;
+        }
+      });
     
       return () => {
         map.remove();
       };
     }
-  }, [requestState, commentState, lng, lat, zoom, markers]);
+
+    // The dependency array is an optional second argument in the useEffect() hook that allows you
+    // to control when the effect runs. It consists of a list of variables that the effect depends on.
+    // If any of the variables in the dependency array change, the effect will re-run.
+
+  }, [
+    // requestState, commentState, lng, lat, zoom, markers
+  ]);
 
   //function to select Map Style Angel C. Muller
   function WithPopoverAnchor() {
@@ -424,39 +509,39 @@ function Map() {
   }
   
 
-// Function sends comment or request to database  
-function SendUserInfo(){
+  // Function sends comment or request to database  
+  function SendUserInfo(){
 
-  // if no coordinates selected do nothing
-  if (typeof UserLat === 'undefined' || typeof UserLng === 'undefined' ) {
-    if(requestState){
-      alert("Please click on map to select area to scan.")
-    }
-    else{
-      alert("Please click on map to select area to comment.")  
-    }
-  } 
-  // otherwise....
-  else {
-    //turn text box info into a string 
-    const Element = document.getElementById("input");
-    const inputString = Element.value.toString();
+    // if no coordinates selected do nothing
+    if (typeof UserLat === 'undefined' || typeof UserLng === 'undefined' ) {
+      if(requestState){
+        alert("Please click on map to select area to scan.")
+      }
+      else{
+        alert("Please click on map to select area to comment.")  
+      }
+    } 
+    // otherwise....
+    else {
+      //turn text box info into a string 
+      const Element = document.getElementById("input");
+      const inputString = Element.value.toString();
 
-    //submit data to MongoDB
-    console.log('map.js rstate:', typeof requestState)
-    LogMongo(requestState, "auto", inputString, UserLat, UserLng );
-    
-    // Reset text box and toggle off request 
-    Element.value = "";
+      //submit data to MongoDB
+      console.log('map.js rstate:', typeof requestState)
+      LogMongo(requestState, "auto", inputString, UserLat, UserLng );
+      
+      // Reset text box and toggle off request 
+      Element.value = "";
 
-    if(requestState){
-      Toggle("Request")
-    }
-    else{
-      Toggle("Comment")
+      if(requestState){
+        Toggle("Request")
+      }
+      else{
+        Toggle("Comment")
+      }
     }
   }
-}
 
   // Comment functionality 
   function commentFunctionality(){
@@ -671,7 +756,7 @@ function SendUserInfo(){
                         isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
               <MenuItem style={{ color: "black" }}> Show Comments &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='show-alert'
                         isChecked={isShowCommentChecked} onChange={handleShowCommentClick}/> </MenuItem>
-              <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Back </MenuItem>
+              <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
@@ -712,9 +797,6 @@ function SendUserInfo(){
 
        
       </HStack>
-      {/* <Routes>
-          <Route path="/App" element={<App />} />
-        </Routes> */}
     </Flex>
   );
 }
