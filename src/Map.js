@@ -272,7 +272,7 @@ function Map() {
               marker.togglePopup();
             });
         }
-      
+        
         for (let i = 0; i < commentData.length; i++) {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
             .setLngLat([commentData[i].Lng, commentData[i].Lat])
