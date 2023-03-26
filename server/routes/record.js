@@ -22,4 +22,14 @@ recordRoutes.route("/crecord").get(function(req, res) {
   });
 });
 
+recordRoutes.route("/conrecord").get(function(req, res) {
+  let db_connect = dbo.getDb("pinDatabase");
+  db_connect.collection("Cpins").find({}).toArray(function(err, result) {
+    if (err) throw err;
+    let output = JSON.stringify(result);
+    console.log(output);
+    res.send(output);
+  });
+});
+
 module.exports = recordRoutes;
