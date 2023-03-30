@@ -1,5 +1,6 @@
-import React from 'react'
-import {Route, Link, Routes, useNavigate, redirect} from 'react-router-dom';
+import React from 'react';
+import { useEffect, useState } from 'react';
+import {Route, Link, Routes, useNavigate, redirect, useLocation} from 'react-router-dom';
 import { Button } from '@chakra-ui/react';
 import './About.css';
 import teampic from './images/IMG_9033-1.jpg';
@@ -12,7 +13,21 @@ import App from './App';
 
 function About() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [showResults, setShowResults] = React.useState(true)
+
+    // Using cache to reload the previous page from the browser's back button
+    useEffect(() => {
+        const handlePopstate = () => {
+            window.location.reload();
+        }
+        window.addEventListener('popstate', handlePopstate);
+
+        return () => {
+            window.removeEventListener('popstate', handlePopstate);
+        };
+
+    }, []);
 
     const navigatetoApp = () => {
         setShowResults(current => !current);

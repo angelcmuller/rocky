@@ -1,7 +1,7 @@
 /* CSS For Landing Page App.js by Angel C. Muller*/
 #body {
   background-color: rgba(185, 222, 203, 100);
-
+  height: auto;
   width: auto;
   align-items: center;
   text-align: center;
@@ -12,15 +12,15 @@
   min-height: 100%;
 }
 
+#welcome {
+  font-family: 'Times New Roman', Times, serif;
+  text-shadow: 2px 2px 4px #d6ac2d;
+}
 
 #menu {
   display: flex;
   justify-content: space-between;
 }
-
-
-
-
 
 #menuSettings {
   font-size: 35px;

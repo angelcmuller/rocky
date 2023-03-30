@@ -11,6 +11,7 @@ import {
   Button,
   Flex,
   HStack,
+  Heading,
   IconButton,
   Input,
   SkeletonText,
@@ -135,6 +136,19 @@ function Map() {
   const [requestState, setRState] = useState(false);
   const [commentState, setCState] = useState(false);
   const [routeState, setRouteState] = useState(true);
+
+  // Using cache to reload the previous page from the browser's back button
+  useEffect(() => {
+    const handlePopstate = () => {
+        window.location.reload();
+    }
+    window.addEventListener('popstate', handlePopstate);
+
+    return () => {
+        window.removeEventListener('popstate', handlePopstate);
+    };
+
+}, []);
 
   function LimitFunctionality(Name){
     if (commentState === false && requestState === true ){
@@ -425,17 +439,32 @@ function Map() {
         addPinListener();
       }
 
+      const customCloseButton = document.createElement('button');
+      customCloseButton.innerHTML = '&times;';
+      customCloseButton.style.position = 'absolute';
+      customCloseButton.style.top = '1px';
+      customCloseButton.style.right = '1px';
+      customCloseButton.style.border = 'none';
+      customCloseButton.style.backgroundColor = 'transparent';
+      customCloseButton.style.color = 'red';
+      customCloseButton.style.fontSize = '24px';
+      customCloseButton.style.fontWeight = 'bold';
+      customCloseButton.style.cursor = 'pointer';
+
       // Add a click event listener to the map
       map.on('click', (e) => {
         var lngLat = e.lngLat;
         // condition to check if the user clicks anywhere else in the Map but on a marker, popup will show up
         if (!markerClicked) {
           // Create a popup dialog
-          const popup = new mapboxgl.Popup({ closeOnClick: true, closeButton: true})
+          const popup = new mapboxgl.Popup({ closeOnClick: true, closeButton: customCloseButton})
             .setLngLat(e.lngLat)
-            .setHTML('<div style="color: black;"><p> Would you like to create a: </p> <Button id="comment-btn"> Comment </Button> <br/> <Button id="request-btn"> Request </Button></div>')
+            .setHTML('<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333333; padding: 5px;"><p text-align: center; style="margin-bottom: 20px;">What would you like to do?</p><button id="comment-btn" style="background-color: #0077B6; color: #FFFFFF; border-radius: 2px; border: none; padding: 10px 20px; margin-right: 10px; cursor: pointer;">Leave a Comment</button> <br/> <br/> <button id="request-btn" style="background-color: #0077B6; color: #FFFFFF; border-radius: 4px; border: none; padding: 10px 20px; cursor: pointer;">Make a Request</button></div>')
             .setMaxWidth('500px')
             .addTo(map);
+
+            // Append customCloseButton to popup container element
+            popup._container.appendChild(customCloseButton);
 
             // Add click event listeners to the buttons
             document.getElementById('comment-btn').addEventListener('click', () => {
@@ -475,7 +504,7 @@ function Map() {
     // If any of the variables in the dependency array change, the effect will re-run.
 
   }, [
-    // requestState, commentState, lng, lat, zoom, markers
+    requestState, commentState, lng, lat, zoom, markers
   ]);
 
   //function to select Map Style Angel C. Muller
@@ -621,11 +650,12 @@ function Map() {
   
    if ( markers.length > 0){
     toggleMarkers(isShowCommentChecked);
-   } 
-
-  return (
+   }
+   
+   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Flex  position=""  h='11vh' bg='#31C4AE'>
+      <Flex position='' h='11vh' bg='linear-gradient(to right, #31C4AE, #88D8B0)'
+      style={{borderBottom: '2px solid #FFA500', boxShadow: '0 0 20px #fff'}}>
         {/* Menu for dispaly options */}
         <div id="menu">
           <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
@@ -635,20 +665,6 @@ function Map() {
           <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
           <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span> Outdoors </span> </label>
         </div>
-
-        {/* Request Location Buttons  */}
-        {isRVisible && (
-          <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Request")}>
-            {ReqName}
-          </Button>
-        )}
-
-        {isCVisible && (
-          <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Comment")}>
-            {ComName}
-          </Button>
-        )}
-
 
         {/* Hamburger Menu  */}
         <WithPopoverAnchor style={{display: "flex"}}/>
@@ -750,10 +766,10 @@ function Map() {
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
-              <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
+              {/* <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
                         onChange={handleCommentClick}/> </MenuItem>
               <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
-                        isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
+                        isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem> */}
               <MenuItem style={{ color: "black" }}> Show Comments &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='show-alert'
                         isChecked={isShowCommentChecked} onChange={handleShowCommentClick}/> </MenuItem>
               <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
@@ -765,28 +781,54 @@ function Map() {
 
       {/* Gabriel worked on format of map and description location  */}
       <HStack spacing = '0' > // space between map and description box 
-        <Box bg='green.300' h = '100vh' w = '30%'  display='flex' flexDirection='column'  alignItems='center'>
+        <Box bg='green.300' h='100vh' w='30%' display='flex' flexDirection='column' alignItems='center' padding='1rem' borderRight='2px solid #FFA500'>
           
           {/* Description box title  */}
-          <p id="Description">Descriptions</p>
+          <Heading as='h2' size='lg' marginBottom='2rem'> Descriptions </Heading>
         
         {/* Is visable only when user turns on Request */}
         {(requestState || commentState) ? (
-          <Box bg='white' h = '40%' w = '90%'  display='flex' flexDirection='column'  alignItems='center'>
+          <Box bg='white' h = '50vh' w='80%' borderRadius='10px'
+          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' display='flex' flexDirection='column'
+          alignItems='center' justifyContent='center' padding='20px'>
            
+           {/* Add a clear heading */}
+           <Heading size='md' mb='20px' textAlign='center' color='blue.500'>Request/Comment Form</Heading>
+            
             {/* User text box that appears when user clicks scan request */}
-            <label for="input" class="black-text">
+            {/* <label for="input" class="black-text">
             {requestState ? 'Request Reason' : 'Comment Reason'}
+            </label> */}
+
+            {/* Use a descriptive placeholder */}
+            <label htmlFor='input' className='black-text'>
+            {requestState ? 'Please provide your request' : 'Please leave a comment'}
             </label>
             
-            <input type="text" id="input" class="stretch-box black-text" />
-            
-            <br/>
+            <Input type='text' id='input' className='stretch-box black-text'
+            placeholder='Type your reason or comment here' borderRadius='5px'
+            border='1px solid gray' padding='5px' mt='10px'/>
+            <br />
             {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
           
-              <Button colorScheme='purple' mr={3} onClick={SendUserInfo}>
-                Submit 
+              {/* Change button text to be more specific */}
+            <Button colorScheme='purple' size='md' mt='10px' onClick={SendUserInfo}>
+            {requestState ? 'Submit Request' : 'Submit Comment'}
+            </Button>
+
+            {/* Request Location Buttons  */}
+            {isRVisible && (
+              <Button colorScheme={requestState ? 'orange' : 'blue'} size='md' mt='10px' onClick={() => Toggle("Request")}>
+                {ReqName}
               </Button>
+            )}
+
+            {isCVisible && (
+              <Button colorScheme={commentState ? 'orange' : 'blue'} size='md' mt='10px' onClick={() => Toggle("Comment")}>
+                {ComName}
+              </Button>
+            )}
+
           </Box>
          ) : null}
 
