@@ -654,193 +654,182 @@ function Map() {
    
    return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Flex position='' h='11vh' bg='linear-gradient(to right, #31C4AE, #88D8B0)'
-      style={{borderBottom: '2px solid #FFA500', boxShadow: '0 0 20px #fff'}}>
-        {/* Menu for dispaly options */}
-        <div id="menu">
-          <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
-          <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
-          <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
-          <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
-          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span> Outdoors </span> </label>
-        </div>
 
-        {/* Hamburger Menu  */}
-        <WithPopoverAnchor style={{display: "flex"}}/>
-        <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
-          <MenuButton as={IconButton} position="absolute" top="5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
-          bg='#0964ed'/>
-            <MenuList>
-              <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
-                <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
-                  <ModalOverlay />
-                  <ModalContent>
-                    <ModalHeader> Road Assistance </ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                      <Accordion defaultIndex={[0]} allowMultiple>
-                      <AccordionItem>
-                     
+    {/* Gabriel worked on format of map and description location  */}
+      
+      <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}>
+      <Box
+      p={1}
+      borderRadius='lg'
+      m={1}
+      bgColor='gray'
+      shadow='base'
+      left = '50%'
+      zIndex='1'
+      position = 'absolute'
+      >
+      <HStack  spacing = {0} justifyContent='space-between'>
+{/* Menu for dispaly options */}
+<div id="menu">
+        <input id="satellite-streets-v12" left ="10" type="radio" name="rtoggle" value="streets"/>
+        <label for="satellite-streets-v12"><img src={LightPic} alt="street"/>   <span> Satellite </span> </label>
+        <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
+        <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
+        <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
+        <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/><span> Outdoors </span> </label>
+      </div>
 
-                          <h2>
-                            <AccordionButton>
-                              <Box as="span" flex='1' textAlign='left'>
-                                AAA
-                              </Box>
-                              <AccordionIcon />
-                            </AccordionButton>
-                          </h2>
-                          <AccordionPanel pb={10}>
-                            <a>800-400-4222 </a>
-                            <a href="tel:8004004222" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                            <IconButton
-                                colorScheme='teal'
-                                aria-label='Call Segun'
-                                size='sm'
-                                icon={<PhoneIcon />}
-                                href="tel:+8004004222"
-                              />
-                              </a>
-                          </AccordionPanel>
-                        </AccordionItem>
+  
 
-                        <AccordionItem>
-                          <h2>
-                            <AccordionButton>
-                              <Box as="span" flex='1' textAlign='left'>
-                                Progressive
-                              </Box>
-                              <AccordionIcon />
-                            </AccordionButton>
-                          </h2>
-                          <AccordionPanel pb={10}>
-                            <a>800-776-4737 </a>
-                            <a href="tel:8007764737" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                            <IconButton
-                                colorScheme='teal'
-                                aria-label='Call Segun'
-                                size='sm'
-                                icon={<PhoneIcon />}
-                                href="tel:+8007764737"
-                              />
-                              </a>
-                          </AccordionPanel>
-                        </AccordionItem>
-
-                        <AccordionItem>
-                          <h2>
-                            <AccordionButton>
-                              <Box as="span" flex='1' textAlign='left'>
-                                StateFarm
-                              </Box>
-                              <AccordionIcon />
-                            </AccordionButton>
-                          </h2>
-                          <AccordionPanel pb={10}>
-                            <a>855-259-8568 </a>
-                            <a href="tel:5558920234" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                            <IconButton
-                                colorScheme='teal'
-                                aria-label='Call Segun'
-                                size='sm'
-                                icon={<PhoneIcon />}
-                                href="tel:+8552598568"
-                              />
-                              </a>
-                          </AccordionPanel>
-                          <br/>
-                          <h2>Type your insurance below to do a Google Search:</h2>
-                          <form action="https://www.google.com/search?q=phone+number+" target="_blank">
-                            <input type="text" name="q" />
-                            <input type="submit" value="Google Search" />
-                          </form>
-                        </AccordionItem>
-                      </Accordion>
-                    </ModalBody>
-
-                    <ModalFooter>
-                      <Button colorScheme='blue' mr={3} onClick={onClose}>
-                        Close
-                      </Button>
-                    </ModalFooter>
-                  </ModalContent>
-                </Modal>
-              {/* <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
-                        onChange={handleCommentClick}/> </MenuItem>
-              <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
-                        isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem> */}
-              <MenuItem style={{ color: "black" }}> Show Comments &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='show-alert'
-                        isChecked={isShowCommentChecked} onChange={handleShowCommentClick}/> </MenuItem>
-              <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
-            </MenuList>
-        </Menu> 
-        <br/>
-      </Flex>
       
 
-      {/* Gabriel worked on format of map and description location  */}
-      <HStack spacing = '0' > // space between map and description box 
-        <Box bg='green.300' h='100vh' w='30%' display='flex' flexDirection='column' alignItems='center' padding='1rem' borderRight='2px solid #FFA500'>
+      {/* Hamburger Menu  */}
+      <WithPopoverAnchor style={{display: "flex"}}/>
+      <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
+        <MenuButton as={IconButton} position="relative"   aria-label='Options'icon={<HamburgerIcon />} variant='outline'
+        style={{ backgroundColor: "gray"}}/>
+          <MenuList>
+            <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
+              <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader> Road Assistance </ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <Accordion defaultIndex={[0]} allowMultiple>
+                    <AccordionItem>
+                   
+
+                        <h2>
+                          <AccordionButton>
+                            <Box as="span" flex='1' textAlign='left'>
+                              AAA
+                            </Box>
+                            <AccordionIcon />
+                          </AccordionButton>
+                        </h2>
+                        <AccordionPanel pb={10}>
+                          <a>800-400-4222 </a>
+                          <a href="tel:8004004222" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                          <IconButton
+                              colorScheme='teal'
+                              aria-label='Call Segun'
+                              size='sm'
+                              icon={<PhoneIcon />}
+                              href="tel:+8004004222"
+                            />
+                            </a>
+                        </AccordionPanel>
+                      </AccordionItem>
+
+                      <AccordionItem>
+                        <h2>
+                          <AccordionButton>
+                            <Box as="span" flex='1' textAlign='left'>
+                              Progressive
+                            </Box>
+                            <AccordionIcon />
+                          </AccordionButton>
+                        </h2>
+                        <AccordionPanel pb={10}>
+                          <a>800-776-4737 </a>
+                          <a href="tel:8007764737" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                          <IconButton
+                              colorScheme='teal'
+                              aria-label='Call Segun'
+                              size='sm'
+                              icon={<PhoneIcon />}
+                              href="tel:+8007764737"
+                            />
+                            </a>
+                        </AccordionPanel>
+                      </AccordionItem>
+
+                      <AccordionItem>
+                        <h2>
+                          <AccordionButton>
+                            <Box as="span" flex='1' textAlign='left'>
+                              StateFarm
+                            </Box>
+                            <AccordionIcon />
+                          </AccordionButton>
+                        </h2>
+                        <AccordionPanel pb={10}>
+                          <a>855-259-8568 </a>
+                          <a href="tel:5558920234" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                          <IconButton
+                              colorScheme='teal'
+                              aria-label='Call Segun'
+                              size='sm'
+                              icon={<PhoneIcon />}
+                              href="tel:+8552598568"
+                            />
+                            </a>
+                        </AccordionPanel>
+                        <br/>
+                        <h2>Type your insurance below to do a Google Search:</h2>
+                      <form action="https://www.google.com/search?q=phone+number+">
+                        <input type="text" name="q"/>
+                        <input type="submit" value="Google Search"/>
+                      </form>
+                      </AccordionItem>
+                    </Accordion>
+                  </ModalBody>
+
+                  <ModalFooter>
+                    <Button colorScheme='blue' mr={3} onClick={onClose}>
+                      Close
+                    </Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
+            <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
+                      onChange={handleCommentClick}/> </MenuItem>
+            <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
+                      isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
+          </MenuList>
+      </Menu> 
+</HStack>
+</Box>
+{/* Is visable only when user turns on Request */}
+{(requestState || commentState) ? (
+        <Box bg='white' h = '20%' w = '20%'  display='flex' flexDirection='column' position='absolute' zIndex={1}  bottom='10'>
+         
+          {/* User text box that appears when user clicks scan request */}
+          <label for="input" class="black-text">
+          {requestState ? 'Request Reason' : 'Comment Reason'}
+          </label>
           
-          {/* Description box title  */}
-          <Heading as='h2' size='lg' marginBottom='2rem'> Descriptions </Heading>
-        
-        {/* Is visable only when user turns on Request */}
-        {(requestState || commentState) ? (
-          <Box bg='white' h = '50vh' w='80%' borderRadius='10px'
-          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' display='flex' flexDirection='column'
-          alignItems='center' justifyContent='center' padding='20px'>
-           
-           {/* Add a clear heading */}
-           <Heading size='md' mb='20px' textAlign='center' color='blue.500'>Request/Comment Form</Heading>
-            
-            {/* User text box that appears when user clicks scan request */}
-            {/* <label for="input" class="black-text">
-            {requestState ? 'Request Reason' : 'Comment Reason'}
-            </label> */}
-
-            {/* Use a descriptive placeholder */}
-            <label htmlFor='input' className='black-text'>
-            {requestState ? 'Please provide your request' : 'Please leave a comment'}
-            </label>
-            
-            <Input type='text' id='input' className='stretch-box black-text'
-            placeholder='Type your reason or comment here' borderRadius='5px'
-            border='1px solid gray' padding='5px' mt='10px'/>
-            <br />
-            {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
+          <input type="text" id="input" class="stretch-box black-text" />
           
-              {/* Change button text to be more specific */}
-            <Button colorScheme='purple' size='md' mt='10px' onClick={SendUserInfo}>
-            {requestState ? 'Submit Request' : 'Submit Comment'}
-            </Button>
-
-            {/* Request Location Buttons  */}
-            {isRVisible && (
-              <Button colorScheme={requestState ? 'orange' : 'blue'} size='md' mt='10px' onClick={() => Toggle("Request")}>
-                {ReqName}
-              </Button>
-            )}
-
-            {isCVisible && (
-              <Button colorScheme={commentState ? 'orange' : 'blue'} size='md' mt='10px' onClick={() => Toggle("Comment")}>
-                {ComName}
-              </Button>
-            )}
-
-          </Box>
-         ) : null}
-
-
-        </Box> // description size 
+          <br/>
+          {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
         
-        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
+            <Button colorScheme='purple' mr={3} onClick={SendUserInfo}>
+              Submit 
+          
+              {/* Request Location Buttons  */}
+      {isRVisible && (
+        <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} left = '300' onClick={() => Toggle("Request")}>
+          {ReqName}
+        </Button>
+      )}
 
-       
-      </HStack>
-    </Flex>
-  );
+      {isCVisible && (
+        <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} left= '300' onClick={() => Toggle("Comment")}>
+          {ComName}
+        </Button>
+      )}
+        </Button>
+        </Box>
+       ) : null}
+</div>
+
+
+     
+
+  </Flex>
+);
 }
 
 export default Map
