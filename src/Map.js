@@ -523,8 +523,8 @@ function SendUserInfo(){
   return (
     
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Flex  position=""  h='13vh' bg='#31C4AE'>
-        {/* Menu for dispaly options */}
+      <Flex  position=""  h='10vh' bg='#559cad'>
+        {/* Menu for display options */}
         <div id="menu">
           <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
           <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
@@ -662,10 +662,6 @@ function SendUserInfo(){
 
       {/* Gabriel worked on format of map and description location  */}
       <HStack spacing = '0' > // space between map and description box 
-        <Box bg='green.300' h = '100vh' w = '30%'  display='flex' flexDirection='column'  alignItems='center'>
-          
-          {/* Description box title  */}
-          <p id="Description">Descriptions</p>
         
         {/* Is visable only when user turns on Request */}
         {(requestState || commentState) ? (
@@ -686,9 +682,6 @@ function SendUserInfo(){
               </Button>
           </Box>
          ) : null}
-
-
-        </Box> // description size 
         
         <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
 
