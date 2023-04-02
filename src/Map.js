@@ -523,31 +523,11 @@ function SendUserInfo(){
   return (
     
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Flex  position=""  h='13vh' bg='#31C4AE'>
-        {/* Menu for dispaly options */}
-        <div id="menu">
-          <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
-          <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
-          <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
-          <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
-          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span> Outdoors </span> </label>
-        </div>
+      
 
-        {/* Request Location Buttons  */}
-        {isRVisible && (
-          <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Request")}>
-            {ReqName}
-          </Button>
-        )}
-
-        {isCVisible && (
-          <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Comment")}>
-            {ComName}
-          </Button>
-        )}
-
-
+      {/* Gabriel worked on format of map and description location  */}
+      <HStack spacing = '0' > // space between map and description box 
+        <Box bg='#559CAD' h = '100vh' w = '5%'  display='absolute' alignItems='center'>
         {/* Hamburger Menu  */}
         <WithPopoverAnchor style={{display: "flex"}}/>
         <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
@@ -656,16 +636,32 @@ function SendUserInfo(){
                         isChecked={isShowCommentChecked} onChange={handleShowCommentClick}/> </MenuItem>
             </MenuList>
         </Menu> 
-        <br/>
-      </Flex>
-      
+            {/* Menu for dispaly options */}
+        <div id="menu">
+          <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
+          <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
+          <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
+          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
+          <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
+          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span> Outdoors </span> </label>
+        </div>
 
-      {/* Gabriel worked on format of map and description location  */}
-      <HStack spacing = '0' > // space between map and description box 
-        <Box bg='green.300' h = '100vh' w = '30%'  display='flex' flexDirection='column'  alignItems='center'>
-          
-          {/* Description box title  */}
-          <p id="Description">Descriptions</p>
+        {/* Request Location Buttons  */}
+        {isRVisible && (
+          <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Request")}>
+            {ReqName}
+          </Button>
+        )}
+
+        {isCVisible && (
+          <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Comment")}>
+            {ComName}
+          </Button>
+        )}
+
+
+        
+        <br/>
         
         {/* Is visable only when user turns on Request */}
         {(requestState || commentState) ? (
