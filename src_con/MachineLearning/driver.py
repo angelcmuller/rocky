@@ -12,8 +12,8 @@ from Data_Manager import Data_Manager
 import ssl
 import certifi
 from bson.objectid import ObjectId
-# from road_classifer import Classify
-# from video_breakdown import Convert
+from road_classifer import Classify
+from video_breakdown import Convert
 import datetime
 
 #main function used to check MongoDB collection 
@@ -148,10 +148,13 @@ def obtain_info(collection):
             failurecount += 1
         if(not userfound):
             # handle the case where the Username field is missing
-            print('Username field is missing, please try again')
+            print('Username field is missing or does not exist, please try again')
             print("Please create user account")
             failurecount += 1
             userfound = False
+
+        if(not valid):
+            print("You have "+str(5-failurecount)+" attempts left.")
       
     
     #check if 5 failure attempts
