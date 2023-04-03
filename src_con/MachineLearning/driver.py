@@ -7,6 +7,7 @@ import csv
 import requests
 import pandas as pd
 import os
+import sys
 #from dotenv import load_dotenv
 from Data_Manager import Data_Manager
 import ssl
@@ -38,18 +39,21 @@ def main():
     
     if (ans == "N"):
         #check username and pass
-        user, video, csv = obtain_info(collection)
-        
-        #if valid push to database 
-        if (video == "False" and csv == "False"):
-            print("Invalid identification, please try again")
+        info = obtain_info(collection)
+          
+        #execute in video mode 
+        if(len(info) == 3):
+            print("Pushing video information to database, please wait as calculations performed...")
+            #analyze_and_push(info[0], info[1], info[2])
+        #execute in image mode
+        elif(len(info) == 2):
+            print("Pushing image information to database, please wait as calculations performed...")
+
         else:
-            print("Pushing information to database, please wait as calculations performed...")
-            #analyze_and_push(user, video, csv)
-    
+            print("Invalid user info. Terminating program.")
+            sys.exit()
         
-        
-def analyze_and_push(user, video, csv):
+def analyze_and_push_video(user, video, csv):
     
     
     # Ask user for date and time input
@@ -162,7 +166,7 @@ def obtain_info(collection):
         print("You have input wrong login info 5 times. Exiting program.")
 
     if (valid == False):
-        return "False", "False", "False"
+        return "False"
     else:
         if(Userlist[2].lower() == 'image'):
             print("Enter the following: path to image directory")
