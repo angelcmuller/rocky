@@ -19,7 +19,6 @@ import datetime
 #main function used to check MongoDB collection 
 def main():
     
-   
     #connect to database 
     client = MongoClient("mongodb://tristanbailey:RockyRoadKey2022@ac-ap9bbel-shard-00-00.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-01.fpy1pqs.mongodb.net:27017,ac-ap9bbel-shard-00-02.fpy1pqs.mongodb.net:27017/?ssl=true&replicaSet=atlas-zrbeo7-shard-0&authSource=admin&retryWrites=true&w=majority",
             tlsCAFile=certifi.where()) 
@@ -120,15 +119,16 @@ def new_user(collection):
             print("Account created successfully")
     
 #Obtain info from existing users on video and csv    
+#reterns different tupole len depending on runtime mode
 def obtain_info(collection):
  
     # get information from user 
-    print("Type: username, password, path to video, path to csv")
+    print("Type: username, password, input option")
     Userinput = input("<Project Rocky Road>")
     
     # split users response into different categories 
     Userlist = Userinput.split(',')
-    
+
     # check if user name is valid (found in for loop)
     valid = False
 
@@ -146,7 +146,16 @@ def obtain_info(collection):
     if (valid == False):
         return "False", "False", "False"
     else:
-        return Userlist[0], Userlist[2], Userlist[3]
+        if(Userlist[2].lower() == 'image'):
+            print("Enter the following: path to image directory")
+            PathInput = input()
+            return Userlist[0], PathInput
+        elif(Userlist[2].lower() == 'video'):
+        #get input
+            print("Enter the following: path to video, path to csv")
+            PathInput = input()
+            Paths = PathInput.split(',')
+            return Userlist[0], Paths[0], Userlist[1]
     
 # main guard
 if __name__ == "__main__":
