@@ -121,13 +121,8 @@ def new_user(collection):
 #Obtain info from existing users on video and csv    
 #reterns different tupole len depending on runtime mode
 def obtain_info(collection):
- 
-    # get information from user 
-    print("Type: username, password, input option")
-    Userinput = input("<Project Rocky Road>")
-    
-    # split users response into different categories 
-    Userlist = Userinput.split(',')
+    Userinput = ""
+    Userlist = []
 
     # check if user name is valid (found in for loop)
     valid = False
@@ -135,23 +130,29 @@ def obtain_info(collection):
     userfound = False
     # iterate over every record in the collection
     while(not valid and failurecount < 5):
+        print("Type: username, password, input option")
+        Userinput = input("<Project Rocky Road>")
+    
+        # split users response into different categories 
+        Userlist = Userinput.split(',')
         for record in collection.find():
             # check if the Username field is present in the record
             if 'Username' in record:
-                userfound = True
                 # Check Username and Password
-                if(Userlist[0] == record['Username'] and Userlist[1] == record['Password']):
-                    valid = True
-                else:
-                    print("Given password for " + Userlist[0]+" is incorrect. Please try again.") 
-                    failurecount += 1
+                if(Userlist[0] == record['Username']):
+                    userfound = True
+                    if(Userlist[1] == record['Password']):
+                        valid = True
+        if(userfound and not valid):
+            print("Given password for " + Userlist[0]+" is incorrect. Please try again.") 
+            failurecount += 1
         if(not userfound):
             # handle the case where the Username field is missing
             print('Username field is missing, please try again')
             print("Please create user account")
             failurecount += 1
             userfound = False
-        if(not found):
+        if(not valid):
             print("You have "+5 - failurecount+" attempts left.")
     
     #check if 5 failure attempts
