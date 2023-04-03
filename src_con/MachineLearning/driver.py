@@ -12,8 +12,8 @@ from Data_Manager import Data_Manager
 import ssl
 import certifi
 from bson.objectid import ObjectId
-from road_classifer import Classify
-from video_breakdown import Convert
+# from road_classifer import Classify
+# from video_breakdown import Convert
 import datetime
 
 #main function used to check MongoDB collection 
@@ -74,7 +74,7 @@ def analyze_and_push(user, video, csv):
     print("Analyzing Road Conditions...")
     #loop below is only used for loading bar decoration (not an actual for loop)
     #call Classify to classify images 
-    Classify(user, Mdate)
+    # Classify(user, Mdate)
 
 
 #check if a username already exists in database 
@@ -152,8 +152,7 @@ def obtain_info(collection):
             print("Please create user account")
             failurecount += 1
             userfound = False
-        if(not valid):
-            print("You have "+5 - failurecount+" attempts left.")
+      
     
     #check if 5 failure attempts
     if(not valid):
