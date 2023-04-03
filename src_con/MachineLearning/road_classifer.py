@@ -4,13 +4,17 @@ from tensorflow import keras
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.optimizers import RMSprop
-import matplotlib.pyplot as plt
 import numpy as np
-import cv2
 import os
 from contributor_pins import add_cpin
-import datetime
 import time 
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torchvision.transforms as transforms
+import torchvision.datasets as datasets
+import cv2
 
 def main():
     print("Uncomment code in main to run test")
@@ -18,8 +22,6 @@ def main():
 
 # Classifies images into categories
 def Classify(author, Mdate):
-
-
     #rescaling image data window as done in youtube tutorial 
     train = ImageDataGenerator(rescale=1/255)
     validation = ImageDataGenerator(rescale=1/255)
@@ -88,6 +90,60 @@ def Classify(author, Mdate):
             
         else:
             print("Good road :)")
+
+def Classify_pytorch(author, Mdate):
+    #rescaling image data window as done in youtube tutorial 
+    train_transforms = transforms.Compose([transforms.Resize((200, 200)), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    test_transforms = transforms.Compose([transforms.Resize((200, 200)), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
+    # resize images and assign label
+    # given to neural network 3 images a time (batch size)
+    train_dataset = datasets.ImageFolder('training', transform=train_transforms)
+    validation_dataset = datasets.ImageFolder('validation', transform=test_transforms)
+
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=3, shuffle=True)
+    validation_loader = torch.utils.data.DataLoader(validation_dataset, batch_size=3, shuffle=True)
+
+    # make the CNN
+    # need to write how many filters (16) size of those filters (3,3) and activation function
+    model = nn.Sequential(nn.Conv2d(3, 16, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2, 2),
+                          nn.Conv2d(16, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2, 2),
+                          nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2, 2),
+                          nn.Flatten(),
+                          nn.Linear(64 * 25 * 25, 512), nn.ReLU(),
+                          nn.Linear(512, 1), nn.Sigmoid())
+
+    # define loss and optimizer
+    criterion = nn.BCELoss()
+    optimizer = optim.RMSprop(model.parameters(), lr=0.001)
+
+    # train the model
+    for epoch in range(30):
+        running_loss = 0.0
+        for i, data in enumerate(train_loader, 0):
+            inputs, labels = data
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels.float().unsqueeze(1))
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
+        print('[%d] loss: %.3f' % (epoch + 1, running_loss / len(train_loader)))
+
+    # test the practice data set
+    dir_path = "testing"
+
+    variable_used_for_waiting = input("Move to next step, adding contributor data: ")
+
+    for i in os.listdir(dir_path):
+        if os.path.isfile(os.path.join(dir_path, i)):
+            img = cv2.imread(os.path.join(dir_path, i))
+            img = cv2.resize(img, (200, 200))
+            img = np.transpose(img, (2, 0, 1))
+            img = torch.from_numpy(img).float()
+            img.unsqueeze_(0)
+            outputs = model(img)
+            val = outputs.detach().numpy()[0][0]
 
 
             # main guard

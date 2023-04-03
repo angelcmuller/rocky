@@ -27,7 +27,6 @@ def main():
     # select the database and collection
     db = client['pinDatabase']
     collection = db['Contributors']
-
     
     #declare video and csv empty paths 
     video = ''
@@ -44,32 +43,29 @@ def main():
         #execute in video mode 
         if(len(info) == 3):
             print("Pushing video information to database, please wait as calculations performed...")
-            #analyze_and_push(info[0], info[1], info[2])
+            #analyze_and_push_video(info[0], info[1], info[2], get_datetime())
         #execute in image mode
         elif(len(info) == 2):
             print("Pushing image information to database, please wait as calculations performed...")
-
+            analyze_and_push_image(info[0], info[1], get_datetime())
         else:
             print("Invalid user info. Terminating program.")
             sys.exit()
-        
-def analyze_and_push_video(user, video, csv):
-    
-    
+
+def get_datetime():
     # Ask user for date and time input
     date = input("Enter date you measured data (Format YYYY-MM-DD): ")
     time = input("Enter time you measured data (24 Hour Clock Format: HH:MM:SS): ")
-
-    DateTime = date + ' ' + time
-
-    #Chat GPT assistance with time object 
-    #==========================================================
     # Parse datetime string into a datetime object
-    MDate_obj = datetime.datetime.strptime(DateTime, '%Y-%m-%d %H:%M:%S')
+    MDate_obj = datetime.datetime.strptime(date + ' ' + time, '%Y-%m-%d %H:%M:%S')
     # Convert datetime object to Unix timestamp
     Mdate = int(MDate_obj.timestamp())
-    #========================================================== 
+    return Mdate
 
+def analyze_and_push_image(user, image_dir, datetime):
+    print("Analyzing Road Conditions...")
+        
+def analyze_and_push_video(user, video, csv, datetime):
     print("Converting video to images...")
     #loop below is only used for loading bar decoration (not an actual for loop)
     #call convert function to breakdown video 
@@ -78,7 +74,7 @@ def analyze_and_push_video(user, video, csv):
     print("Analyzing Road Conditions...")
     #loop below is only used for loading bar decoration (not an actual for loop)
     #call Classify to classify images 
-    # Classify(user, Mdate)
+    #Classify(user, datetime)
 
 
 #check if a username already exists in database 

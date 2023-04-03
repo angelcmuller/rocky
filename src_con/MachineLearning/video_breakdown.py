@@ -9,8 +9,6 @@
 # Importing all necessary libraries
 import cv2
 import os
-from pandas import *
-from tensorflow import keras
 
 # main funtion used to call video converter function
 def Convert(user_video, user_csv):
