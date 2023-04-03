@@ -245,7 +245,7 @@ function Map() {
       //Uses the result variable 
       async function displayMarkers() {
         // Wait for data from MongoDB
-        const [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
+        const [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`)]);
 
         // Angel C. Muller loop through the marker data and create markers
         // depending on the classification of road deficiency

@@ -19,9 +19,6 @@ def main():
 # Classifies images into categories
 def Classify(author, Mdate):
 
-    # testing_file = input("Testing file dir: ")
-    # validate_file = input("Validating file dir: ")
-    # training_file = input("Training file dir: ")
 
     #rescaling image data window as done in youtube tutorial 
     train = ImageDataGenerator(rescale=1/255)
@@ -63,6 +60,8 @@ def Classify(author, Mdate):
     # test the practice data set
     dir_path = "testing"
 
+    variable_used_for_waiting = input("Move to next step, adding contributor data: ")
+    
     for i in os.listdir(dir_path):
         if os.path.isfile(os.path.join(dir_path, i)):
             img = image.load_img(os.path.join(dir_path, i), target_size=(200, 200, 3))
