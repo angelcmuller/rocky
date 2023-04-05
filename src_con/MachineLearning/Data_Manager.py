@@ -13,7 +13,7 @@ class Data_Manager(object):
     #Class for managing how and when data is pushed to the database
     df = pd.DataFrame(columns=['Pid', 'Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source', 'Cid','Classification', 'Degree'])
     tick = 0
-    threshold = 20
+    threshold = 10
     db = None
 
     #enforces singleton design pattern
