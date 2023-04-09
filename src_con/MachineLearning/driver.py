@@ -13,7 +13,7 @@ from Data_Manager import Data_Manager
 import ssl
 import certifi
 from bson.objectid import ObjectId
-from road_classifer import Classify
+from road_classifer import Classify, Classify_pytorch
 from video_breakdown import Convert
 import datetime
 
@@ -64,6 +64,8 @@ def get_datetime():
 
 def analyze_and_push_image(user, image_dir, datetime):
     print("Analyzing Road Conditions...")
+    file_name = input("Enter the file name and extension for csv file with gps coordinates: ")
+    Classify_pytorch(user, image_dir, file_name, datetime)
         
 def analyze_and_push_video(user, video, csv, datetime):
     print("Converting video to images...")
