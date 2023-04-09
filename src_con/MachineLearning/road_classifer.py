@@ -7,6 +7,7 @@
 import numpy as np
 import os
 from contributor_pins import add_cpin
+from Data_Manager import Data_Manager
 import time 
 
 import torch
@@ -16,6 +17,48 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import cv2
 import csv
+import re
+
+import matplotlib
+matplotlib.use('Agg')  # Use the Agg backend
+import matplotlib.pyplot as plt
+
+from PIL import Image
+import base64
+
+########################################################################
+#Visualization code for testing/debug purposes
+
+
+def test_load_gps_dict(data_dir, gps_file):
+    gps_lookup = load_gps_dict(data_dir, gps_file)
+    itt = 0
+    for key, value in gps_lookup.items():
+        if(itt < 10):
+            print(str(key)+" "+value.str())
+            itt +=1
+
+def save_img_being_processed(grayscale_image_data):
+    print("Plotting")
+    # Check if the image data is grayscale or RGB
+    if grayscale_image_data.ndim == 2:
+        cmap = 'gray'
+        print("2d")
+    elif grayscale_image_data.ndim == 3:
+        cmap = None
+    else:
+        raise ValueError('Invalid image data dimensions')
+
+    # Display the image
+    plt.imshow(grayscale_image_data, cmap=cmap)
+    plt.savefig('output_image.png')
+
+def save_img_byte_string(image_as_byte_string):
+    # Open a file in write mode and write the string to the file
+    with open("byte_string.txt", "w") as f:
+        f.write(image_as_byte_string)
+########################################################################
+
 
 def main():
     print("Uncomment code in main to run test")
@@ -147,14 +190,17 @@ def ClassifyandTrain_pytorch(author, data_dir, Mdate):
             val = outputs.detach().numpy()[0][0]
 
 class lat_long:
-    def __init__(self, lat, long):
+    def __init__(self, lat, long, alt):
         self.lat = lat
         self.long = long
-    def lat(self):
+        self.alt = alt
+    def get_lat(self):
         return self.lat
-    def long(self):
+    def get_long(self):
         return self.long
-    def str(self):
+    def get_alt(self):
+        return self.alt
+    def __repr__(self):
         return("(lat: " + str(self.lat) +", long: " +str(self.long)+")")
 
 def load_gps_dict(data_dir, gps_file):
@@ -168,22 +214,72 @@ def load_gps_dict(data_dir, gps_file):
             image_number = int(row['image_number'])
             latitude = float(row[' latitude'])
             longitude = float(row[' longitude'])
-            coords = lat_long(lat=latitude, long=longitude)
+            altitude = float(row[' altitude'])
+            coords = lat_long(lat=latitude, long=longitude, alt=altitude)
             gps_lookup[image_number] = coords
     return gps_lookup
 
-def tes_load_gps_dict():
-    gps_lookup = load_gps_dict(data_dir, gps_file)
+def convert_to_grayscale(image_data):
+    grayscale_image = np.mean(image_data, axis=-1)
+    return grayscale_image
 
-    for key, value in gps_lookup.items():
-        print(str(key)+" "+value.str())
+def convert_nparray_to_bytestring(image_data):
+    # Convert to binary string image
+    img = Image.fromarray(image_data.astype(np.uint8) * 255)
+    bytes = img.tobytes()
+
+    # Encode the byte array as a base64 string
+    base64_bytes = base64.b64encode(bytes)
+    return str(base64_bytes.decode('utf-8'))
 
 def Classify_pytorch(author, data_dir, gps_file, Mdate):
+    database_manager = Data_Manager("tristanbailey","RockyRoadKey2022")
+    #load image file's names
+    npy_files = [f for f in os.listdir(data_dir) if f.endswith('.npy')]
+    #load the csv gps data file
+    gps_dict = load_gps_dict(data_dir, gps_file)
+    #use regex to extract image_number for gps location lookup
+    pattern_img_number = r'_([0-9]+)\.'
+    #use regext to isolate camera id, such as left(l), right(r) and back(b)
+    pattern_camera_id = r'([a-zA-Z]+)\_'
+    
+    itt = 0
+    # Load each .npy file one by one, to process it individually
+    for npy_file in npy_files:
+        camera_id = str(re.search(pattern_camera_id, npy_file).group(1))
+        image_number = int(re.search(pattern_img_number, npy_file).group(1))
+        #TODO Remove this iff statement once classifier model loading is added
+        if(itt < 1):
+            #regex for isolatting image number
+            file_path = os.path.join(data_dir, npy_file)
+            image_data = np.load(file_path)
 
-    # variable_used_for_waiting = input("Move to next step, adding contributor data: ")
+            #convert image to grayscale
+            if image_data.ndim == 3:
+                image_data = convert_to_grayscale(image_data)
+            # Create a PIL image from the grayscale_image_data
+            pil_image = Image.fromarray(np.uint8(image_data), mode='L')
 
-    # for i in os.listdir(dir_path):
-    #     if os.path.isfile(os.path.join(dir_path, i)):
+            # Downsample the grayscale image to 224 x 224, for use with ResNet Architecture
+            resized_pil_image = pil_image.resize((224, 224), Image.ANTIALIAS)
+
+            # Convert the resized PIL image back to a NumPy array
+            image_data = np.array(resized_pil_image)
+
+            #TODO
+            road_condition_present = True
+            if(road_condition_present):
+                coords = gps_dict[image_number]
+                Udate = int(time.time()) #get current time in unix
+                #if a condition is present, convert image to base64 encoded byte string
+                image_as_byte_string = convert_nparray_to_bytestring(image_data)
+                database_manager.add(coords.get_lat(), coords.get_long(), coords.get_alt(),
+                         Mdate, Udate, author, row['Classification'], image_as_byte_string)
+
+            #TODO remove
+            itt+=1
+    database_manager.push()
+
     #         img = cv2.imread(os.path.join(dir_path, i))
     #         img = cv2.resize(img, (200, 200))
     #         img = np.transpose(img, (2, 0, 1))
@@ -191,8 +287,7 @@ def Classify_pytorch(author, data_dir, gps_file, Mdate):
     #         img.unsqueeze_(0)
     #         outputs = model(img)
     #         val = outputs.detach().numpy()[0][0]
-
-            # main guard
-if __name__ == "__main__":
-    Classify_pytorch("me", "data", "gps.csv", "")
-    #main()
+# main guard
+if(__name__ == "__main__"):
+    #Classify_pytorch("me", "Bag0", "gps.csv", "")
+    main()
