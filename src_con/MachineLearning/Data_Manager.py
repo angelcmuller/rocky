@@ -11,7 +11,7 @@ import pymongo
 
 class Data_Manager(object):
     #Class for managing how and when data is pushed to the database
-    df = pd.DataFrame(columns=['Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Author','Classification', 'Img_Byte_String'])
+    df = pd.DataFrame(columns=['Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source','Classification', 'Img_Byte_String'])
     tick = 0
     threshold = 10
     db = None
