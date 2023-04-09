@@ -31,7 +31,7 @@ class Data_Manager(object):
     def add(self, Lattitude, Longitude, Altitude, MeasurementDate, UploadDate, Source, Classification, Byte_String):
         Data_Manager.tick += 1
         temp = pd.DataFrame([[Lattitude, Longitude, Altitude, MeasurementDate, UploadDate, Source, Classification, Byte_String]],
-            columns=['Pid', 'Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source','Classification', 'Img_Byte_String'])
+            columns=['Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source','Classification', 'Img_Byte_String'])
         Data_Manager.df = pd.concat([Data_Manager.df, temp], ignore_index = True)
         
         if(Data_Manager.tick == Data_Manager.threshold):
