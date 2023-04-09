@@ -269,12 +269,13 @@ def Classify_pytorch(author, data_dir, gps_file, Mdate):
             #TODO
             road_condition_present = True
             if(road_condition_present):
+                road_condition = "pothole"
                 coords = gps_dict[image_number]
                 Udate = int(time.time()) #get current time in unix
                 #if a condition is present, convert image to base64 encoded byte string
                 image_as_byte_string = convert_nparray_to_bytestring(image_data)
                 database_manager.add(coords.get_lat(), coords.get_long(), coords.get_alt(),
-                         Mdate, Udate, author, row['Classification'], image_as_byte_string)
+                         Mdate, Udate, author, road_condition, image_as_byte_string)
 
             #TODO remove
             itt+=1
