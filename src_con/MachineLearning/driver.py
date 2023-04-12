@@ -16,6 +16,9 @@ from bson.objectid import ObjectId
 from road_classifer import Classify, Classify_pytorch
 from video_breakdown import Convert
 import datetime
+import bcrypt
+import getpass
+from IPython.core.display import HTML
 
 #main function used to check MongoDB collection 
 def main():
@@ -62,6 +65,8 @@ def get_datetime():
     Mdate = int(MDate_obj.timestamp())
     return Mdate
 
+
+
 def analyze_and_push_image(user, image_dir, datetime):
     print("Analyzing Road Conditions...")
     file_name = input("Enter the file name and extension for csv file with gps coordinates: ")
@@ -99,13 +104,16 @@ def new_user(collection):
     while (confirmed == False):
         #get user information 
         username = input("Make Username (no spaces): ").strip(' ')
-        password = input("Make Password (no spaces): ").strip(' ')
-
+        password = getpass.getpass("Make Password (no spaces): ").strip(' ')
+        # Generate a salt
+        salt = bcrypt.gensalt()
         #Close any spaces in username or password 
         username = "".join(username.split())
         password = "".join(password.split())
-
-        if (input("You want your username as '" + username + "' and your password as '" + password + "'... Is this correct? (Y/N)") == "Y"):
+        # Hash a password with the salt 
+        password_bytes = password.encode('utf-8') # Convert to bytes using UTF-8 encoding
+        hashed_password = bcrypt.hashpw(password_bytes, salt)
+        if (input("You want your username as '" + username + "'... Is this correct? (Y/N)") == "Y"):
             confirmed = True     
             
     #check if users choice already exists, if so make input invalid 
@@ -115,7 +123,7 @@ def new_user(collection):
     #if new user valid, add to system 
     else:
         # Add new user and pass to database 
-        document = { "Username": username, "Password": password }
+        document = { "Username": username, "Password": hashed_password }
         result = collection.insert_one(document)
         if result.acknowledged:
             print("Account created successfully")
@@ -132,18 +140,23 @@ def obtain_info(collection):
     userfound = False
     # iterate over every record in the collection
     while(not valid and failurecount < 5):
-        print("Type: username, password, input option")
-        Userinput = input("<Project Rocky Road>")
-    
-        # split users response into different categories 
-        Userlist = Userinput.split(',')
+       
+        user = input("Username: ")
+        password = getpass.getpass("Password: ")
+        type_choice = input("('video' or 'image'): ")
+
+        #combine 3 strings into list 
+        Userlist = [user, password, type_choice]
+       
         for record in collection.find():
             # check if the Username field is present in the record
             if 'Username' in record:
                 # Check Username and Password
                 if(Userlist[0] == record['Username']):
                     userfound = True
-                    if(Userlist[1] == record['Password']):
+                    #check encrpyted password     
+                    password_bytes = Userlist[1].encode('utf-8')
+                    if bcrypt.checkpw(password_bytes, record['Password']):
                         valid = True
         if(userfound and not valid):
             print("Given password for " + Userlist[0]+" is incorrect. Please try again.") 
