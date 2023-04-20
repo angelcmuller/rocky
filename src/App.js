@@ -78,7 +78,7 @@ function App () {
             <br />
             <Introduction />
             
-            <Button size='lg' colorScheme='teal' variant='solid' onClick = {navigatetoMap}>
+            <Button size='lg' colorScheme='teal' variant='solid'>
               Start your Journey
             </Button>
             <br/><br/>
