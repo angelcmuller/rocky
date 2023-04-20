@@ -2,19 +2,10 @@
 import React from 'react';
 // Components from other sources
 import { BrowserRouter as Router, Route, useNavigate, Routes } from 'react-router-dom';
-import { Button, Menu } from '@chakra-ui/react';
-import { Switch, FormControl, FormLabel } from '@chakra-ui/react';
-import { useState } from 'react';
-import { Sling as Hamburger } from 'hamburger-react'
+import { Button, Menu, MenuItem, MenuList, MenuDivider } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
 import { useDisclosure } from '@chakra-ui/react'
 import {
-  Drawer,
-  DrawerBody,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
   MenuButton,
   IconButton
 } from '@chakra-ui/react'
@@ -72,22 +63,16 @@ function App () {
           <div id='body'>
             <div id='menu'>
               <Menu>
-                <MenuButton as={IconButton} position="absolute" top="2" left="2" aria-label='Options' icon={<HamburgerIcon />} onClick={onOpen} bg='#80cbc4'/>
-                  <Drawer placement={placement} onClose={onClose} isOpen={isOpen}>
-                    <DrawerOverlay/>
-                    <DrawerContent>
-                      <DrawerHeader borderBottomWidth='2px' id='menuSettings'> Menu </DrawerHeader>
-                      <DrawerBody id='menuSettings2'>
-                        <p onClick = {navigatetoAbout} id='aboutUs'> About </p>
-                        <p onClick = {navigatetoSubmitRequest} id='aboutUs'> Request Scan </p>
-                        <p onClick = {navigatetoHowTo} id='aboutUs'> Instructions </p>
-                        <p onClick = {navigatetoContact} id='contactUs'> Contact Us </p>
-                      </DrawerBody>
-                    </DrawerContent>
-                  </Drawer>
+                <MenuButton as={IconButton} position="absolute" top="2" right="2" aria-label='Options' icon={<HamburgerIcon />} bg='#80cbc4'></MenuButton>
+                  <MenuList minWidth='180px'>
+                    <MenuItem onClick = {navigatetoAbout} id='aboutUs'> About </MenuItem>
+                    <MenuDivider />
+                    <MenuItem onClick = {navigatetoHowTo} id='aboutUs'> Instructions </MenuItem>
+                    <MenuDivider />
+                    <MenuItem onClick = {navigatetoContact} id='contactUs'> Contact Us </MenuItem>
+                  </MenuList>
               </Menu>
             </div>
-            <br />
             <br />
             <h1 id='welcome'> Welcome to Rocky Road Project </h1>
             <br />
@@ -96,8 +81,7 @@ function App () {
             <Button size='lg' colorScheme='teal' variant='solid' onClick = {navigatetoMap}>
               Start your Journey
             </Button>
-            <br />  <br />  <br />  <br />
-            {/* <ColorB /> */}
+            <br/><br/>
           </div>
         )
       }

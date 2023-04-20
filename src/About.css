@@ -78,7 +78,28 @@ css format will need to start with #
     text-align: justify;
 }
 
-#booklink{
+#transportation-booklink{
+    color: blue;
+    font-size: 16px;
+    margin-left: 40px;
+    text-align: justify;
+}
+
+#dot-booklink{
+    color: blue;
+    font-size: 16px;
+    margin-left: 40px;
+    text-align: justify;
+}
+
+#aaa-booklink{
+    color: blue;
+    font-size: 16px;
+    margin-left: 40px;
+    text-align: justify;
+}
+
+#statefarm-booklink{
     color: blue;
     font-size: 16px;
     margin-left: 40px;
@@ -90,6 +111,8 @@ css format will need to start with #
     font-size: 14px;
     margin-left: 80px;
     text-align: left;
+    padding-right: 25px;
+    text-align: justify;
 }
 
 #subtopic {
@@ -97,6 +120,8 @@ css format will need to start with #
     font-weight: 700;
     font-size: 19px;
     font-style: italic;
+    padding-right: 20px;
+    text-align: justify;
 }
 
 #s_description {
@@ -111,6 +136,11 @@ css format will need to start with #
     font-size: 20px;
     padding-left: 15px;
     padding-right: 15px;
+    text-align: justify;
+}
+
+#book {
+    padding-right: 20px;
     text-align: justify;
 }
 
