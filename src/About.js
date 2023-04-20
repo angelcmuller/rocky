@@ -40,7 +40,7 @@ function About() {
         <div>
             {/* UNr Logo */}
             <div class="container">
-                <img id='UNRPicture' src={UNRpic}/>
+                <img id='UNRPicture' alt='unr-logo' src={UNRpic}/>
                 <div id="tinyText">
                     <p  class="top-margin"> University of Nevada Reno  </p>
                     <p>Computer Science and Engineering</p>
@@ -53,7 +53,7 @@ function About() {
             {/* Photo and Title */}
             <div>
                 <p id='title'> Rocky Road Senior Project</p>
-                <img id='groupPicture' src={teampic}/>
+                <img id='groupPicture' alt='RockyRoad-team-picture' src={teampic}/>
                 <br/>
                 <p id='team'>Team 09</p>
             </div>
@@ -89,7 +89,7 @@ function About() {
                 
                 <div class="container">
                     
-                    <img id='UNRPicture' src={CollabThree}/>
+                    <img id='UNRPicture' alt='Dr.-Andy-Smith' src={CollabThree}/>
                     <div id="PersonText">
                         <p  class="top-margin"> Dr. Andy Smith   </p>
                     </div>
@@ -102,7 +102,7 @@ function About() {
                     <br/>
                     
                     <div id = "button1">
-                    <Button colorScheme='blue'> SNC Information </Button>
+                    <Button colorScheme='pink' variant='outline'> SNC Information </Button>
                     </div>
                     </a>
 
@@ -113,7 +113,7 @@ function About() {
                 <h2 id="subtopic"> Internal Collaborators </h2>
                 <div class="container">
                     
-                    <img id='UNRPicture' src={CollabOne}/>
+                    <img id='UNRPicture' alt='Dr.-Emily-Hand' src={CollabOne}/>
                     <div id="PersonText">
                         <p  class="top-margin">   Dr. Emily Hand   </p>
                     </div>
@@ -126,7 +126,7 @@ function About() {
                 <br/>     
     
                 <div class="container">
-                    <img id='UNRPicture' src={CollabTwo}/>
+                    <img id='UNRPicture' alt='Dr.-Alireza-Tavakkol' src={CollabTwo}/>
                     <div id="PersonText">
                         <p  class="top-margin">    Dr. Alireza Tavakkol   </p>
                     </div>
@@ -168,25 +168,25 @@ function About() {
             <br/>
 
             <h2 id="subtopic"> Websites </h2>
-            <a id='booklink'  href="https://www.transportation.gov/briefing-room/fhwa-delivers-largest-federal-highway-apportionment-decades-part-bipartisan"> <u> Federal Department of U.S Transportation </u> </a>
+            <a id='transportation-booklink'  href="https://www.transportation.gov/briefing-room/fhwa-delivers-largest-federal-highway-apportionment-decades-part-bipartisan"> <u> Federal Department of U.S Transportation </u> </a>
             <br/>
             <p id='bookinfo'> This is a website article from the Federal Department of U.S Transportation. The article elaborates on how funding to improve road infrastructure in 2022 will be larger than that of 2021 due to the passing of the Bipartisan Infrastructure Law. Funds used by this law are directed towards improving the safety and stability of road health.  </p>
            
             <br/>
 
-            <a id='booklink'  href="https://www.dot.state.wy.us/files/live/sites/wydot/files/shared/Highway_Safety/_Crash%20Data/Publications/Report%20on%20Traffic%20Crashes/Report%20on%20Traffic%20Crashes%202021.pdf "> <u>  State of Wyoming Report </u> </a>
+            <a id='dot-booklink'  href="https://www.dot.state.wy.us/files/live/sites/wydot/files/shared/Highway_Safety/_Crash%20Data/Publications/Report%20on%20Traffic%20Crashes/Report%20on%20Traffic%20Crashes%202021.pdf "> <u>  State of Wyoming Report </u> </a>
             <br/>
             <p id='bookinfo'>  This website article is a report about traffic crashes in 2021 in the state of Wyoming. More specifically on page 70 there is a report about fatalities and injuries caused by faulty road conditions. This information serves as an example of how severe road conditions can be to individuals on the road.   </p>
 
             <br/>
 
-            <a id='booklink'  href="https://aaafoundation.org/wp-content/uploads/2021/04/21-1101-AAAFTS-American-Driving-Survey-Fact-Sheet_v3.pdf   "> <u>  AAA Insurance Report  </u> </a>
+            <a id='aaa-booklink'  href="https://aaafoundation.org/wp-content/uploads/2021/04/21-1101-AAAFTS-American-Driving-Survey-Fact-Sheet_v3.pdf   "> <u>  AAA Insurance Report  </u> </a>
             <br/>
             <p id='bookinfo'>  This website article is a survey made by the AAA insurance company to update their understanding and better calibrate future predictions for traffic risks. In this report it is noted that most of the respondents spent roughly an hour behind the wheel every day. This information is important for this report as it may indicate what the typical target audience may be like.    </p>
 
             <br/>
 
-            <a id='booklink'  href="https://www.statefarm.com/simple-insights/auto-and-vehicles/the-winter-hazard-nobody-sees-coming-black-ice  "> <u> State Farm Report  </u> </a>
+            <a id='statefarm-booklink'  href="https://www.statefarm.com/simple-insights/auto-and-vehicles/the-winter-hazard-nobody-sees-coming-black-ice  "> <u> State Farm Report  </u> </a>
             <br/>
             <p id='bookinfo'>  This website article is from the State Farm insurance agency. This article goes into detail of what black ice is and how drivers can avoid mishaps on the road when black ice is present. This information is useful because it details how dangerous black ice can be and supports the rationale for it being added as a potential object in project Rocky Road.  </p>
 
@@ -216,7 +216,7 @@ function About() {
             </div>
             <div id='button'>
                 <br/> <br/>
-                <Button colorScheme='pink' onClick={ navigatetoApp }>Back</Button>
+                <Button colorScheme='pink'  variant='outline' onClick={ navigatetoApp }>Back</Button>
                 <br/> <br/>
             </div>
             <div>
