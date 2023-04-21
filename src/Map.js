@@ -108,6 +108,7 @@ const markers = []; // declare markers array outside of useEffect
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
 
+
   //Araon Ramirez Map Loading Procedures Belo
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
@@ -380,7 +381,7 @@ function Map() {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
             .setLngLat([commentData[i].Lng, commentData[i].Lat])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> <button class="btnUp"> Thumbs Up </button>  <button class="btnDown"> Thumbs Down </button>`))
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
             .addTo(map);
             
             // add the marker to the markers array
@@ -405,7 +406,7 @@ function Map() {
           const marker = new mapboxgl.Marker({ color: '#AAFF00' })
             .setLngLat([ContributData[i].Longitude, ContributData[i].Lattitude])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source} </p>`))
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>`))
             .addTo(map);
 
             // add click listener to marker
@@ -854,30 +855,44 @@ function Map() {
 
 
 
-{/* Is visable only when user turns on Request */}
-{(requestState || commentState) ? (
-        <Box bg='white' h = '20%' w = '20%'  display='flex' flexDirection='column' position='absolute' zIndex={1}  bottom='10'>
-         
-          {/* User text box that appears when user clicks scan request */}
-          <label for="input" class="black-text">
-          {requestState ? 'Request Reason' : 'Comment Reason'}
-          </label>
+ {/* Is visable only when user turns on Request */}
+        {(requestState || commentState) ? (
+
+<Box bg='white' h = '35%' w = '30%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
+          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' 
+          alignItems='center' justifyContent='center' padding='12%' zIndex={1}  left = '5%' top='40%'>
+           
+           {/* Add a clear heading */}
+           <Heading size='md' mb='20px' textAlign='center' color='blue.500'>Request/Comment Form</Heading>
+            
+            {/* User text box that appears when user clicks scan request */}
+            {/* <label for="input" class="black-text">
+            {requestState ? 'Request Reason' : 'Comment Reason'}
+            </label> */}
+
+            {/* Use a descriptive placeholder */}
+            <label htmlFor='input' className='description-text'>
+            {requestState ? 'Please provide your request' : 'Please leave a comment'}
+            </label>
+            
+            <Input type='text' id='input' className='stretch-box-black-text' w='100%'
+            placeholder='Type your reason or comment here' overflowWrap="break-word" borderRadius='5px'
+            border='1px solid gray' padding='5px' mt='10px' style={{height: '200px'}}
+            maxLength={200}/>
+            <br />
+            {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
           
-          <input type="text" id="input" class="stretch-box black-text" />
-          
-          <br/>
-          {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
-        
-            <Button colorScheme='purple' mr={3} onClick={SendUserInfo}>
-              Submit
+              {/* Change button text to be more specific */}
+            <Button colorScheme='purple' size='md' mt='10px' onClick={SendUserInfo}>
+            {requestState ? 'Submit Request' : 'Submit Comment'}
             </Button>
-          
-              {/* Request Location Buttons  */}
-      {isRVisible && (
-        <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} left = '300' onClick={() => Toggle("Request")}>
-          {ReqName}
-        </Button>
-      )}
+
+            {/* Request Location Buttons  */}
+            {isRVisible && (
+              <Button colorScheme={requestState ? 'orange' : 'blue'} size='md' mt='10px' onClick={() => Toggle("Request")}>
+                {ReqName}
+              </Button>
+            )}
 
             {isCVisible && (
               <>
