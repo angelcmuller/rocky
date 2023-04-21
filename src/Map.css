@@ -14,7 +14,14 @@
     color: red;
   }
   
+  .btnUp{
+    color: blue;
 
+  }
+  .btnDown{
+    color: red;
+
+  }
 
   #Description {
     color: white;

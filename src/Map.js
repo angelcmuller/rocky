@@ -367,7 +367,7 @@ function Map() {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
             .setLngLat([commentData[i].Lng, commentData[i].Lat])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> <button class="btnUp"> Thumbs Up </button>  <button class="btnDown"> Thumbs Down </button>`))
             .addTo(map);
             
             // add the marker to the markers array
@@ -392,7 +392,7 @@ function Map() {
           const marker = new mapboxgl.Marker({ color: '#AAFF00' })
             .setLngLat([ContributData[i].Longitude, ContributData[i].Lattitude])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>`))
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source} </p>`))
             .addTo(map);
 
             // add click listener to marker
@@ -654,36 +654,8 @@ function Map() {
    
    return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-
-    {/* Gabriel worked on format of map and description location  */}
-      
-      <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}>
-      <Box
-      p={1}
-      borderRadius='lg'
-      m={1}
-      bgColor='gray'
-      shadow='base'
-      left = '50%'
-      zIndex='1'
-      position = 'absolute'
-      >
-      <HStack  spacing = {0} justifyContent='space-between'>
-{/* Menu for dispaly options */}
-<div id="menu">
-        <input id="satellite-streets-v12" left ="10" type="radio" name="rtoggle" value="streets"/>
-        <label for="satellite-streets-v12"><img src={LightPic} alt="street"/>   <span> Satellite </span> </label>
-        <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-        <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
-        <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
-        <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/><span> Outdoors </span> </label>
-      </div>
-
-  
-
-      
-
-      {/* Hamburger Menu  */}
+      <Flex  position=""  h='10vh' bg='#559cad'>
+         {/* Hamburger Menu  */}
       <WithPopoverAnchor style={{display: "flex"}}/>
       <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
         <MenuButton as={IconButton} position="relative"   aria-label='Options'icon={<HamburgerIcon />} variant='outline'
@@ -789,7 +761,40 @@ function Map() {
                       isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
           </MenuList>
       </Menu> 
-</HStack>
+
+
+
+      </Flex>
+
+    {/* Gabriel worked on format of map and description location  */}
+      
+      <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}>
+      <Box
+      p={1}
+      borderRadius='lg'
+      m={1}
+      bgColor='gray'
+      shadow='base'
+      left = '50%'
+      zIndex='1'
+      position = 'absolute'
+      >
+      <HStack  spacing = {0} justifyContent='space-between'>
+{/* Menu for dispaly options */}
+<div id="menu">
+        <input id="satellite-streets-v12" left ="10" type="radio" name="rtoggle" value="streets"/>
+        <label for="satellite-streets-v12"><img src={LightPic} alt="street"/>   <span> Satellite </span> </label>
+        <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
+        <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
+        <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
+        <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/><span> Outdoors </span> </label>
+      </div>
+
+  
+
+      
+      </HStack>
+     
 </Box>
 {/* Is visable only when user turns on Request */}
 {(requestState || commentState) ? (
