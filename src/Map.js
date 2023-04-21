@@ -821,11 +821,10 @@ function Map() {
       
 
 
-      </Flex>
 
     {/* Gabriel worked on format of map and description location  */}
       
-      <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}>
+      <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
       <Box
       p={1}
       borderRadius='lg'
@@ -868,7 +867,8 @@ function Map() {
           {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
         
             <Button colorScheme='purple' mr={3} onClick={SendUserInfo}>
-              Submit 
+              Submit
+            </Button>
           
               {/* Request Location Buttons  */}
       {isRVisible && (
@@ -893,7 +893,6 @@ function Map() {
          ) : null}
 
 
-     
 
   </Flex>
 );
