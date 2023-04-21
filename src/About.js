@@ -158,7 +158,7 @@ function About() {
             
 
             <h1 id='meetTeam'> Reasources  </h1>
-
+        
             <h2 id="subtopic"> Problem Domain Book </h2>
             <p id='book'>Ayyadevara, V., & Reddy, Y. (2020). Modern computer vision with pytorch: Explore deep learning concepts and implement over 50 real-world image applications. Packt Publishing Ltd.</p>
             <br/>
@@ -189,6 +189,13 @@ function About() {
             <br/>
             <p id='bookinfo'>  This website article is from the State Farm insurance agency. This article goes into detail of what black ice is and how drivers can avoid mishaps on the road when black ice is present. This information is useful because it details how dangerous black ice can be and supports the rationale for it being added as a potential object in project Rocky Road.  </p>
 
+            <br/>
+
+            <h2 id="subtopic"> Rocky Road GitHub Account </h2>
+            <p id="github-link">
+                <a href="https://github.com/angelcmuller/rockyroad" target="_blank">https://github.com/angelcmuller/rockyroad</a>
+            </p>
+            
             <br/>
 
             <h2 id="subtopic"> Research Publications </h2>
