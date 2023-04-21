@@ -102,7 +102,7 @@ function About() {
                     <br/>
                     
                     <div id = "button1">
-                    <Button colorScheme='pink' variant='outline'> SNC Information </Button>
+                    <Button colorScheme='cyan' color='black'> SNC Information </Button>
                     </div>
                     </a>
 
@@ -144,10 +144,9 @@ function About() {
                 <p id='names'> Angel Carranco Muller </p>
                 <p id='description'> Angel Carranco Muller was born and raised in Oaxaca, Mexico. His family business
                 was arcade videogame locations throuhout the city which is were he got his love for computers, and digital
-                machines. Angel moved to Reno, Nevada in 2013. Here Angel got his Associates in Science at Truckee Meadows
-                Community College. He joined the Army to continue his studies and now he is on the right track
-                to graduate with a Bachelors in Computer Science and Engineering, with a minor in Mathematics. 
-                Angel's interests are now Virtual Reality and Machine Learning amongst others. </p>
+                machines. Angel moved to Reno, Nevada in 2013. He joined the Army to continue his studies and now he is graduating
+                with a Bachelors in Computer Science and Engineering, with a minor in Mathematics. 
+                Angel's interests are now Virtual Reality, Machine Learning, Big Data amongst others. </p>
                 <br/>
                 <p id='names'> Gabriel Mortensen </p>
                 <p id='description'>Gabriel was born local here in Reno. His hobbies include writing, reading, and going on camping trips. His primary topics of study include machine learning and big data. He hopes to one day use these interests to progress the efficiency of medicine and hospital operations. After this semester Gabriel will continue with school where he will get a master’s degree in CSE in Spring 2024 and an MBA in Spring 2025.</p>
@@ -216,7 +215,7 @@ function About() {
             </div>
             <div id='button'>
                 <br/> <br/>
-                <Button colorScheme='pink'  variant='outline' onClick={ navigatetoApp }>Back</Button>
+                <Button colorScheme='cyan' color='black' onClick={ navigatetoApp }>Back</Button>
                 <br/> <br/>
             </div>
             <div>
