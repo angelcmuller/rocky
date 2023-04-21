@@ -18,6 +18,8 @@ css format will need to start with #
     margin-right: auto;
     width: 50%;
     height: auto;
+    border-radius: 10px;
+    outline: 1px solid black;
 }
 
 .container {
