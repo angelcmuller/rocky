@@ -14,13 +14,32 @@
     color: red;
   }
   
-  .btnUp{
+  select {
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #f39f18;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    text-align: center;
+  }
+
+  .description-text {
+    font-size: 14px;
+    color: #000;
+    text-align: left !important;
+  }
+    .btnUp{
     color: blue;
 
   }
   .btnDown{
     color: red;
 
+  .stretch-box-black-text {
+    color: #000;
+  }
   }
 
   #Description {

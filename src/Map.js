@@ -125,11 +125,11 @@ function Map() {
 
   //const map = useRef(null);
   //sets start to RENO area
-  const [lng, setLng] = useState();
-  const [lat, setLat] = useState();
-  const [zoom, setZoom] = useState(11);
+  const [lng, setLng] = useState(null);
+  const [lat, setLat] = useState(null);
+  const [locationAvailable, setLocationAvailable] = useState(false);
+  const [zoom, setZoom] = useState(10);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
 
   const [ReqName, setReqName] = useState("Request Location");
   const [ComName, setComName] = useState("Make a Comment");
@@ -209,16 +209,29 @@ function Map() {
         (position) => {
           setLng(position.coords.longitude);
           setLat(position.coords.latitude);
+          setLocationAvailable(true);
         },
         () => {
           console.error('Unable to retrieve your location');
+          setLocationAvailable(false);
         }
       );
     } else {
       console.error('Geolocation is not supported by this browser');
+      setLocationAvailable(false);
     }
   }, []);
   
+  // useEffect that verifies if user allows the geolocation
+  // to center Map instance to their location. Otherwise,
+  // it centers in Reno Downtown
+  useEffect(() => {
+    if (!locationAvailable) {
+      setLng(-119.8114); // longitude of Reno downtown
+      setLat(39.5296); // latitude of Reno downtown
+    }
+  }, [locationAvailable]);
+
   useEffect(() => {
     //Initialize the Map with current lng and lat
     if(lng && lat){
@@ -459,9 +472,9 @@ function Map() {
           // Create a popup dialog
           const popup = new mapboxgl.Popup({ closeOnClick: true, closeButton: customCloseButton})
             .setLngLat(e.lngLat)
-            .setHTML('<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333333; padding: 5px;"><p text-align: center; style="margin-bottom: 20px;">What would you like to do?</p><button id="comment-btn" style="background-color: #0077B6; color: #FFFFFF; border-radius: 2px; border: none; padding: 10px 20px; margin-right: 10px; cursor: pointer;">Leave a Comment</button> <br/> <br/> <button id="request-btn" style="background-color: #0077B6; color: #FFFFFF; border-radius: 4px; border: none; padding: 10px 20px; cursor: pointer;">Make a Request</button></div>')
+            .setHTML('<div style="font-family: Arial, sans-serif; font-size: 12px; color: #333333; padding: 2px;"><button id="comment-btn" style="background-color: #0077B6; color: #FFFFFF; border-radius: 2px; border: none; padding: 2px 4px; margin-right: 10px; cursor: pointer;">Leave a Comment</button> <br/> <br/> <button id="request-btn" style="background-color: #0077B6; color: #FFFFFF; border-radius: 2px; border: none; padding: 2px 4px; cursor: pointer;">Make a Request</button></div>')
             .setMaxWidth('500px')
-            .addTo(map);
+            .addTo(map)
 
             // Append customCloseButton to popup container element
             popup._container.appendChild(customCloseButton);
@@ -537,7 +550,6 @@ function Map() {
     )
   }
   
-
   // Function sends comment or request to database  
   function SendUserInfo(){
 
@@ -626,32 +638,73 @@ function Map() {
     }
   }
 
+  function NumberSelector() {
+  
+    return (
+      <div>
+        <label htmlFor="options"></label>
+        <select id="options" value={selectedOption} onChange={handleOptionChange}>
+          <option value="">Severity</option>
+          <option value="option1">1</option>
+          <option value="option2">2</option>
+          <option value="option3">3</option>
+          <option value="option4">4</option>
+          <option value="option5">5</option>
+          <option value="option6">6</option>
+          <option value="option7">7</option>
+          <option value="option8">8</option>
+          <option value="option9">9</option>
+          <option value="option10">10</option>
+        </select>
+        {/* <p>You selected: {selectedOption}</p> */}
+      </div>
+    );
+  }
+
+  function ConditionSelector() {
+  
+    return (
+      <div>
+        <label htmlFor="conditions"></label>
+        <select id="conditions" value={selectedConditionOption} onChange={handleConditionChange}>
+          <option value="">Type</option>
+          <option value="conditions1">Pothole</option>
+          <option value="conditions2">Crack</option>
+          <option value="conditions3">Speedbump</option>
+          <option value="conditions4">Divit/Bump</option>
+          <option value="conditions5">Other</option>
+        </select>
+        {/* <p>You selected: {selectedOption}</p> */}
+      </div>
+    );
+  }
+
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
+
+  const handleConditionChange = (event) => {
+    setConditionOption(event.target.value);
+  };
+
   // function that handles the displaying of the comments onto the map
-  const handleShowCommentClick = (event) => {
-    if(isShowCommentChecked == false){
-      setIsShowCommentChecked(event.target.checked);
-      console.log("Display Comments now.")
-    } else {
-      setIsShowCommentChecked(false);
-    }
+  function handleShowCommentClick(){
+    const opacity = 0;
+    console.log("here")
+    setMarkerOpacity(opacity);
+    markers.forEach(marker => {
+      marker.getElement().style.opacity = opacity;
+    });
+    console.log("opacity:", opacity);
   }
 
   // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
-  const [isShowCommentChecked, setIsShowCommentChecked] = useState(true);
+  const [markerOpacity, setMarkerOpacity] = useState(0);
+  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedConditionOption, setConditionOption] = useState("");
 
-  // use a boolean function to turn markers on and off
-  function toggleMarkers(isShowCommentChecked) {
-    markers.forEach(marker => {
-      marker.getElement().style.opacity = isShowCommentChecked ? 1 : 0;
-    });
-  }
-  
-   if ( markers.length > 0){
-    toggleMarkers(isShowCommentChecked);
-   }
-   
    return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Flex  position=""  h='10vh' bg='#559cad'>
@@ -748,20 +801,24 @@ function Map() {
                     </Accordion>
                   </ModalBody>
 
-                  <ModalFooter>
-                    <Button colorScheme='blue' mr={3} onClick={onClose}>
-                      Close
-                    </Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-            <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
-                      onChange={handleCommentClick}/> </MenuItem>
-            <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
-                      isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
-          </MenuList>
-      </Menu> 
-
+                    <ModalFooter>
+                      <Button colorScheme='blue' mr={3} onClick={onClose}>
+                        Close
+                      </Button>
+                    </ModalFooter>
+                  </ModalContent>
+                </Modal>
+              {/* <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
+                        onChange={handleCommentClick}/> </MenuItem>
+              <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
+                        isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem> */}
+              <MenuItem style={{ color: "black" }} onClick={handleShowCommentClick}> Hide Comments </MenuItem>
+              <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
+            </MenuList>
+        </Menu> 
+        <br/>
+      </Flex>
+      
 
 
       </Flex>
@@ -820,15 +877,20 @@ function Map() {
         </Button>
       )}
 
-      {isCVisible && (
-        <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} left= '300' onClick={() => Toggle("Comment")}>
-          {ComName}
-        </Button>
-      )}
-        </Button>
-        </Box>
-       ) : null}
-</div>
+            {isCVisible && (
+              <>
+              <Button colorScheme={commentState ? 'orange' : 'blue'} size='md' mt='10px' onClick={() => Toggle("Comment")}>
+                {ComName}
+              </Button>
+              <div><br/></div>
+              <HStack spacing='15px'>
+                <ConditionSelector />
+                <NumberSelector />
+              </HStack>
+              </>
+            )}
+          </Box>
+         ) : null}
 
 
      
