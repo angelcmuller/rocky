@@ -12,7 +12,6 @@ import {
 import { HamburgerIcon } from '@chakra-ui/icons';
 
 // Files from within our directory
-import Map from './Map.js';
 import './App.css';
 import logo from './images/Logo.png';
 import About from './About.js';
@@ -87,7 +86,7 @@ function App () {
       }
       <div>
         <Routes>
-          <Route path="/Map" element={<Map/>} />
+          {/* <Route path="/Map" element={<Map/>} /> */}
           <Route path="/About" element={<About/>} />
           <Route path="/SubmitRequest" element={<SubmitRequest/>} />
           <Route path="/HowTo" element={<HowTo/>} />
