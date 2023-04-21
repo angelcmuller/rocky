@@ -74,6 +74,13 @@ css format will need to start with #
     padding-left: 10px;
 }
 
+#github-link a {
+    color: blue;
+    text-decoration: underline;
+    font-size: 16px;
+    margin-left: 40px;
+}
+
 #book{
     font-size: 16px;
     margin-left: 40px;
