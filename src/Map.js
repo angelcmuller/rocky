@@ -11,6 +11,7 @@ import {
   Button,
   Flex,
   HStack,
+  Heading,
   IconButton,
   Input,
   SkeletonText,
@@ -47,8 +48,9 @@ import {
 } from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon, ChatIcon } from "@chakra-ui/icons";
 import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
-import './App.css'
-import './Map.css'
+import './App.css';
+import './Map.css';
+import { BrowserRouter as Router, useNavigate, Routes } from 'react-router-dom';
 import { useRef, useState, useMemo, useEffect} from 'react'
 import RequestMap from "./Request";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
@@ -62,7 +64,8 @@ import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loade
 import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 import MapboxTraffic from "./mapbox-gl-traffic.js";
-import "./mapbox-gl-traffic.css"
+import "./mapbox-gl-traffic.css";
+import App from "./App";
 
 var UserLat; 
 var UserLng; 
@@ -71,6 +74,8 @@ var directions = createDirections();
 var flip = true;
 var mapStyle = 'mapbox://styles/mapbox/outdoors-v12?optimize=true';
 
+// Boolean to check if button Comment/Request are being used
+var buttonCommentRequest = false;
 
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
@@ -107,23 +112,43 @@ function Map() {
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
   const mapContainer = useRef(null);
- 
 
-
+  // const variables to manage the navigation to other Pages (/Map)
+  const navigate = useNavigate();
+  const [showResults, setShowResults] = React.useState(true)
+  
+  const navigatetoLandPage = () => {
+    setShowResults(current => !current);
+    navigate('/')
+    document.location.reload();
+  }
 
   //const map = useRef(null);
   //sets start to RENO area
-  const [lng, setLng] = useState();
-  const [lat, setLat] = useState();
-  const [zoom, setZoom] = useState(11);
+  const [lng, setLng] = useState(null);
+  const [lat, setLat] = useState(null);
+  const [locationAvailable, setLocationAvailable] = useState(false);
+  const [zoom, setZoom] = useState(10);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
 
   const [ReqName, setReqName] = useState("Request Location");
   const [ComName, setComName] = useState("Make a Comment");
   const [requestState, setRState] = useState(false);
   const [commentState, setCState] = useState(false);
   const [routeState, setRouteState] = useState(true);
+
+  // Using cache to reload the previous page from the browser's back button
+  useEffect(() => {
+    const handlePopstate = () => {
+        window.location.reload();
+    }
+    window.addEventListener('popstate', handlePopstate);
+
+    return () => {
+        window.removeEventListener('popstate', handlePopstate);
+    };
+
+}, []);
 
   function LimitFunctionality(Name){
     if (commentState === false && requestState === true ){
@@ -159,6 +184,8 @@ function Map() {
       setCState(!commentState);
       if (ComName === "Make a Comment") {
         setComName("Disregard Comment");
+        buttonCommentRequest = false;
+        console.log('button has been changed to ', buttonCommentRequest);
       } else {
         setComName("Make a Comment");
         setRouteState(true);
@@ -182,20 +209,35 @@ function Map() {
         (position) => {
           setLng(position.coords.longitude);
           setLat(position.coords.latitude);
+          setLocationAvailable(true);
         },
         () => {
           console.error('Unable to retrieve your location');
+          setLocationAvailable(false);
         }
       );
     } else {
       console.error('Geolocation is not supported by this browser');
+      setLocationAvailable(false);
     }
   }, []);
   
+  // useEffect that verifies if user allows the geolocation
+  // to center Map instance to their location. Otherwise,
+  // it centers in Reno Downtown
+  useEffect(() => {
+    if (!locationAvailable) {
+      setLng(-119.8114); // longitude of Reno downtown
+      setLat(39.5296); // latitude of Reno downtown
+    }
+  }, [locationAvailable]);
 
   useEffect(() => {
     //Initialize the Map with current lng and lat
     if(lng && lat){
+      // Boolean to check if a marker was clicked
+      let markerClicked = false;
+      
       const map = new mapboxgl.Map({
         container: mapContainer.current,
         style: mapStyle,
@@ -208,46 +250,46 @@ function Map() {
       map.addControl(dirs, 'top-left');
 
       map.on('load', () => {
-      //use to display input boxes if in routing mode
-      if (routeState === true){
-        //map.removeControl(directions)
-        console.log("Routing");
-        // if(flip){
-        //   flip = false;
-        //   map.setStyle('mapbox://styles/mapbox/streets-v11');
-        // }
-        // else{
-        //   flip = true;
-        //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
-        // }
-        //map.setStyle(mapStyle);
-        //directions = createDirections();
-        //map.addControl(directions, 'top-left');
-        console.log("Routingx2");
-        Route(map, dirs);
-      }
-    });
+        //use to display input boxes if in routing mode
+        if (routeState === true){
+          //map.removeControl(directions)
+          console.log("Routing");
+          // if(flip){
+          //   flip = false;
+          //   map.setStyle('mapbox://styles/mapbox/streets-v11');
+          // }
+          // else{
+          //   flip = true;
+          //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
+          // }
+          //map.setStyle(mapStyle);
+          //directions = createDirections();
+          //map.addControl(directions, 'top-left');
+          console.log("Routingx2");
+          Route(map, dirs);
+        }
+      });
 
-    map.on('styledata', () => {
-      //use to display input boxes if in routing mode
-      if (routeState === true){
-        map.removeControl(directions)
-        console.log("Routing");
-        // if(flip){
-        //   flip = false;
-        //   map.setStyle('mapbox://styles/mapbox/streets-v11');
-        // }
-        // else{
-        //   flip = true;
-        //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
-        // }
-        map.setStyle(mapStyle);
-        //directions = createDirections();
-        //map.addControl(directions, 'top-left');
-        console.log("Routingx2");
-        Route(map, dirs);
-      }
-    });
+      map.on('styledata', () => {
+        //use to display input boxes if in routing mode
+        if (routeState === true){
+          map.removeControl(directions)
+          console.log("Routing");
+          // if(flip){
+          //   flip = false;
+          //   map.setStyle('mapbox://styles/mapbox/streets-v11');
+          // }
+          // else{
+          //   flip = true;
+          //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
+          // }
+          map.setStyle(mapStyle);
+          //directions = createDirections();
+          //map.addControl(directions, 'top-left');
+          console.log("Routingx2");
+          Route(map, dirs);
+        }
+      });
 
       // Add geolocate control to the map to show where the user is located
       map.addControl(new mapboxgl.GeolocateControl({
@@ -301,7 +343,7 @@ function Map() {
       //Uses the result variable 
       async function displayMarkers() {
         // Wait for data from MongoDB
-        const [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
+        const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
 
         // Angel C. Muller loop through the marker data and create markers
         // depending on the classification of road deficiency
@@ -319,6 +361,11 @@ function Map() {
             .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
             .addTo(map);
 
+            // add click listener to marker
+            marker.getElement().addEventListener('click', () => {
+              markerClicked = true;
+            });
+
             // Hover over pins and see immediate information
             marker.getElement().addEventListener('mouseover', () => {
               marker.togglePopup();
@@ -335,10 +382,46 @@ function Map() {
             .setPopup(new mapboxgl.Popup({ offset: 25 })
             .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
             .addTo(map);
+            
             // add the marker to the markers array
-          markers.push(marker);
+            markers.push(marker);
+
+            // add click listener to marker
+            marker.getElement().addEventListener('click', () => {
+              markerClicked = true;
+            });
+
+            // Hover over pins and see immediate information
+            marker.getElement().addEventListener('mouseover', () => {
+              marker.togglePopup();
+            });
+          
+            marker.getElement().addEventListener('mouseout', () => {
+              marker.togglePopup();
+            });
         }
-       
+
+        for (let i = 0; i < ContributData.length; i++) {
+          const marker = new mapboxgl.Marker({ color: '#AAFF00' })
+            .setLngLat([ContributData[i].Longitude, ContributData[i].Lattitude])
+            .setPopup(new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>`))
+            .addTo(map);
+
+            // add click listener to marker
+            marker.getElement().addEventListener('click', () => {
+              markerClicked = true;
+            });
+
+            // Hover over pins and see immediate information
+            marker.getElement().addEventListener('mouseover', () => {
+              marker.togglePopup();
+            });
+          
+            marker.getElement().addEventListener('mouseout', () => {
+              marker.togglePopup();
+            });
+        }
       }
 
       // Function to add event listener for marking pins
@@ -368,12 +451,74 @@ function Map() {
       if (requestState || commentState) {
         addPinListener();
       }
+
+      const customCloseButton = document.createElement('button');
+      customCloseButton.innerHTML = '&times;';
+      customCloseButton.style.position = 'absolute';
+      customCloseButton.style.top = '1px';
+      customCloseButton.style.right = '1px';
+      customCloseButton.style.border = 'none';
+      customCloseButton.style.backgroundColor = 'transparent';
+      customCloseButton.style.color = 'red';
+      customCloseButton.style.fontSize = '24px';
+      customCloseButton.style.fontWeight = 'bold';
+      customCloseButton.style.cursor = 'pointer';
+
+      // Add a click event listener to the map
+      map.on('click', (e) => {
+        var lngLat = e.lngLat;
+        // condition to check if the user clicks anywhere else in the Map but on a marker, popup will show up
+        if (!markerClicked) {
+          // Create a popup dialog
+          const popup = new mapboxgl.Popup({ closeOnClick: true, closeButton: customCloseButton})
+            .setLngLat(e.lngLat)
+            .setHTML('<div style="font-family: Arial, sans-serif; font-size: 12px; color: #333333; padding: 2px;"><button id="comment-btn" style="background-color: #0077B6; color: #FFFFFF; border-radius: 2px; border: none; padding: 2px 4px; margin-right: 10px; cursor: pointer;">Leave a Comment</button> <br/> <br/> <button id="request-btn" style="background-color: #0077B6; color: #FFFFFF; border-radius: 2px; border: none; padding: 2px 4px; cursor: pointer;">Make a Request</button></div>')
+            .setMaxWidth('500px')
+            .addTo(map)
+
+            // Append customCloseButton to popup container element
+            popup._container.appendChild(customCloseButton);
+
+            // Add click event listeners to the buttons
+            document.getElementById('comment-btn').addEventListener('click', () => {
+              // Code to handle comment button click
+              console.log('Comment button clicked');
+              setIsCommentChecked(true);
+              setIsCVisible(true);
+              Toggle("Comment");
+              popup.remove();
+              UserLng = lngLat.lng;
+              UserLat = lngLat.lat;
+            });
+
+            document.getElementById('request-btn').addEventListener('click', () => {
+              // Code to handle request button click
+              console.log('Request button clicked');
+              setIsRequestChecked(true);
+              setIsRVisible(true);
+              Toggle("Request");
+              popup.remove();
+              UserLng = lngLat.lng;
+              UserLat = lngLat.lat;
+            });
+        } else {
+          // if the user is clicking on an existing Marker, new popup won't be displayed
+          markerClicked = false;
+        }
+      });
     
       return () => {
         map.remove();
       };
     }
-  }, [requestState, commentState, lng, lat, zoom, markers]);
+
+    // The dependency array is an optional second argument in the useEffect() hook that allows you
+    // to control when the effect runs. It consists of a list of variables that the effect depends on.
+    // If any of the variables in the dependency array change, the effect will re-run.
+
+  }, [
+    requestState, commentState, lng, lat, zoom, markers
+  ]);
 
   //function to select Map Style Angel C. Muller
   function WithPopoverAnchor() {
@@ -405,40 +550,39 @@ function Map() {
     )
   }
   
+  // Function sends comment or request to database  
+  function SendUserInfo(){
 
-// Function sends comment or request to database  
-function SendUserInfo(){
+    // if no coordinates selected do nothing
+    if (typeof UserLat === 'undefined' || typeof UserLng === 'undefined' ) {
+      if(requestState){
+        alert("Please click on map to select area to scan.")
+      }
+      else{
+        alert("Please click on map to select area to comment.")  
+      }
+    } 
+    // otherwise....
+    else {
+      //turn text box info into a string 
+      const Element = document.getElementById("input");
+      const inputString = Element.value.toString();
 
-  // if no coordinates selected do nothing
-  if (typeof UserLat === 'undefined' || typeof UserLng === 'undefined' ) {
-    if(requestState){
-      alert("Please click on map to select area to scan.")
-    }
-    else{
-      alert("Please click on map to select area to comment.")  
-    }
-  } 
-  // otherwise....
-  else {
-    //turn text box info into a string 
-    const Element = document.getElementById("input");
-    const inputString = Element.value.toString();
+      //submit data to MongoDB
+      console.log('map.js rstate:', typeof requestState)
+      LogMongo(requestState, "auto", inputString, UserLat, UserLng );
+      
+      // Reset text box and toggle off request 
+      Element.value = "";
 
-    //submit data to MongoDB
-    console.log('map.js rstate:', typeof requestState)
-    LogMongo(requestState, "auto", inputString, UserLat, UserLng );
-    
-    // Reset text box and toggle off request 
-    Element.value = "";
-
-    if(requestState){
-      Toggle("Request")
-    }
-    else{
-      Toggle("Comment")
+      if(requestState){
+        Toggle("Request")
+      }
+      else{
+        Toggle("Comment")
+      }
     }
   }
-}
 
   // Comment functionality 
   function commentFunctionality(){
@@ -494,36 +638,77 @@ function SendUserInfo(){
     }
   }
 
+  function NumberSelector() {
+  
+    return (
+      <div>
+        <label htmlFor="options"></label>
+        <select id="options" value={selectedOption} onChange={handleOptionChange}>
+          <option value="">Severity</option>
+          <option value="option1">1</option>
+          <option value="option2">2</option>
+          <option value="option3">3</option>
+          <option value="option4">4</option>
+          <option value="option5">5</option>
+          <option value="option6">6</option>
+          <option value="option7">7</option>
+          <option value="option8">8</option>
+          <option value="option9">9</option>
+          <option value="option10">10</option>
+        </select>
+        {/* <p>You selected: {selectedOption}</p> */}
+      </div>
+    );
+  }
+
+  function ConditionSelector() {
+  
+    return (
+      <div>
+        <label htmlFor="conditions"></label>
+        <select id="conditions" value={selectedConditionOption} onChange={handleConditionChange}>
+          <option value="">Type</option>
+          <option value="conditions1">Pothole</option>
+          <option value="conditions2">Crack</option>
+          <option value="conditions3">Speedbump</option>
+          <option value="conditions4">Divit/Bump</option>
+          <option value="conditions5">Other</option>
+        </select>
+        {/* <p>You selected: {selectedOption}</p> */}
+      </div>
+    );
+  }
+
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
+
+  const handleConditionChange = (event) => {
+    setConditionOption(event.target.value);
+  };
+
   // function that handles the displaying of the comments onto the map
-  const handleShowCommentClick = (event) => {
-    if(isShowCommentChecked == false){
-      setIsShowCommentChecked(event.target.checked);
-      console.log("Display Comments now.")
-    } else {
-      setIsShowCommentChecked(false);
-    }
+  function handleShowCommentClick(){
+    const opacity = 0;
+    console.log("here")
+    setMarkerOpacity(opacity);
+    markers.forEach(marker => {
+      marker.getElement().style.opacity = opacity;
+    });
+    console.log("opacity:", opacity);
   }
 
   // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
-  const [isShowCommentChecked, setIsShowCommentChecked] = useState(true);
+  const [markerOpacity, setMarkerOpacity] = useState(0);
+  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedConditionOption, setConditionOption] = useState("");
 
-  // use a boolean function to turn markers on and off
-  function toggleMarkers(isShowCommentChecked) {
-    markers.forEach(marker => {
-      marker.getElement().style.opacity = isShowCommentChecked ? 1 : 0;
-    });
-  }
-  
-   if ( markers.length > 0){
-    toggleMarkers(isShowCommentChecked);
-   } 
-
-  return (
-    
+   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Flex  position=""  h='13vh' bg='#31C4AE'>
+      <Flex position='' h='11vh' bg={'rgba(49, 196, 174, 0.7)'}
+      style={{borderBottom: '2px solid #FFA500', boxShadow: '0 0 20px #fff'}}>
         {/* Menu for dispaly options */}
         <div id="menu">
           <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
@@ -534,25 +719,11 @@ function SendUserInfo(){
           <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span> Outdoors </span> </label>
         </div>
 
-        {/* Request Location Buttons  */}
-        {isRVisible && (
-          <Button colorScheme={requestState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Request")}>
-            {ReqName}
-          </Button>
-        )}
-
-        {isCVisible && (
-          <Button colorScheme={commentState ? 'orange' : 'blue'} position='absolute' mt={5} right='90' onClick={() => Toggle("Comment")}>
-            {ComName}
-          </Button>
-        )}
-
-
         {/* Hamburger Menu  */}
         <WithPopoverAnchor style={{display: "flex"}}/>
         <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
           <MenuButton as={IconButton} position="absolute" top="5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
-          style={{ backgroundColor: "#0964ed"}}/>
+          bg='#0964ed'/>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
                 <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
@@ -633,10 +804,10 @@ function SendUserInfo(){
                           </AccordionPanel>
                           <br/>
                           <h2>Type your insurance below to do a Google Search:</h2>
-                        <form action="https://www.google.com/search?q=phone+number+">
-                          <input type="text" name="q"/>
-                          <input type="submit" value="Google Search"/>
-                        </form>
+                          <form action="https://www.google.com/search?q=phone+number+" target="_blank">
+                            <input type="text" name="q" />
+                            <input type="submit" value="Google Search" />
+                          </form>
                         </AccordionItem>
                       </Accordion>
                     </ModalBody>
@@ -648,12 +819,12 @@ function SendUserInfo(){
                     </ModalFooter>
                   </ModalContent>
                 </Modal>
-              <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
+              {/* <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
                         onChange={handleCommentClick}/> </MenuItem>
               <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
-                        isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem>
-              <MenuItem style={{ color: "black" }}> Show Comments &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='show-alert'
-                        isChecked={isShowCommentChecked} onChange={handleShowCommentClick}/> </MenuItem>
+                        isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem> */}
+              <MenuItem style={{ color: "black" }} onClick={handleShowCommentClick}> Hide Comments </MenuItem>
+              <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
             </MenuList>
         </Menu> 
         <br/>
@@ -661,29 +832,63 @@ function SendUserInfo(){
       
 
       {/* Gabriel worked on format of map and description location  */}
-      <HStack spacing = '0' > // space between map and description box 
-        <Box bg='green.300' h = '100vh' w = '30%'  display='flex' flexDirection='column'  alignItems='center'>
+      <HStack spacing = '0' > // space between map and description box
+        <Box bg='green.300' h='100vh' w='30%' display='flex' flexDirection='column' alignItems='center' padding='1rem' borderRight='2px solid #FFA500'>
           
           {/* Description box title  */}
-          <p id="Description">Descriptions</p>
+          <Heading as='h2' size='lg' marginBottom='2rem'> Descriptions </Heading>
         
         {/* Is visable only when user turns on Request */}
         {(requestState || commentState) ? (
-          <Box bg='white' h = '40%' w = '90%'  display='flex' flexDirection='column'  alignItems='center'>
+
+          <Box bg='white' h = '70vh' w='87%' borderRadius='10px'
+          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' display='flex' flexDirection='column'
+          alignItems='center' justifyContent='center' padding='20px'>
            
+           {/* Add a clear heading */}
+           <Heading size='md' mb='20px' textAlign='center' color='blue.500'>Request/Comment Form</Heading>
+            
             {/* User text box that appears when user clicks scan request */}
-            <label for="input" class="black-text">
+            {/* <label for="input" class="black-text">
             {requestState ? 'Request Reason' : 'Comment Reason'}
+            </label> */}
+
+            {/* Use a descriptive placeholder */}
+            <label htmlFor='input' className='description-text'>
+            {requestState ? 'Please provide your request' : 'Please leave a comment'}
             </label>
             
-            <input type="text" id="input" class="stretch-box black-text" />
-            
-            <br/>
+            <Input type='text' id='input' className='stretch-box-black-text' w='100%'
+            placeholder='Type your reason or comment here' overflowWrap="break-word" borderRadius='5px'
+            border='1px solid gray' padding='5px' mt='10px' style={{height: '200px'}}
+            maxLength={200}/>
+            <br />
             {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
           
-              <Button colorScheme='purple' mr={3} onClick={SendUserInfo}>
-                Submit 
+              {/* Change button text to be more specific */}
+            <Button colorScheme='purple' size='md' mt='10px' onClick={SendUserInfo}>
+            {requestState ? 'Submit Request' : 'Submit Comment'}
+            </Button>
+
+            {/* Request Location Buttons  */}
+            {isRVisible && (
+              <Button colorScheme={requestState ? 'orange' : 'blue'} size='md' mt='10px' onClick={() => Toggle("Request")}>
+                {ReqName}
               </Button>
+            )}
+
+            {isCVisible && (
+              <>
+              <Button colorScheme={commentState ? 'orange' : 'blue'} size='md' mt='10px' onClick={() => Toggle("Comment")}>
+                {ComName}
+              </Button>
+              <div><br/></div>
+              <HStack spacing='15px'>
+                <ConditionSelector />
+                <NumberSelector />
+              </HStack>
+              </>
+            )}
           </Box>
          ) : null}
 
@@ -694,7 +899,6 @@ function SendUserInfo(){
 
        
       </HStack>
-
     </Flex>
   );
 }
