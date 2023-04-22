@@ -1,26 +1,26 @@
 /* CSS For Landing Page App.js by Angel C. Muller*/
 #body {
   background-color: rgba(185, 222, 203, 100);
-
-  width: auto;
+  min-height: 100%;
+  width: 100%;
   align-items: center;
   text-align: center;
 }
 
 #page {
-  min-width: 100%;
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
+#welcome {
+  font-family: 'Times New Roman', Times, serif;
+  text-shadow: 2px 2px 4px #d6ac2d;
+}
 
 #menu {
   display: flex;
   justify-content: space-between;
 }
-
-
-
-
 
 #menuSettings {
   font-size: 35px;

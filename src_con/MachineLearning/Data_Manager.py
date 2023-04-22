@@ -11,9 +11,9 @@ import pymongo
 
 class Data_Manager(object):
     #Class for managing how and when data is pushed to the database
-    df = pd.DataFrame(columns=['Pid', 'Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source', 'Cid','Classification', 'Degree'])
+    df = pd.DataFrame(columns=['Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source','Classification', 'Img_Byte_String'])
     tick = 0
-    threshold = 20
+    threshold = 10
     db = None
 
     #enforces singleton design pattern
@@ -28,10 +28,10 @@ class Data_Manager(object):
             tlsCAFile=certifi.where())
         Data_Manager.db = client["pinDatabase"]
 
-    def add(self, Pid, Lattitude, Longitude, Altitude, MeasurementDate, UploadDate, Source, Cid, Classification, Degree):
+    def add(self, Lattitude, Longitude, Altitude, MeasurementDate, UploadDate, Source, Classification, Byte_String):
         Data_Manager.tick += 1
-        temp = pd.DataFrame([[Pid, Lattitude, Longitude, Altitude, MeasurementDate, UploadDate, Source, Cid, Classification, Degree]],
-            columns=['Pid', 'Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source', 'Cid','Classification', 'Degree'])
+        temp = pd.DataFrame([[Lattitude, Longitude, Altitude, MeasurementDate, UploadDate, Source, Classification, Byte_String]],
+            columns=['Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source','Classification', 'Img_Byte_String'])
         Data_Manager.df = pd.concat([Data_Manager.df, temp], ignore_index = True)
         
         if(Data_Manager.tick == Data_Manager.threshold):
@@ -51,8 +51,6 @@ class Data_Manager(object):
         Data_Manager.df = pd.DataFrame(columns=Data_Manager.df.columns)
         
     def user_check(self):
-        
-        
         # iterate over every record in the collection
         for record in    Data_Manager.db.Contributors.find():
             # check if the "Name" field is present in the record

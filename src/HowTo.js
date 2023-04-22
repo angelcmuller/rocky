@@ -1,14 +1,29 @@
 import React from 'react';
 import {Route, Link, Routes, useNavigate, redirect} from 'react-router-dom';
 import { Heading, Box, Text, Button, Center, Progress } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { useLocation } from 'react-router-dom';
 import App from './App';
 
 function HowTo() {
     //navigate hook to help navigate to (/) the landing page
     const navigate = useNavigate();
+    const location = useLocation();
     const [showResults, setShowResults] = React.useState(true)
+
+    // Using cache to reload the previous page from the browser's back button
+    useEffect(() => {
+        const handlePopstate = () => {
+            window.location.reload();
+        }
+        window.addEventListener('popstate', handlePopstate);
+
+        return () => {
+            window.removeEventListener('popstate', handlePopstate);
+        };
+
+    }, []);
 
     const navigatetoApp = () => {
         setShowResults(current => !current);

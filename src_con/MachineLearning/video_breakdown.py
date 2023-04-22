@@ -1,6 +1,4 @@
 # Project Rocky Road
-# Author: Gabriel Mortensen
-# DLM (Date Last Modified): 1/3/2023
 # Desc:
 #   Python code to break up video into snapshots for analysis
 #   additionally names photos with respective gps coordinates
@@ -9,8 +7,6 @@
 # Importing all necessary libraries
 import cv2
 import os
-from pandas import *
-from tensorflow import keras
 
 # main funtion used to call video converter function
 def Convert(user_video, user_csv):
@@ -81,7 +77,7 @@ def VideoBreakdown(user_video, realtime_INS, longitude_INS, latitude_INS):
         ret, frame = cam.read()
 
         # if frame exists create image
-        if (ret and currentframe < 1432):
+        if (ret and currentframe < 102):
 
             coordinates_image = Coordinates(
                 realtime_INS, longitude_INS, latitude_INS, current_seconds)
