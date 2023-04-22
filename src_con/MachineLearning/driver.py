@@ -13,7 +13,7 @@ from Data_Manager import Data_Manager
 import ssl
 import certifi
 from bson.objectid import ObjectId
-from road_classifer import Classify, Classify_pytorch
+from road_classifer import Classify_pytorch, Classify_video_pytorch
 from video_breakdown import Convert
 import datetime
 import bcrypt
@@ -35,18 +35,19 @@ def main():
     video = ''
     csv = ''
     
-    ans = input("New user? (Y/N)") 
+    ans = input("New user? (Y/N)")
+    os.system('clear')
     if (ans == "Y"):
        new_user(collection)
     
     if (ans == "N"):
         #check username and pass
         info = obtain_info(collection)
-          
+        os.system('clear')  
         #execute in video mode 
         if(len(info) == 3):
             print("Pushing video information to database, please wait as calculations performed...")
-            #analyze_and_push_video(info[0], info[1], info[2], get_datetime())
+            analyze_and_push_video(info[0], info[1], info[2], get_datetime())
         #execute in image mode
         elif(len(info) == 2):
             print("Pushing image information to database, please wait as calculations performed...")
@@ -78,12 +79,15 @@ def analyze_and_push_video(user, video, csv, datetime):
     print("Converting video to images...")
     #loop below is only used for loading bar decoration (not an actual for loop)
     #call convert function to breakdown video 
-    #Convert(video, csv)
+    Convert(video, csv)
 
     print("Analyzing Road Conditions...")
     #loop below is only used for loading bar decoration (not an actual for loop)
     #call Classify to classify images 
-    #Classify(user, datetime)
+    pins_added = Classify_video_pytorch(user, datetime)
+    print("Analyzing Complete")
+    print(f"Contributed {pins_added} condition pins")
+    print("Thank you for your contribution!")
 
 
 #check if a username already exists in database 

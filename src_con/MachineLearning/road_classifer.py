@@ -32,7 +32,7 @@ import base64
 ########################################################################
 #Visualization code for testing/debug purposes
 
-
+#Function Author: Tristan Bailey
 def test_load_gps_dict(data_dir, gps_file):
     gps_lookup = load_gps_dict(data_dir, gps_file)
     itt = 0
@@ -41,6 +41,7 @@ def test_load_gps_dict(data_dir, gps_file):
             print(str(key)+" "+value.str())
             itt +=1
 
+#Function Author: Tristan Bailey
 def save_img_being_processed(grayscale_image_data):
     print("Plotting")
     # Check if the image data is grayscale or RGB
@@ -56,18 +57,21 @@ def save_img_being_processed(grayscale_image_data):
     plt.imshow(grayscale_image_data, cmap=cmap)
     plt.savefig('output_image.png')
 
+#Function Author: Tristan Bailey
 def save_img_byte_string(image_as_byte_string):
     # Open a file in write mode and write the string to the file
     with open("byte_string.txt", "w") as f:
         f.write(image_as_byte_string)
 ########################################################################
 
-
+#Function Author: Gabriel Mortenson
 def main():
     print("Uncomment code in main to run test")
     # Classify("Code_Test", 1239231) 
 
+#Function Author: Gabriel Mortenson
 # Classifies images into categories
+#Deprecated
 def Classify(author, Mdate):
     #rescaling image data window as done in youtube tutorial 
     train = ImageDataGenerator(rescale=1/255)
@@ -138,6 +142,8 @@ def Classify(author, Mdate):
         else:
             print("Good road :)")
 
+#Function Author: Tristan Bailey & gabriel Mortenson
+#Deprecated
 def ClassifyandTrain_pytorch(author, data_dir, Mdate):
     #rescaling image data window as done in youtube tutorial 
     train_transforms = transforms.Compose([transforms.Resize((200, 200)), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -192,6 +198,7 @@ def ClassifyandTrain_pytorch(author, data_dir, Mdate):
             outputs = model(img)
             val = outputs.detach().numpy()[0][0]
 
+#Function Author: Tristan Bailey
 class lat_long:
     def __init__(self, lat, long, alt):
         self.lat = lat
@@ -206,6 +213,7 @@ class lat_long:
     def __repr__(self):
         return("(lat: " + str(self.lat) +", long: " +str(self.long)+")")
 
+#Function Author: Tristan Bailey
 def load_gps_dict(data_dir, gps_file):
     #load the gps locations
     gps_lookup = {}
@@ -222,10 +230,12 @@ def load_gps_dict(data_dir, gps_file):
             gps_lookup[image_number] = coords
     return gps_lookup
 
+#Function Author: Tristan Bailey
 def convert_to_grayscale(image_data):
     grayscale_image = np.mean(image_data, axis=-1)
     return grayscale_image
 
+#Function Author: Tristan Bailey
 def convert_nparray_to_bytestring(image_data):
     # Convert to binary string image
     img = Image.fromarray(image_data.astype(np.uint8) * 255)
@@ -235,6 +245,7 @@ def convert_nparray_to_bytestring(image_data):
     base64_bytes = base64.b64encode(bytes)
     return str(base64_bytes.decode('utf-8'))
 
+#Function Author: Tristan Bailey
 def load_pytorch_model(has_cuda, file_name="condition_model.pth", num_classes=5):
     resnet = models.resnet18(weights=None)
     resnet.fc = nn.Linear(resnet.fc.in_features, num_classes)
@@ -257,9 +268,30 @@ def load_pytorch_model(has_cuda, file_name="condition_model.pth", num_classes=5)
     ])
     return resnet, transform
 
+#Function Author: Tristan Bailey
 def grayscale_to_rgb(image):
     return Image.merge("RGB", (image, image, image))
 
+#Function Author: Tristan Bailey
+def classify_image(three_channel_image, transform, resnet_model, labels_map):
+    # Apply the transformations to the image
+    input_image = transform(three_channel_image)
+
+    # Add an extra dimension for the batch (required by PyTorch models)
+    input_image = input_image.unsqueeze(0)
+
+    # Make a prediction using the ResNet model
+    with torch.no_grad():
+        prediction = resnet_model(input_image)
+
+    # Get the class index with the highest score
+    _, predicted_class = torch.max(prediction, 1)
+
+    # Get the corresponding label from the label map
+    road_condition = labels_map[predicted_class.item()]
+    return road_condition
+
+#Function Author: Tristan Bailey
 def Classify_pytorch(author, data_dir, gps_file, Mdate):
     images_added = 0
     labels_map = {
@@ -282,6 +314,7 @@ def Classify_pytorch(author, data_dir, gps_file, Mdate):
     pattern_camera_id = r'([a-zA-Z]+)\_'
     
     # Load each .npy file one by one, to process it individually
+    os.system('clear')
     total_files = len(npy_files)
     for npy_file in tqdm.tqdm(npy_files, total=total_files):
         camera_id = str(re.search(pattern_camera_id, npy_file).group(1))
@@ -301,24 +334,8 @@ def Classify_pytorch(author, data_dir, gps_file, Mdate):
 
         three_channel_image = grayscale_to_rgb(resized_pil_image)
 
-        # Apply the transformations to the image
-        input_image = transform(three_channel_image)
+        road_condition = classify_image(three_channel_image=three_channel_image, transform=transform, resnet_model=resnet_model, labels_map=labels_map)
 
-        # Add an extra dimension for the batch (required by PyTorch models)
-        input_image = input_image.unsqueeze(0)
-
-        # Set the model to evaluation mode
-        resnet_model.eval()
-
-        # Make a prediction using the ResNet model
-        with torch.no_grad():
-            prediction = resnet_model(input_image)
-
-        # Get the class index with the highest score
-        _, predicted_class = torch.max(prediction, 1)
-
-        # Get the corresponding label from the label map
-        road_condition = labels_map[predicted_class.item()]
         if(road_condition != "plain"):
             images_added += 1
             coords = gps_dict[image_number]
@@ -337,6 +354,54 @@ def Classify_pytorch(author, data_dir, gps_file, Mdate):
     #         img.unsqueeze_(0)
     #         outputs = model(img)
     #         val = outputs.detach().numpy()[0][0]
+
+#Function Author: Tristan Bailey
+def Classify_video_pytorch(author, Mdate):
+    database_manager = Data_Manager("tristanbailey","RockyRoadKey2022")
+
+    images_added = 0
+    labels_map = {
+        0 : "bump",
+        1 : "crack",
+        2 : "plain",
+        3 : "pot hole",
+        4 : "speed bump"
+    }
+    has_cuda = torch.cuda.is_available()
+    resnet_model, transform = load_pytorch_model(has_cuda)
+
+    # test the practice data set
+    dir_path = "testing"
+
+    variable_used_for_waiting = input("Move to next step, adding contributor data: ")
+    
+    # Load each file one by one, to process it individually
+    dir_path = input("Name folder for video data breakdown: ")
+    os.system('clear')
+    files = os.listdir(dir_path)
+    total_files = len(files)
+    for img_file in tqdm.tqdm(files, total=total_files):
+        
+        file_path = os.path.join(dir_path, img_file)
+
+        # Load the image using PIL
+        three_channel_image = Image.open(file_path).convert("RGB")
+
+        road_condition = classify_image(three_channel_image=three_channel_image, transform=transform, resnet_model=resnet_model, labels_map=labels_map)
+
+        if(road_condition != "plain"):
+            specific_image = str(img_file)
+            # Extract latitude and longitude from string
+            values = specific_image.split("_")[1:3]  # Split string at underscores and take second and third elements
+            lng = float(values[1].split(".")[0])  # Convert longitude string to float, ignoring file extension
+            lat = float(values[0])
+            Udate = int(time.time()) #get current time in unix 
+            database_manager.add(lat, lng, 0,
+                        Mdate, Udate, author, road_condition, image_as_byte_string)
+    
+    database_manager.push()
+    return images_added        
+
 # main guard
 if(__name__ == "__main__"):
     #Classify_pytorch("me", "Bag0", "gps.csv", "")

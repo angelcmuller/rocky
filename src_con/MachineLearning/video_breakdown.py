@@ -1,6 +1,4 @@
 # Project Rocky Road
-# Author: Gabriel Mortensen
-# DLM (Date Last Modified): 1/3/2023
 # Desc:
 #   Python code to break up video into snapshots for analysis
 #   additionally names photos with respective gps coordinates
