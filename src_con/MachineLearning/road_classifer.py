@@ -15,9 +15,12 @@ import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
+import torchvision.models as models
 import cv2
 import csv
 import re
+
+import tqdm
 
 import matplotlib
 matplotlib.use('Agg')  # Use the Agg backend
@@ -232,7 +235,42 @@ def convert_nparray_to_bytestring(image_data):
     base64_bytes = base64.b64encode(bytes)
     return str(base64_bytes.decode('utf-8'))
 
+def load_pytorch_model(has_cuda, file_name="condition_model.pth", num_classes=5):
+    resnet = models.resnet18(weights=None)
+    resnet.fc = nn.Linear(resnet.fc.in_features, num_classes)
+    if not has_cuda:
+        resnet.load_state_dict(torch.load(file_name, map_location=torch.device('cpu')))
+    else:
+        resnet.load_state_dict(torch.load(file_name))
+    # If using GPU, move the model to GPU
+    if has_cuda:
+        resnet = resnet.cuda()
+    resnet.eval()
+
+    # Add simple transfomr, no augmentation, to test
+    # Define the necessary image transformations for the ResNet model
+    transform = transforms.Compose([
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    return resnet, transform
+
+def grayscale_to_rgb(image):
+    return Image.merge("RGB", (image, image, image))
+
 def Classify_pytorch(author, data_dir, gps_file, Mdate):
+    images_added = 0
+    labels_map = {
+        0 : "bump",
+        1 : "crack",
+        2 : "plain",
+        3 : "pot hole",
+        4 : "speed bump"
+    }
+    has_cuda = torch.cuda.is_available()
+    resnet_model, transform = load_pytorch_model(has_cuda)
     database_manager = Data_Manager("tristanbailey","RockyRoadKey2022")
     #load image file's names
     npy_files = [f for f in os.listdir(data_dir) if f.endswith('.npy')]
@@ -243,44 +281,55 @@ def Classify_pytorch(author, data_dir, gps_file, Mdate):
     #use regext to isolate camera id, such as left(l), right(r) and back(b)
     pattern_camera_id = r'([a-zA-Z]+)\_'
     
-    itt = 0
     # Load each .npy file one by one, to process it individually
-    for npy_file in npy_files:
+    total_files = len(npy_files)
+    for npy_file in tqdm.tqdm(npy_files, total=total_files):
         camera_id = str(re.search(pattern_camera_id, npy_file).group(1))
         image_number = int(re.search(pattern_img_number, npy_file).group(1))
-        #TODO Remove this iff statement once classifier model loading is added
-        if(itt < 1):
-            #regex for isolatting image number
-            file_path = os.path.join(data_dir, npy_file)
-            image_data = np.load(file_path)
+        #regex for isolatting image number
+        file_path = os.path.join(data_dir, npy_file)
+        image_data = np.load(file_path)
 
-            #convert image to grayscale
-            if image_data.ndim == 3:
-                image_data = convert_to_grayscale(image_data)
-            # Create a PIL image from the grayscale_image_data
-            pil_image = Image.fromarray(np.uint8(image_data), mode='L')
+        #convert image to grayscale
+        if image_data.ndim == 3:
+            image_data = convert_to_grayscale(image_data)
+        # Create a PIL image from the grayscale_image_data
+        pil_image = Image.fromarray(np.uint8(image_data), mode='L')
 
-            # Downsample the grayscale image to 224 x 224, for use with ResNet Architecture
-            resized_pil_image = pil_image.resize((224, 224), Image.ANTIALIAS)
+        # Downsample the grayscale image to 224 x 224, for use with ResNet Architecture
+        resized_pil_image = pil_image.resize((224, 224), Image.ANTIALIAS)
 
-            # Convert the resized PIL image back to a NumPy array
-            image_data = np.array(resized_pil_image)
+        three_channel_image = grayscale_to_rgb(resized_pil_image)
 
-            #TODO
-            road_condition_present = True
-            if(road_condition_present):
-                road_condition = "pothole"
-                coords = gps_dict[image_number]
-                Udate = int(time.time()) #get current time in unix
-                #if a condition is present, convert image to base64 encoded byte string
-                image_as_byte_string = convert_nparray_to_bytestring(image_data)
-                database_manager.add(coords.get_lat(), coords.get_long(), coords.get_alt(),
-                         Mdate, Udate, author, road_condition, image_as_byte_string)
+        # Apply the transformations to the image
+        input_image = transform(three_channel_image)
 
-            #TODO remove
-            itt+=1
+        # Add an extra dimension for the batch (required by PyTorch models)
+        input_image = input_image.unsqueeze(0)
+
+        # Set the model to evaluation mode
+        resnet_model.eval()
+
+        # Make a prediction using the ResNet model
+        with torch.no_grad():
+            prediction = resnet_model(input_image)
+
+        # Get the class index with the highest score
+        _, predicted_class = torch.max(prediction, 1)
+
+        # Get the corresponding label from the label map
+        road_condition = labels_map[predicted_class.item()]
+        if(road_condition != "plain"):
+            images_added += 1
+            coords = gps_dict[image_number]
+            Udate = int(time.time()) #get current time in unix
+            #if a condition is present, convert image to base64 encoded byte string
+            image_as_byte_string = convert_nparray_to_bytestring(image_data)
+            database_manager.add(coords.get_lat(), coords.get_long(), coords.get_alt(),
+                        Mdate, Udate, author, road_condition, image_as_byte_string)
+
     database_manager.push()
-
+    return images_added
     #         img = cv2.imread(os.path.join(dir_path, i))
     #         img = cv2.resize(img, (200, 200))
     #         img = np.transpose(img, (2, 0, 1))

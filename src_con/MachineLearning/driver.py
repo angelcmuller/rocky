@@ -70,8 +70,10 @@ def get_datetime():
 def analyze_and_push_image(user, image_dir, datetime):
     print("Analyzing Road Conditions...")
     file_name = input("Enter the file name and extension for csv file with gps coordinates: ")
-    Classify_pytorch(user, image_dir, file_name, datetime)
-        
+    pins_added = Classify_pytorch(user, image_dir, file_name, datetime)
+    print("Analyzing Complete")
+    print(f"Contributed {pins_added} condition pins")
+    print("Thank you for your contribution!")
 def analyze_and_push_video(user, video, csv, datetime):
     print("Converting video to images...")
     #loop below is only used for loading bar decoration (not an actual for loop)
