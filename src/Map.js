@@ -112,7 +112,7 @@ function Map() {
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
   const mapContainer = useRef(null);
-
+  
   // const variables to manage the navigation to other Pages (/Map)
   const navigate = useNavigate();
   const [showResults, setShowResults] = React.useState(true)
@@ -250,6 +250,7 @@ function Map() {
       map.addControl(dirs, 'top-left');
 
       map.on('load', () => {
+
         //use to display input boxes if in routing mode
         if (routeState === true){
           //map.removeControl(directions)
@@ -422,6 +423,7 @@ function Map() {
               marker.togglePopup();
             });
         }
+       
       }
 
       // Function to add event listener for marking pins
@@ -688,6 +690,7 @@ function Map() {
   };
 
   // function that handles the displaying of the comments onto the map
+
   function handleShowCommentClick(){
     const opacity = 0;
     console.log("here")
@@ -701,6 +704,7 @@ function Map() {
   // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
+
   const [markerOpacity, setMarkerOpacity] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");
