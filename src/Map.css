@@ -14,7 +14,26 @@
     color: red;
   }
   
+  select {
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #f39f18;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    text-align: center;
+  }
 
+  .description-text {
+    font-size: 14px;
+    color: #000;
+    text-align: left !important;
+  }
+  
+  .stretch-box-black-text {
+    color: #000;
+  }
 
   #Description {
     color: white;
@@ -55,8 +74,9 @@
     margin-right: 30px;
   }
   #menu label:hover img {
-    width: 55px;
-    height: 55px;
+    width: 50px;
+    height: 50px;
+    z-index: 1;
   }
 
   #menu input[type="radio"] {
@@ -84,3 +104,10 @@
     color: white;
     background-color: #4785ff;
   }
+
+.mapboxgl-ctrl-directions .suggestions {
+  background-color: #f39f18;
+}
+.mapboxgl-ctrl-directions .suggestions li {
+  color: black;
+}
