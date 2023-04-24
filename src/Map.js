@@ -74,19 +74,12 @@ var directions = createDirections();
 var flip = true;
 var mapStyle = 'mapbox://styles/mapbox/outdoors-v12?optimize=true';
 
+
+
+
 // Boolean to check if button Comment/Request are being used
 var buttonCommentRequest = false;
 
-//Developed by Aaron Ramirez and Gabriel Mortensen
-
-  //This function returns records from the MongoDB database 
-  async function MongoRecords() {
-    const example = await JsonListReturn();
-    return example;
-  }
-  
-//assign full JSON results from MongoDB to result variable 
-const result = MongoRecords();
 
 // Create a function to create the Mapbox Directions object
 function createDirections() {
@@ -101,6 +94,7 @@ function createDirections() {
     }
   });
 }
+
 
 // create an array to store markers
 const markers = []; // declare markers array outside of useEffect
@@ -199,7 +193,7 @@ function Map() {
       }
     }
   };
-
+ 
   // useEffect to retrieve the user's location with .getCurrentPosition() method
   // and it updates the lng and lat to set the map center to these coordinates
   // if questions ask Angel
@@ -244,7 +238,7 @@ function Map() {
         center: [lng, lat],
         zoom: zoom
       });
-
+      
       const dirs = createDirections();
 
       map.addControl(dirs, 'top-left');
@@ -335,94 +329,115 @@ function Map() {
 
       //This function returns records from the MongoDB database
       async function MongoRecords(link) {
+        console.log('inital link: ' + link)
         const pinInfo = await JsonListReturn(link);
+        console.log("analyzed: " + link)
         return pinInfo
       }
-
+ 
       //Gabriel Mortensen Pin Display functions below 
       //Waiting for data from MogoDB
       //Uses the result variable 
       async function displayMarkers() {
         // Wait for data from MongoDB
-        const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
-
-        // Angel C. Muller loop through the marker data and create markers
-        // depending on the classification of road deficiency
-        for (let i = 0; i < pinData.length; i++) {
-          let markerColor = '#f5c7f7'; // Default color
-          if (pinData[i].Classification === 'loose surface' || pinData[i].Classification === 'speed divit' || pinData[i].Classification === 'tar snake') {
-            markerColor = '#fcff82'; // Set color for a specific description
-          } else if (pinData[i].Classification === 'worn road' || pinData[i].Classification === 'pothole') {
-            markerColor = '#dc2f2f'; // Set color for another specific description
-          }
-
-          const marker = new mapboxgl.Marker({ color: markerColor })
-            .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
-            .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
-            .addTo(map);
-
-            // add click listener to marker
-            marker.getElement().addEventListener('click', () => {
-              markerClicked = true;
+        //const [commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
+        const commentData = new Promise((resolve, reject) => {
+          MongoRecords(`http://localhost:3000/crecord/`)
+            .then((result) => {
+              resolve(result);
+            })
+            .catch((err) => {
+              reject(err);
             });
+        });
+     
+        // // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
+        // // depending on the classification of road deficiency
+        // for (let i = 0; i < pinData.length; i++) {
+        //   let markerColor = '#f5c7f7'; // Default color
+        //   if (pinData[i].Classification === 'bump') {
+        //     markerColor = '#17588a'; // Set color for a specific description
+        //   }
+        //   if (pinData[i].Classification === 'crack' ) {
+        //     markerColor = '#137d1f'; // Set color for another specific description
+        //   }
+        //   if (pinData[i].Classification === 'pot hole' ) {
+        //     markerColor = '#8f130a'; // Set color for another specific description
+        //   }
+        //   if (pinData[i].Classification === 'speed bump' ) {
+        //     markerColor = '#86178a'; // Set color for another specific description
+        //   }
 
-            // Hover over pins and see immediate information
-            marker.getElement().addEventListener('mouseover', () => {
-              marker.togglePopup();
-            });
+        //   const marker = new mapboxgl.Marker({ color: markerColor })
+        //     .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
+        //     .setPopup(new mapboxgl.Popup({ offset: 25 })
+        //     .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
+        //     .addTo(map);
+
+        //     // add click listener to marker
+        //     marker.getElement().addEventListener('click', () => {
+        //       markerClicked = true;
+        //     });
+
+        //     // Hover over pins and see immediate information
+        //     marker.getElement().addEventListener('mouseover', () => {
+        //       marker.togglePopup();
+        //     });
           
-            marker.getElement().addEventListener('mouseout', () => {
-              marker.togglePopup();
-            });
-        }
+        //     marker.getElement().addEventListener('mouseout', () => {
+        //       marker.togglePopup();
+        //     });
+        // }
         
+      
         for (let i = 0; i < commentData.length; i++) {
+          const { Lat, Lng } = commentData[i];
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
-            .setLngLat([commentData[i].Lng, commentData[i].Lat])
+            .setLngLat([Lng, Lat])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
             .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
             .addTo(map);
-            
-            // add the marker to the markers array
-            markers.push(marker);
-
-            // add click listener to marker
-            marker.getElement().addEventListener('click', () => {
-              markerClicked = true;
-            });
-
-            // Hover over pins and see immediate information
-            marker.getElement().addEventListener('mouseover', () => {
-              marker.togglePopup();
-            });
-          
-            marker.getElement().addEventListener('mouseout', () => {
-              marker.togglePopup();
-            });
+                    
+          // add the marker to the markers array
+          markers.push(marker);
+        
+          // add click listener to marker
+          marker.getElement().addEventListener('click', () => {
+            markerClicked = true;
+          });
+        
+          // Hover over pins and see immediate information
+          marker.getElement().addEventListener('mouseover', () => {
+            marker.togglePopup();
+          });
+                  
+          marker.getElement().addEventListener('mouseout', () => {
+            marker.togglePopup();
+          });
         }
+        
 
-        for (let i = 0; i < ContributData.length; i++) {
-          const marker = new mapboxgl.Marker({ color: '#AAFF00' })
-            .setLngLat([ContributData[i].Longitude, ContributData[i].Lattitude])
-            .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>`))
-            .addTo(map);
+        // for (let i = 0; i < ContributData.length; i++) {
+        //   const marker = new mapboxgl.Marker({ color: '#AAFF00' })
+        //     .setLngLat([ContributData[i].Longitude, ContributData[i].Lattitude])
+        //     .setPopup(new mapboxgl.Popup({ offset: 25 })
+        //     .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>`))
+        //     .addTo(map);
 
-            // add click listener to marker
-            marker.getElement().addEventListener('click', () => {
-              markerClicked = true;
-            });
+        //     // add click listener to marker
+        //     marker.getElement().addEventListener('click', () => {
+        //       markerClicked = true;
+        //     });
 
-            // Hover over pins and see immediate information
-            marker.getElement().addEventListener('mouseover', () => {
-              marker.togglePopup();
-            });
+        //     // Hover over pins and see immediate information
+        //     marker.getElement().addEventListener('mouseover', () => {
+        //       marker.togglePopup();
+        //     });
           
-            marker.getElement().addEventListener('mouseout', () => {
-              marker.togglePopup();
-            });
-        }
+        //     marker.getElement().addEventListener('mouseout', () => {
+        //       marker.togglePopup();
+        //     });
+        // }
        
       }
 
