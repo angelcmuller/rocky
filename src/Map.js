@@ -340,17 +340,8 @@ function Map() {
       //Uses the result variable 
       async function displayMarkers() {
         // Wait for data from MongoDB
-        //const [commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
-        const commentData = new Promise((resolve, reject) => {
-          MongoRecords(`http://localhost:3000/crecord/`)
-            .then((result) => {
-              resolve(result);
-            })
-            .catch((err) => {
-              reject(err);
-            });
-        });
-     
+        const [commentData] = await Promise.all([MongoRecords(`http://localhost:3000/crecord/`)]);
+        
         // // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
         // // depending on the classification of road deficiency
         // for (let i = 0; i < pinData.length; i++) {
@@ -390,10 +381,10 @@ function Map() {
         // }
         
       
-        for (let i = 0; i < commentData.length; i++) {
+      for (let i = 0; i < commentData.length; i++) {
           const { Lat, Lng } = commentData[i];
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
-            .setLngLat([Lng, Lat])
+            .setLngLat([Lng, Lat])       
             .setPopup(new mapboxgl.Popup({ offset: 25 })
             .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
             .addTo(map);
@@ -403,7 +394,7 @@ function Map() {
         
           // add click listener to marker
           marker.getElement().addEventListener('click', () => {
-            markerClicked = true;
+          markerClicked = true;
           });
         
           // Hover over pins and see immediate information
@@ -415,8 +406,8 @@ function Map() {
             marker.togglePopup();
           });
         }
-        
-
+      }
+      
         // for (let i = 0; i < ContributData.length; i++) {
         //   const marker = new mapboxgl.Marker({ color: '#AAFF00' })
         //     .setLngLat([ContributData[i].Longitude, ContributData[i].Lattitude])
@@ -438,8 +429,8 @@ function Map() {
         //       marker.togglePopup();
         //     });
         // }
-       
-      }
+        
+      
 
       // Function to add event listener for marking pins
       function addPinListener() {
