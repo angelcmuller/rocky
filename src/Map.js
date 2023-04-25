@@ -80,13 +80,13 @@ var buttonCommentRequest = false;
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
   //This function returns records from the MongoDB database 
-  async function MongoRecords() {
-    const example = await JsonListReturn();
-    return example;
-  }
+  // async function MongoRecords() {
+  //   const example = await JsonListReturn();
+  //   return example;
+  // }
   
 //assign full JSON results from MongoDB to result variable 
-const result = MongoRecords();
+//const result = MongoRecords();
 
 // Create a function to create the Mapbox Directions object
 function createDirections() {
@@ -108,11 +108,12 @@ const markers = []; // declare markers array outside of useEffect
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
 
+
   //Araon Ramirez Map Loading Procedures Belo
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
   const mapContainer = useRef(null);
-
+  
   // const variables to manage the navigation to other Pages (/Map)
   const navigate = useNavigate();
   const [showResults, setShowResults] = React.useState(true)
@@ -250,6 +251,7 @@ function Map() {
       map.addControl(dirs, 'top-left');
 
       map.on('load', () => {
+
         //use to display input boxes if in routing mode
         if (routeState === true){
           //map.removeControl(directions)
@@ -343,16 +345,26 @@ function Map() {
       //Uses the result variable 
       async function displayMarkers() {
         // Wait for data from MongoDB
-        const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
-
-        // Angel C. Muller loop through the marker data and create markers
+        //const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
+        const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
+        const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
+        var pinData = await MongoRecords(`http://localhost:3000/record/`);
+        console.log(pinData)
+        // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
         // depending on the classification of road deficiency
         for (let i = 0; i < pinData.length; i++) {
           let markerColor = '#f5c7f7'; // Default color
-          if (pinData[i].Classification === 'loose surface' || pinData[i].Classification === 'speed divit' || pinData[i].Classification === 'tar snake') {
-            markerColor = '#fcff82'; // Set color for a specific description
-          } else if (pinData[i].Classification === 'worn road' || pinData[i].Classification === 'pothole') {
-            markerColor = '#dc2f2f'; // Set color for another specific description
+          if (pinData[i].Classification === 'bump') {
+            markerColor = '#17588a'; // Set color for a specific description
+          }
+          if (pinData[i].Classification === 'crack' ) {
+            markerColor = '#137d1f'; // Set color for another specific description
+          }
+          if (pinData[i].Classification === 'pot hole' ) {
+            markerColor = '#8f130a'; // Set color for another specific description
+          }
+          if (pinData[i].Classification === 'speed bump' ) {
+            markerColor = '#86178a'; // Set color for another specific description
           }
 
           const marker = new mapboxgl.Marker({ color: markerColor })
@@ -375,7 +387,7 @@ function Map() {
               marker.togglePopup();
             });
         }
-      
+        
         for (let i = 0; i < commentData.length; i++) {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
             .setLngLat([commentData[i].Lng, commentData[i].Lat])
@@ -422,6 +434,7 @@ function Map() {
               marker.togglePopup();
             });
         }
+       
       }
 
       // Function to add event listener for marking pins
@@ -688,6 +701,7 @@ function Map() {
   };
 
   // function that handles the displaying of the comments onto the map
+
   function handleShowCommentClick(){
     const opacity = 0;
     console.log("here")
@@ -701,28 +715,17 @@ function Map() {
   // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
+
   const [markerOpacity, setMarkerOpacity] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");
 
    return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Flex position='' h='11vh' bg={'rgba(49, 196, 174, 0.7)'}
-      style={{borderBottom: '2px solid #FFA500', boxShadow: '0 0 20px #fff'}}>
-        {/* Menu for dispaly options */}
-        <div id="menu">
-          <input id="satellite-streets-v12" type="radio" name="rtoggle" value="streets"/>
-          <label for="satellite-streets-v12"> <img src={LightPic} alt="street"/>  <span> Satellite </span> </label>
-          <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-          <label for="dark-v11">   <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
-          <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
-          <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/> <span> Outdoors </span> </label>
-        </div>
-
-        {/* Hamburger Menu  */}
-        <WithPopoverAnchor style={{display: "flex"}}/>
-        <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
-          <MenuButton as={IconButton} position="absolute" top="5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
+      <Flex  position=""  h='10vh' bg='#559cad'>
+         {/* Hamburger Menu  */}
+        <Menu variant='default' _hover={{ bg: "orange" }}>
+          <MenuButton as={IconButton} position="absolute" top="2.5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
           bg='#0964ed'/>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
@@ -827,26 +830,58 @@ function Map() {
               <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
             </MenuList>
         </Menu> 
+        
         <br/>
       </Flex>
       
+      <Box
+      p={1}
+      borderRadius='lg'
+      m={1}
+      height='90px'
+      width='250px'
+      bgColor='rgba(128, 128, 128, 0.8)'
+      shadow='base'
+      left = '40%'
+      zIndex='1'
+      position = 'absolute'
+      border='1px solid orange'
+      display='flex'
+      justifyContent='center' // center horizontally
+      alignItems='center' // center vertically
+      >
 
-      {/* Gabriel worked on format of map and description location  */}
-      <HStack spacing = '0' > // space between map and description box
-        <Box bg='green.300' h='100vh' w='30%' display='flex' flexDirection='column' alignItems='center' padding='1rem' borderRight='2px solid #FFA500'>
-          
-          {/* Description box title  */}
-          <Heading as='h2' size='lg' marginBottom='2rem'> Descriptions </Heading>
-        
-        {/* Is visable only when user turns on Request */}
+      <HStack  spacing = {0} justifyContent='space-between'>
+{/* Menu for dispaly options */}
+<div id="menu">
+        <input id="satellite-streets-v12" left ="10" type="radio" name="rtoggle" value="streets"/>
+        <label for="satellite-streets-v12"><img src={LightPic} alt="street"/>   <span> Satellite </span> </label>
+        <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
+        <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> Dark </span></label>
+        <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
+        <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/><span> Outdoors </span> </label>
+</div>
+
+      
+</HStack>
+     
+</Box>
+
+
+
+    {/* Gabriel worked on format of map and description location  */}
+      <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
+
+
+
+ {/* Is visable only when user turns on Request */}
         {(requestState || commentState) ? (
 
-          <Box bg='white' h = '70vh' w='87%' borderRadius='10px'
-          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' display='flex' flexDirection='column'
-          alignItems='center' justifyContent='center' padding='20px'>
+<Box bg='white' h = '60%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
+          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center'>
            
            {/* Add a clear heading */}
-           <Heading size='md' mb='20px' textAlign='center' color='blue.500'>Request/Comment Form</Heading>
+           <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'>Request/Comment Form</Heading>
             
             {/* User text box that appears when user clicks scan request */}
             {/* <label for="input" class="black-text">
@@ -854,19 +889,18 @@ function Map() {
             </label> */}
 
             {/* Use a descriptive placeholder */}
-            <label htmlFor='input' className='description-text'>
+            <label htmlFor='input' className='description-text' textAlign='center'>
             {requestState ? 'Please provide your request' : 'Please leave a comment'}
             </label>
             
-            <Input type='text' id='input' className='stretch-box-black-text' w='100%'
+            <Input type='text' id='input' className='stretch-box-black-text' w='90%'
             placeholder='Type your reason or comment here' overflowWrap="break-word" borderRadius='5px'
-            border='1px solid gray' padding='5px' mt='10px' style={{height: '200px'}}
+            border='1px solid gray' mt='10px' style={{height: '45px'}}
             maxLength={200}/>
-            <br />
             {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
           
               {/* Change button text to be more specific */}
-            <Button colorScheme='purple' size='md' mt='10px' onClick={SendUserInfo}>
+            <Button colorScheme='purple' size='md' mt='40px' onClick={SendUserInfo}>
             {requestState ? 'Submit Request' : 'Submit Comment'}
             </Button>
 
@@ -892,15 +926,8 @@ function Map() {
           </Box>
          ) : null}
 
-
-        </Box> // description size 
-        
-        <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
-
-       
-      </HStack>
-    </Flex>
-  );
+  </Flex>
+);
 }
 
 export default Map

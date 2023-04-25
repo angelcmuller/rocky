@@ -6,6 +6,7 @@ css format will need to start with #
     font-family: 'Times New Roman', Times, serif;
     font-size: 60px;
     font-style: oblique;
+    font-weight: bold;
     font-display:initial;
     font-variant: normal;
     text-align: center;
@@ -17,6 +18,8 @@ css format will need to start with #
     margin-right: auto;
     width: 50%;
     height: auto;
+    border-radius: 10px;
+    outline: 1px solid black;
 }
 
 .container {
@@ -70,6 +73,13 @@ css format will need to start with #
 #names {
     font-size: 25px;
     padding-left: 10px;
+}
+
+#github-link a {
+    color: blue;
+    text-decoration: underline;
+    font-size: 16px;
+    margin-left: 40px;
 }
 
 #book{
