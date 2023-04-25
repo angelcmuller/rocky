@@ -28,7 +28,7 @@ select {
 .description-text {
   font-size: 14px;
   color: #000;
-  text-align: left !important;
+  text-align: center !important;
 }
 
 .stretch-box-black-text {
@@ -57,21 +57,19 @@ select {
   display: flex;
   justify-content: space-evenly;
 } */
-#menu {
-  margin-left: 25px;
-}
+/* #menu {
+  align-items: center;
+  align-content: center;
+  text-align: center;
+} */
 #menu label {
   display: inline-block;
   margin-top: 3px;
-}
-#menu span {
-  margin-right: 30px;
 }
 #menu img {
   width: 45px;
   height: 45px;
   border: 2px solid #555;
-  margin-right: 30px;
 }
 #menu label:hover img {
   width: 50px;

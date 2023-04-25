@@ -710,9 +710,8 @@ function Map() {
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Flex  position=""  h='10vh' bg='#559cad'>
          {/* Hamburger Menu  */}
-         <WithPopoverAnchor style={{display: "flex"}}/>
-        <Menu variant='roundleft' _hover={{ bg: "gray.100" }}>
-          <MenuButton as={IconButton} position="absolute" top="5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
+        <Menu variant='default' _hover={{ bg: "orange" }}>
+          <MenuButton as={IconButton} position="absolute" top="2.5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
           bg='#0964ed'/>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
@@ -825,11 +824,17 @@ function Map() {
       p={1}
       borderRadius='lg'
       m={1}
-      bgColor='gray'
+      height='90px'
+      width='250px'
+      bgColor='rgba(128, 128, 128, 0.8)'
       shadow='base'
       left = '40%'
       zIndex='1'
       position = 'absolute'
+      border='1px solid orange'
+      display='flex'
+      justifyContent='center' // center horizontally
+      alignItems='center' // center vertically
       >
 
       <HStack  spacing = {0} justifyContent='space-between'>
@@ -838,7 +843,7 @@ function Map() {
         <input id="satellite-streets-v12" left ="10" type="radio" name="rtoggle" value="streets"/>
         <label for="satellite-streets-v12"><img src={LightPic} alt="street"/>   <span> Satellite </span> </label>
         <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-        <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> &nbsp;Dark </span></label>
+        <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> Dark </span></label>
         <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
         <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/><span> Outdoors </span> </label>
 </div>
@@ -858,12 +863,11 @@ function Map() {
  {/* Is visable only when user turns on Request */}
         {(requestState || commentState) ? (
 
-<Box bg='white' h = '35%' w = '30%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
-          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' 
-          alignItems='center' justifyContent='center' padding='12%' zIndex={1}  left = '5%' top='40%'>
+<Box bg='white' h = '60%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
+          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center'>
            
            {/* Add a clear heading */}
-           <Heading size='md' mb='20px' textAlign='center' color='blue.500'>Request/Comment Form</Heading>
+           <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'>Request/Comment Form</Heading>
             
             {/* User text box that appears when user clicks scan request */}
             {/* <label for="input" class="black-text">
@@ -871,19 +875,18 @@ function Map() {
             </label> */}
 
             {/* Use a descriptive placeholder */}
-            <label htmlFor='input' className='description-text'>
+            <label htmlFor='input' className='description-text' textAlign='center'>
             {requestState ? 'Please provide your request' : 'Please leave a comment'}
             </label>
             
-            <Input type='text' id='input' className='stretch-box-black-text' w='100%'
+            <Input type='text' id='input' className='stretch-box-black-text' w='90%'
             placeholder='Type your reason or comment here' overflowWrap="break-word" borderRadius='5px'
-            border='1px solid gray' padding='5px' mt='10px' style={{height: '200px'}}
+            border='1px solid gray' mt='10px' style={{height: '45px'}}
             maxLength={200}/>
-            <br />
             {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
           
               {/* Change button text to be more specific */}
-            <Button colorScheme='purple' size='md' mt='10px' onClick={SendUserInfo}>
+            <Button colorScheme='purple' size='md' mt='40px' onClick={SendUserInfo}>
             {requestState ? 'Submit Request' : 'Submit Comment'}
             </Button>
 
