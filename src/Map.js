@@ -344,38 +344,40 @@ function Map() {
       //Uses the result variable 
       async function displayMarkers() {
         // Wait for data from MongoDB
-        const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
+        const commentData =  await MongoRecords(`http://localhost:3000/crecord/`);
+        const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
+        const pinData = await MongoRecords(`http://localhost:3000/record/`); 
 
         // Angel C. Muller loop through the marker data and create markers
-        // depending on the classification of road deficiency
-        for (let i = 0; i < pinData.length; i++) {
-          let markerColor = '#f5c7f7'; // Default color
-          if (pinData[i].Classification === 'loose surface' || pinData[i].Classification === 'speed divit' || pinData[i].Classification === 'tar snake') {
-            markerColor = '#fcff82'; // Set color for a specific description
-          } else if (pinData[i].Classification === 'worn road' || pinData[i].Classification === 'pothole') {
-            markerColor = '#dc2f2f'; // Set color for another specific description
-          }
+        // // depending on the classification of road deficiency
+        // for (let i = 0; i < pinData.length; i++) {
+        //   let markerColor = '#f5c7f7'; // Default color
+        //   if (pinData[i].Classification === 'loose surface' || pinData[i].Classification === 'speed divit' || pinData[i].Classification === 'tar snake') {
+        //     markerColor = '#fcff82'; // Set color for a specific description
+        //   } else if (pinData[i].Classification === 'worn road' || pinData[i].Classification === 'pothole') {
+        //     markerColor = '#dc2f2f'; // Set color for another specific description
+        //   }
 
-          const marker = new mapboxgl.Marker({ color: markerColor })
-            .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
-            .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
-            .addTo(map);
+        //   const marker = new mapboxgl.Marker({ color: markerColor })
+        //     .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
+        //     .setPopup(new mapboxgl.Popup({ offset: 25 })
+        //     .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
+        //     .addTo(map);
 
-            // add click listener to marker
-            marker.getElement().addEventListener('click', () => {
-              markerClicked = true;
-            });
+        //     // add click listener to marker
+        //     marker.getElement().addEventListener('click', () => {
+        //       markerClicked = true;
+        //     });
 
-            // Hover over pins and see immediate information
-            marker.getElement().addEventListener('mouseover', () => {
-              marker.togglePopup();
-            });
+        //     // Hover over pins and see immediate information
+        //     marker.getElement().addEventListener('mouseover', () => {
+        //       marker.togglePopup();
+        //     });
           
-            marker.getElement().addEventListener('mouseout', () => {
-              marker.togglePopup();
-            });
-        }
+        //     marker.getElement().addEventListener('mouseout', () => {
+        //       marker.togglePopup();
+        //     });
+        // }
         
         for (let i = 0; i < commentData.length; i++) {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
