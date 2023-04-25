@@ -8,15 +8,16 @@
 import pandas as pd
 import certifi
 import pymongo
+from bson.objectid import ObjectId
 
 class Data_Manager(object):
-    #Class for managing how and when data is pushed to the database
-    df = pd.DataFrame(columns=['Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source','Classification', 'Img_Byte_String'])
+    # Class for managing how and when data is pushed to the database
+    df = pd.DataFrame(columns=['Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source', 'Classification'])
     tick = 0
     threshold = 10
     db = None
 
-    #enforces singleton design pattern
+    # Enforces singleton design pattern
     def __new__(cls, user, key):
         if not hasattr(cls, 'instance'):
             cls.instance = super(Data_Manager, cls).__new__(cls)
@@ -28,26 +29,46 @@ class Data_Manager(object):
             tlsCAFile=certifi.where())
         Data_Manager.db = client["pinDatabase"]
 
+        # Create a new collection to store the image data
+        #Data_Manager.db.Images.create_index([("_id", pymongo.ASCENDING)])
+
     def add(self, Lattitude, Longitude, Altitude, MeasurementDate, UploadDate, Source, Classification, Byte_String):
-        Data_Manager.tick += 1
-        temp = pd.DataFrame([[Lattitude, Longitude, Altitude, MeasurementDate, UploadDate, Source, Classification, Byte_String]],
-            columns=['Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source','Classification', 'Img_Byte_String'])
-        Data_Manager.df = pd.concat([Data_Manager.df, temp], ignore_index = True)
+        # Generate a new ObjectId to reference the image document
+        while True:
+            img_id = ObjectId()
+
+            # Insert the image data into the Images collection
+            img_data = {"_id": img_id, "data": Byte_String}
+            try:
+                Data_Manager.db.Images.insert_one(img_data)
+                break
+            except pymongo.errors.DuplicateKeyError:
+                print(f"Image with _id '{img_id}' already exists in the Images collection.")
+                continue
+
+        # Add a new row to the DataFrame with the image ID
+        temp = pd.DataFrame([[Lattitude, Longitude, Altitude, MeasurementDate, UploadDate, Source, Classification, img_id]],
+            columns=['Lattitude', 'Longitude', 'Altitude', 'MeasurementDate', 'UploadDate', 'Source', 'Classification', 'Img_ObjectId'])
+        Data_Manager.df = pd.concat([Data_Manager.df, temp], ignore_index=True)
         
-        if(Data_Manager.tick == Data_Manager.threshold):
+        Data_Manager.tick += 1
+
+        if Data_Manager.tick == Data_Manager.threshold:
             Data_Manager.tick = 0
             self.__upload_to_database()
 
     def push(self):
-        if(Data_Manager.tick != 0):
+        if Data_Manager.tick != 0:
             self.__upload_to_database()
         
     def __upload_to_database(self):
-        # Convert the data into a series of records
+        # Convert the data into a list of dictionaries
         data = Data_Manager.df.to_dict(orient="records")
             
         # Add data to the database
         Data_Manager.db.Pins.insert_many(data)
+
+        # Clear the DataFrame and reset the index
         Data_Manager.df = pd.DataFrame(columns=Data_Manager.df.columns)
         
     def user_check(self):
