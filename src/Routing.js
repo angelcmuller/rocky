@@ -105,7 +105,7 @@ export function pinDataToGeoJSON(pinData){
                 coordinates: [pinData[i].Longitude, pinData[i].Lattitude]
             },
             properties: {
-                degree: pinData[i].Degree
+                classification: pinData[i].Classifiaction
                 //"classification": data[i].Classification
             }
         };
