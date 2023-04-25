@@ -3,6 +3,112 @@
   flex-direction: column;
 }
 
+.popup-content {
+  max-width: 189px;
+  padding: 2px 16px 0px 2px;
+  box-shadow: None;
+  border-radius: 0px;
+  background-color: transparent;
+  width: 105%;
+  padding-right: 18px;
+  padding-bottom: 0px; /* This property removes the extra whitespace at the bottom of the popup */
+}
+
+
+.popup-button {
+  background-color: #559cad;
+  color: #FFFFFF;
+  border-radius: 2px;
+  border: none;
+  padding: 8px 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  transition: background-color 0.2s ease-in-out;
+}
+.popup-button:last-child {
+  margin-bottom: 0;
+}
+
+
+.popup-button:hover {
+  background-color: #5cb85c;
+}
+
+.comment-button {
+  background-color: #559cad;
+}
+
+.request-button {
+  background-color: #559cad;
+}
+
+.close-button-container {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.close-button::before,
+.close-button::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 2px;
+  background-color: gray;
+}
+
+.close-button::before {
+  transform: rotate(45deg);
+}
+
+.close-button::after {
+  transform: rotate(-45deg);
+}
+
+#comment-btn {
+  background-color: #559cad;
+}
+
+#comment-btn:hover {
+  background-color: #5cb85c;
+}
+
+#request-btn {
+  background-color: #559cad;
+}
+
+#request-btn:hover {
+  background-color: #5cb85c;
+}
+
+.close-button {
+  background-color: transparent;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+  color: gray;
+  border: none;
+  outline: none;
+  border-radius: 2px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.close-button:hover {
+  background-color: darkgray;
+}
+
+
 .radio-item {
   display: flex;
   align-items: center;

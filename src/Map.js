@@ -347,11 +347,11 @@ function Map() {
       //Uses the result variable 
       async function displayMarkers() {
         // Wait for data from MongoDB
-        //const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
-        const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
-        const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
-        var pinData = await MongoRecords(`http://localhost:3000/record/`);
-        console.log(pinData)
+        const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
+        //const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
+        //const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
+        //var pinData = await MongoRecords(`http://localhost:3000/record/`);
+        //console.log(pinData)
         // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
         // depending on the classification of road deficiency
         for (let i = 0; i < pinData.length; i++) {
@@ -484,38 +484,60 @@ function Map() {
         var lngLat = e.lngLat;
         // condition to check if the user clicks anywhere else in the Map but on a marker, popup will show up
         if (!markerClicked) {
-          // Create a popup dialog
-          const popup = new mapboxgl.Popup({ closeOnClick: true, closeButton: customCloseButton})
+          // Define custom close button HTML
+          const customCloseButton = '<button type="button" class="close-button" aria-label="Close popup"></button>';
+
+          // Define popup content HTML
+          const popupContent = '<div class="popup-content">' +
+            '<button id="display-btn" class="popup-button display-button">Display in Radius</button>' +
+            '<button id="comment-btn" class="popup-button comment-button">Leave a Comment</button>' +
+            '<button id="request-btn" class="popup-button request-button">Make a Request</button>' +
+            '</div>';
+          
+          // Create popup
+          const popup = new mapboxgl.Popup({ closeOnClick: true, closeButton: false })
             .setLngLat(e.lngLat)
-            .setHTML('<div style="font-family: Arial, sans-serif; font-size: 12px; color: #333333; padding: 2px;"><button id="comment-btn" style="background-color: #0077B6; color: #FFFFFF; border-radius: 2px; border: none; padding: 2px 4px; margin-right: 10px; cursor: pointer;">Leave a Comment</button> <br/> <br/> <button id="request-btn" style="background-color: #0077B6; color: #FFFFFF; border-radius: 2px; border: none; padding: 2px 4px; cursor: pointer;">Make a Request</button></div>')
+            .setHTML(popupContent)
             .setMaxWidth('500px')
-            .addTo(map)
+            .addTo(map);
+          
+          // Create custom close button element
+          const customCloseButtonEl = document.createElement('div');
+          customCloseButtonEl.innerHTML = customCloseButton;
+          customCloseButtonEl.classList.add('close-button-container');
+          customCloseButtonEl.addEventListener('click', () => {
+            popup.remove();
+          });
+          
+          // Append custom close button to popup container element
+          popup._content.insertBefore(customCloseButtonEl, popup._content.firstChild);
+          
+          // Add click event listeners to the buttons
+          document.getElementById('display-btn').addEventListener('click', () => {
+            console.log('Display button clicked');
+          });
+          
+          document.getElementById('comment-btn').addEventListener('click', () => {
+            console.log('Comment button clicked');
+            setIsCommentChecked(true);
+            setIsCVisible(true);
+            Toggle("Comment");
+            popup.remove();
+            UserLng = lngLat.lng;
+            UserLat = lngLat.lat;
+          });
+          
+          document.getElementById('request-btn').addEventListener('click', () => {
+            console.log('Request button clicked');
+            setIsRequestChecked(true);
+            setIsRVisible(true);
+            Toggle("Request");
+            popup.remove();
+            UserLng = lngLat.lng;
+            UserLat = lngLat.lat;
+          });
+          
 
-            // Append customCloseButton to popup container element
-            popup._container.appendChild(customCloseButton);
-
-            // Add click event listeners to the buttons
-            document.getElementById('comment-btn').addEventListener('click', () => {
-              // Code to handle comment button click
-              console.log('Comment button clicked');
-              setIsCommentChecked(true);
-              setIsCVisible(true);
-              Toggle("Comment");
-              popup.remove();
-              UserLng = lngLat.lng;
-              UserLat = lngLat.lat;
-            });
-
-            document.getElementById('request-btn').addEventListener('click', () => {
-              // Code to handle request button click
-              console.log('Request button clicked');
-              setIsRequestChecked(true);
-              setIsRVisible(true);
-              Toggle("Request");
-              popup.remove();
-              UserLng = lngLat.lng;
-              UserLat = lngLat.lat;
-            });
         } else {
           // if the user is clicking on an existing Marker, new popup won't be displayed
           markerClicked = false;
