@@ -44,9 +44,10 @@ import {
   RadioGroup,
   Switch,
   useBoolean,
-  useDisclosure
+  useDisclosure,
+  Divider
 } from '@chakra-ui/react'; 
-import { HamburgerIcon, PhoneIcon, ChatIcon } from "@chakra-ui/icons";
+import { HamburgerIcon, PhoneIcon, ChatIcon, TriangleDownIcon, ChevronDownIcon, SettingsIcon } from "@chakra-ui/icons";
 import { FaLocationArrow, FaCarAlt,FaTimes,FaCommentAlt, FaCalendar, FaCloud, FaEyeSlash, FaEye, FaBlind, FaServer} from 'react-icons/fa'
 import './App.css';
 import './Map.css';
@@ -131,6 +132,7 @@ function Map() {
   const [locationAvailable, setLocationAvailable] = useState(false);
   const [zoom, setZoom] = useState(10);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
 
   const [ReqName, setReqName] = useState("Request Location");
   const [ComName, setComName] = useState("Make a Comment");
@@ -723,9 +725,39 @@ function Map() {
    return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Flex  position=""  h='10vh' bg='#559cad'>
-         {/* Hamburger Menu  */}
-        <Menu variant='default' _hover={{ bg: "orange" }}>
-          <MenuButton as={IconButton} position="absolute" top="2.5" right="10" aria-label='Options'icon={<HamburgerIcon />} variant='outline'
+        {/* Hamburger Menu  */}
+        <HStack spacing='5px' justifyContent='flex-start'>
+        <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute' right='100px' />
+          <Modal isOpen={isSettingsOpen} onClose={onSettingsClose} useInert='false' size={'sm'}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader> Settings </ModalHeader>
+              <ModalCloseButton />
+              <Divider/>
+              <ModalBody>
+                <HStack spacing='140px'>
+                  <Text> Hide comments </Text>
+                  <Switch />
+                </HStack>
+              </ModalBody>
+              <Divider/>
+              <ModalBody>
+                Setting Two
+              </ModalBody>
+              <Divider/>
+              <ModalBody>
+                Setting Three
+              </ModalBody>
+              <Divider/>
+              <ModalFooter>
+                <Button colorScheme='blue' mr={3} onClick={onSettingsClose}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+        <Menu>
+          <MenuButton as={IconButton} aria-label='Options'icon={<HamburgerIcon />} variant='outline' position='absolute' right={10}
           bg='#0964ed'/>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
@@ -736,82 +768,61 @@ function Map() {
                     <ModalCloseButton />
                     <ModalBody>
                       <Accordion defaultIndex={[0]} allowMultiple>
+                      
                       <AccordionItem>
-                     
+                        <AccordionButton>
+                          <Box as="span" flex='1' textAlign='left'>
+                            AAA
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                        <AccordionPanel pb={10}>
+                          <a>800-400-4222 </a>
+                          <a href="tel:8004004222" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8004004222" />
+                          </a>
+                        </AccordionPanel>
+                      </AccordionItem>
+                      
+                      <AccordionItem>
+                        <AccordionButton>
+                          <Box as="span" flex='1' textAlign='left'>
+                            Progressive
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                        <AccordionPanel pb={10}>
+                          <a>800-776-4737 </a>
+                          <a href="tel:8007764737" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8007764737" />
+                          </a>
+                        </AccordionPanel>
+                      </AccordionItem>
 
-                          <h2>
-                            <AccordionButton>
-                              <Box as="span" flex='1' textAlign='left'>
-                                AAA
-                              </Box>
-                              <AccordionIcon />
-                            </AccordionButton>
-                          </h2>
-                          <AccordionPanel pb={10}>
-                            <a>800-400-4222 </a>
-                            <a href="tel:8004004222" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                            <IconButton
-                                colorScheme='teal'
-                                aria-label='Call Segun'
-                                size='sm'
-                                icon={<PhoneIcon />}
-                                href="tel:+8004004222"
-                              />
-                              </a>
-                          </AccordionPanel>
-                        </AccordionItem>
+                      <AccordionItem>
+                        <AccordionButton>
+                          <Box as="span" flex='1' textAlign='left'>
+                            StateFarm
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                        <AccordionPanel pb={10}>
+                          <a>855-259-8568 </a>
+                          <a href="tel:5558920234" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8552598568" />
+                          </a>
+                        </AccordionPanel>
+                      </AccordionItem>
 
-                        <AccordionItem>
-                          <h2>
-                            <AccordionButton>
-                              <Box as="span" flex='1' textAlign='left'>
-                                Progressive
-                              </Box>
-                              <AccordionIcon />
-                            </AccordionButton>
-                          </h2>
-                          <AccordionPanel pb={10}>
-                            <a>800-776-4737 </a>
-                            <a href="tel:8007764737" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                            <IconButton
-                                colorScheme='teal'
-                                aria-label='Call Segun'
-                                size='sm'
-                                icon={<PhoneIcon />}
-                                href="tel:+8007764737"
-                              />
-                              </a>
-                          </AccordionPanel>
-                        </AccordionItem>
+                      <AccordionItem>
+                        <br/>
+                        <h2>Type your insurance below to do a Google Search:</h2>
+                        <form action="https://www.google.com/search?q=phone+number+" target="_blank">
+                          <input type="text" name="q" />
+                          <input type="submit" value="Google Search" />
+                        </form>
+                      </AccordionItem>
 
-                        <AccordionItem>
-                          <h2>
-                            <AccordionButton>
-                              <Box as="span" flex='1' textAlign='left'>
-                                StateFarm
-                              </Box>
-                              <AccordionIcon />
-                            </AccordionButton>
-                          </h2>
-                          <AccordionPanel pb={10}>
-                            <a>855-259-8568 </a>
-                            <a href="tel:5558920234" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                            <IconButton
-                                colorScheme='teal'
-                                aria-label='Call Segun'
-                                size='sm'
-                                icon={<PhoneIcon />}
-                                href="tel:+8552598568"
-                              />
-                              </a>
-                          </AccordionPanel>
-                          <br/>
-                          <h2>Type your insurance below to do a Google Search:</h2>
-                          <form action="https://www.google.com/search?q=phone+number+" target="_blank">
-                            <input type="text" name="q" />
-                            <input type="submit" value="Google Search" />
-                          </form>
-                        </AccordionItem>
                       </Accordion>
                     </ModalBody>
 
@@ -829,7 +840,8 @@ function Map() {
               <MenuItem style={{ color: "black" }} onClick={handleShowCommentClick}> Hide Comments </MenuItem>
               <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
             </MenuList>
-        </Menu> 
+        </Menu>
+        </HStack>
         
         <br/>
       </Flex>
@@ -857,7 +869,7 @@ function Map() {
         <input id="satellite-streets-v12" left ="10" type="radio" name="rtoggle" value="streets"/>
         <label for="satellite-streets-v12"><img src={LightPic} alt="street"/>   <span> Satellite </span> </label>
         <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-        <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> Dark </span></label>
+        <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> &nbsp;&nbsp;&nbsp; Dark &nbsp;&nbsp;&nbsp; </span></label>
         <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
         <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/><span> Outdoors </span> </label>
 </div>
