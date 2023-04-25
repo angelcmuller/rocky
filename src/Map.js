@@ -80,13 +80,13 @@ var buttonCommentRequest = false;
 //Developed by Aaron Ramirez and Gabriel Mortensen
 
   //This function returns records from the MongoDB database 
-  async function MongoRecords() {
-    const example = await JsonListReturn();
-    return example;
-  }
+  // async function MongoRecords() {
+  //   const example = await JsonListReturn();
+  //   return example;
+  // }
   
 //assign full JSON results from MongoDB to result variable 
-const result = MongoRecords();
+//const result = MongoRecords();
 
 // Create a function to create the Mapbox Directions object
 function createDirections() {
@@ -113,7 +113,7 @@ function Map() {
   mapboxgl.accessToken = 'pk.eyJ1Ijoicm9ja3JvYWR1bnIiLCJhIjoiY2xkbzYzZHduMHFhdTQxbDViM3Q0eHFydSJ9.mDgGzil5_4VS6tFaYSQgPw';
 
   const mapContainer = useRef(null);
-
+  
   // const variables to manage the navigation to other Pages (/Map)
   const navigate = useNavigate();
   const [showResults, setShowResults] = React.useState(true)
@@ -251,6 +251,7 @@ function Map() {
       map.addControl(dirs, 'top-left');
 
       map.on('load', () => {
+
         //use to display input boxes if in routing mode
         if (routeState === true){
           //map.removeControl(directions)
@@ -344,16 +345,26 @@ function Map() {
       //Uses the result variable 
       async function displayMarkers() {
         // Wait for data from MongoDB
-        const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
-
-        // Angel C. Muller loop through the marker data and create markers
+        //const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
+        const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
+        const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
+        var pinData = await MongoRecords(`http://localhost:3000/record/`);
+        console.log(pinData)
+        // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
         // depending on the classification of road deficiency
         for (let i = 0; i < pinData.length; i++) {
           let markerColor = '#f5c7f7'; // Default color
-          if (pinData[i].Classification === 'loose surface' || pinData[i].Classification === 'speed divit' || pinData[i].Classification === 'tar snake') {
-            markerColor = '#fcff82'; // Set color for a specific description
-          } else if (pinData[i].Classification === 'worn road' || pinData[i].Classification === 'pothole') {
-            markerColor = '#dc2f2f'; // Set color for another specific description
+          if (pinData[i].Classification === 'bump') {
+            markerColor = '#17588a'; // Set color for a specific description
+          }
+          if (pinData[i].Classification === 'crack' ) {
+            markerColor = '#137d1f'; // Set color for another specific description
+          }
+          if (pinData[i].Classification === 'pot hole' ) {
+            markerColor = '#8f130a'; // Set color for another specific description
+          }
+          if (pinData[i].Classification === 'speed bump' ) {
+            markerColor = '#86178a'; // Set color for another specific description
           }
 
           const marker = new mapboxgl.Marker({ color: markerColor })
@@ -376,7 +387,7 @@ function Map() {
               marker.togglePopup();
             });
         }
-      
+        
         for (let i = 0; i < commentData.length; i++) {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
             .setLngLat([commentData[i].Lng, commentData[i].Lat])
@@ -423,6 +434,7 @@ function Map() {
               marker.togglePopup();
             });
         }
+       
       }
 
       // Function to add event listener for marking pins
@@ -689,6 +701,7 @@ function Map() {
   };
 
   // function that handles the displaying of the comments onto the map
+
   function handleShowCommentClick(){
     const opacity = 0;
     console.log("here")
@@ -702,6 +715,7 @@ function Map() {
   // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
+
   const [markerOpacity, setMarkerOpacity] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");
