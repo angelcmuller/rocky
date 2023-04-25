@@ -18,30 +18,34 @@ async function MongoRecords(link) {
 export async function Route(map, directions, startLat=0, startLong=0, endLat=0, endLong=0, routeCount=3){
     const [pins, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
     
-    //add routes layers to map limiting to a maximum of 10
-    for (let i =0; i <= routeCount && i < 10; ++i){
-        map.addSource(`route${i}`, {
-            type: 'geojson',
-            data: {
-                type: 'Feature'
-            }
-        });
-        map.addLayer({
-            id: `route${i}`,
-            type: 'line',
-            source: `route${i}`,
-            layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            paint: {
-                'line-color': '#5cb2b2',
-                'line-opacity': 0.5,
-                'line-width': 12,
-                'line-blur': 0.25
-            }
-        });
+    function addAdditionalSourceAndLayer() {
+        //add routes layers to map limiting to a maximum of 10
+        for (let i =0; i <= routeCount && i < 10; ++i){
+            map.addSource(`route${i}`, {
+                type: 'geojson',
+                data: {
+                    type: 'Feature',
+                    properties: '{}',
+                }
+            });
+            map.addLayer({
+                id: `route${i}`,
+                type: 'line',
+                source: `route${i}`,
+                layout: {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                paint: {
+                    'line-color': '#5cb2b2',
+                    'line-opacity': 0.5,
+                    'line-width': 12,
+                    'line-blur': 0.25
+                }
+            });
+        }
     }
+
     //call to directions api to handle future route computations
     //map.addControl(directions, 'top-left');
 
