@@ -45,6 +45,14 @@
   background-color: #559cad;
 }
 
+.open-info {
+  background-color: #559cad;
+}
+
+.open-info:hover {
+  background-color: #b990ff;
+}
+
 .close-button-container {
   position: absolute;
   right: 2px;
