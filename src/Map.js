@@ -4,7 +4,7 @@ import { LogMongo } from "./components/Log";
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Box, Button, Flex, HStack, Heading,
   IconButton, Input, Text, Popover, PopoverContent, PopoverBody, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
   ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useBoolean, useDisclosure,
-  Divider } from '@chakra-ui/react'; 
+  Divider, Image, Tooltip } from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon, SettingsIcon } from "@chakra-ui/icons";
 import './App.css';
 import './Map.css';
@@ -14,11 +14,13 @@ import React from 'react';
 import LightPic from './images/Satellite.png';
 import OutsidePic from './images/Outdoors.png';
 import Streetic from './images/darkMode2.png';
+import Logo from './images/Logo.png'
 import mapboxgl from 'mapbox-gl';
 import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 import MapboxTraffic from "./mapbox-gl-traffic.js";
 import "./mapbox-gl-traffic.css";
+import { cyan } from "@mui/material/colors";
 
 var UserLat; 
 var UserLng; 
@@ -27,7 +29,10 @@ var directions = createDirections();
 var flip = true;
 var mapStyle = 'mapbox://styles/mapbox/outdoors-v12?optimize=true';
 var boxState = false;
+var pinCoordinatesForInfoDisplayLong;
+var pinCoordinatesForInfoDisplayLat;
 var comment_request_pinListener;
+var thisIsTheOne;
 
 // Boolean to check if button Comment/Request are being used
 var buttonCommentRequest = false;
@@ -56,6 +61,14 @@ function createDirections() {
     }
   });
 }
+
+
+
+      //This function returns records from the MongoDB database
+      async function MongoRecords(link) {
+        const pinInfo = await JsonListReturn(link);
+        return pinInfo
+      }
 
 // create an array to store markers
 const markers = []; // declare markers array outside of useEffect
@@ -91,6 +104,7 @@ function Map() {
   const [requestState, setRState] = useState(false);
   const [commentState, setCState] = useState(false);
   const [routeState, setRouteState] = useState(true);
+  const [pinInformation, setPinInformation] = useState(false);
 
   // Using cache to reload the previous page from the browser's back button
   useEffect(() => {
@@ -286,12 +300,6 @@ function Map() {
         };
       }
 
-      //This function returns records from the MongoDB database
-      async function MongoRecords(link) {
-        const pinInfo = await JsonListReturn(link);
-        return pinInfo
-      }
-
       //Gabriel Mortensen Pin Display functions below 
       //Waiting for data from MogoDB
       //Uses the result variable 
@@ -302,6 +310,7 @@ function Map() {
         //const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
         //var pinData = await MongoRecords(`http://localhost:3000/record/`);
         //console.log(pinData)
+        
         // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
         // depending on the classification of road deficiency
         for (let i = 0; i < pinData.length; i++) {
@@ -319,25 +328,42 @@ function Map() {
             markerColor = '#86178a'; // Set color for another specific description
           }
 
+          // Define popup content HTML
+        const popupContent = '<div class="popup-content">' +
+        '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + '-- "' + pinData[i].Classification + '" --' +
+        '<br /><br />' +
+        '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
+        '</div>';
+
           const marker = new mapboxgl.Marker({ color: markerColor })
             .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
-            .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${pinData[i].Classification}</h3>`))
+            .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: true })
+            .setHTML(popupContent))
             .addTo(map);
+
+            const moreInfoButton = marker._popup._content.querySelector('#more-info-btn');
+            moreInfoButton.addEventListener('click', function() {
+              setPinInformation(true);
+              console.log("HERE", pinInformation);
+              pinCoordinatesForInfoDisplayLong = pinData[i].Longitude;
+              pinCoordinatesForInfoDisplayLat = pinData[i].Lattitude;
+              thisIsTheOne = i;
+              console.log(pinCoordinatesForInfoDisplayLong, pinCoordinatesForInfoDisplayLat, thisIsTheOne)
+            });
 
             // add click listener to marker
             marker.getElement().addEventListener('click', () => {
               markerClicked = true;
             });
 
-            // Hover over pins and see immediate information
-            marker.getElement().addEventListener('mouseover', () => {
+            // 'hover' over pins and see immediate information - changed it to 'click'
+            marker.getElement().addEventListener('click', () => {
               marker.togglePopup();
             });
           
-            marker.getElement().addEventListener('mouseout', () => {
-              marker.togglePopup();
-            });
+            // marker.getElement().addEventListener('click', () => {
+            //   marker.togglePopup();
+            // });
         }
         
         for (let i = 0; i < commentData.length; i++) {
@@ -350,7 +376,8 @@ function Map() {
             // add the marker to the markers array
             markers.push(marker);
 
-            // add click listener to marker
+            // add click listener to marker to ensure make comment/request popup doesn't appear
+            // when user clicks on these pins
             marker.getElement().addEventListener('click', () => {
               markerClicked = true;
             });
@@ -499,7 +526,7 @@ function Map() {
     // If any of the variables in the dependency array change, the effect will re-run.
 
   }, [
-    requestState, commentState, lng, lat, zoom, markers
+    requestState, commentState, lng, lat, markers
   ]);
   
   // Function sends comment or request to database  
@@ -655,6 +682,11 @@ function Map() {
     console.log("opacity:", opacity);
   }
 
+  async function GetPinDatatoDisplay() {
+    const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
+    
+  }      
+
   // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
@@ -662,13 +694,18 @@ function Map() {
   const [markerOpacity, setMarkerOpacity] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");
-  
+
   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Flex  position=""  h='10vh' bg='#559cad'>
         {/* Hamburger Menu  */}
         <HStack spacing='5px' justifyContent='flex-start'>
-        <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute' right='100px' />
+        <Tooltip label="Project Rocky Road">
+          <Image src={ Logo } boxSize='55px' ml='25px' bg='white' borderRadius='full'/>
+        </Tooltip>
+        <Tooltip label="Settings" hasArrow>
+          <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute' right='100px' />
+        </Tooltip>
           <Modal isOpen={isSettingsOpen} onClose={onSettingsClose} useInert='false' size={'sm'}>
             <ModalOverlay />
             <ModalContent>
@@ -698,8 +735,10 @@ function Map() {
             </ModalContent>
           </Modal>
         <Menu>
-          <MenuButton as={IconButton} aria-label='Options'icon={<HamburgerIcon />} variant='outline' position='absolute' right={10}
-          bg='#0964ed'/>
+          <Tooltip label='Menu' hasArrow>
+            <MenuButton as={IconButton} aria-label='Options'icon={<HamburgerIcon />} variant='outline' position='absolute' right={10}
+            bg='#0964ed'/>
+          </Tooltip>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
                 <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
@@ -787,40 +826,59 @@ function Map() {
         <br/>
       </Flex>
       
-      <Box
-        p={1}
-        borderRadius='lg'
-        m={1}
-        height='90px'
-        width='250px'
-        bgColor='rgba(128, 128, 128, 0.8)'
-        shadow='base'
-        left = '40%'
-        zIndex='1'
-        position = 'absolute'
-        border='1px solid orange'
-        display='flex'
-        justifyContent='center'
-        alignItems='center' >
-        
-        <HStack  spacing = {0} justifyContent='space-between'>
-          {/* Menu for dispaly options */}
-          <div id="menu">
-            <input id="satellite-streets-v12" left ="10" type="radio" name="rtoggle" value="streets"/>
-            <label for="satellite-streets-v12"><img src={LightPic} alt="street"/>   <span> Satellite </span> </label>
-            <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
-            <label for="dark-v11"> <img src={Streetic} alt="street"/> <span> &nbsp;&nbsp;&nbsp; Dark &nbsp;&nbsp;&nbsp; </span></label>
-            <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
-            <label for="outdoors-v12">   <img src={OutsidePic} alt="street"/><span> Outdoors </span> </label>
-          </div>
-        </HStack>
-      </Box>
+      <Tooltip label='Change Theme' openDelay={300}>
+        <Box
+          p={1}
+          borderRadius='lg'
+          m={1}
+          height='90px'
+          width='250px'
+          bgColor='rgba(128, 128, 128, 0.8)'
+          shadow='base'
+          left = '40%'
+          zIndex='1'
+          position = 'absolute'
+          border='1px solid orange'
+          display='flex'
+          justifyContent='center'
+          alignItems='center' >
+          
+          <HStack  spacing = {0} justifyContent='space-between'>
+            {/* Menu for dispaly options */}
+            <div id="menu">
+              <input id="satellite-streets-v12" left ="10" type="radio" name="rtoggle" value="streets"/>
+              <label htmlFor="satellite-streets-v12"><img src={LightPic} alt="street"/>   <span> Satellite </span> </label>
+              <input id="dark-v11" type="radio" name="rtoggle" value="dark"/>
+              <label htmlFor="dark-v11"> <img src={Streetic} alt="street"/> <span> &nbsp;&nbsp;&nbsp; Dark &nbsp;&nbsp;&nbsp; </span></label>
+              <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors"/>
+              <label htmlFor="outdoors-v12">   <img src={OutsidePic} alt="street"/><span> Outdoors </span> </label>
+            </div>
+          </HStack>
+        </Box>
+      </Tooltip>
       
       
       {/* Gabriel worked on format of map and description location  */}
       <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
       
-      
+      {(pinInformation) ? 
+        (
+          <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
+          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
+            {/* Add a clear heading */}
+            <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'> Additional Information </Heading>
+            <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
+            <Text color='tomato' fontSize='10px' pt='20px'> Here is some information </Text>
+            {/* <GetPinDatatoDisplay /> */}
+
+            <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
+              Exit
+            </Button>
+
+          </Box>
+        ) : null
+      }
+
       {/* Is visable only when user turns on Request */}
       {(requestState || commentState) ?
         (
@@ -873,7 +931,8 @@ function Map() {
 
           </Box>
           
-        ) : null}
+        ) : null
+      }
         
     </Flex>
   );
