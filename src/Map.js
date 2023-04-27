@@ -9,7 +9,7 @@ import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIco
 import { HamburgerIcon, PhoneIcon, SettingsIcon } from "@chakra-ui/icons";
 import './App.css';
 import './Map.css';
-import { BrowserRouter as Router, useNavigate, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, useNavigate, Routes, useLinkClickHandler } from 'react-router-dom';
 import { useRef, useState, useEffect} from 'react';
 import React from 'react';
 import LightPic from './images/Satellite.png';
@@ -22,6 +22,8 @@ import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 import MapboxTraffic from "./mapbox-gl-traffic.js";
 import "./mapbox-gl-traffic.css";
 import { cyan } from "@mui/material/colors";
+// import Swal from 'sweetalert2';
+
 
 var UserLat; 
 var UserLng; 
@@ -371,51 +373,51 @@ function Map() {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
             .setLngLat([commentData[i].Longitude, commentData[i].Lattitude])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn" class="popup-button display-button">Like</button> <button id="dislike-btn" class="popup-button display-button">Dislike</button> </div>   `))
+              .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn-${i}" class="popup-button display-button">Like</button> <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button> </div>   `))
             .addTo(map);
-            
-            // add the marker to the markers array
-            markers.push(marker);
+        
+          // add the marker to the markers array
+          markers.push(marker);
 
-            // add click listener to marker to ensure make comment/request popup doesn't appear
-            // when user clicks on these pins
-            marker.getElement().addEventListener('click', () => {
-              markerClicked = true;
+          // add click listener to marker to ensure make comment/request popup doesn't appear
+          // when user clicks on these pins
+          marker.getElement().addEventListener('click', () => {
+            markerClicked = true;
+          });
+
+          // add click listener to marker
+          marker.getElement().addEventListener('click', () => {
+            marker.togglePopup();
+
+            // add click listeners to like/dislike buttons
+            const likeBtn = document.getElementById(`like-btn-${i}`);
+            const dislikeBtn = document.getElementById(`dislike-btn-${i}`);
+
+            likeBtn.addEventListener('click', () => {
+              const { lng, lat } = marker.getLngLat();
+              const value = 1; // user clicked "like"
+              Like(lat, lng, value); 
             });
 
-              // add click listener to marker
-            marker.getElement().addEventListener('click', () => {
-              marker.togglePopup();
+            dislikeBtn.addEventListener('click', () => {
+              const { lng, lat } = marker.getLngLat();
+              const value = -1; // user clicked "dislike"
+              Like(lat, lng, value); 
+              // Swal.fire({
+              //   title: "Comment liked!",
+              //   icon: "success",
+              //   timer: 2000,
+              //   showConfirmButton: false
+              // });
             });
+          });
+
         }
-
-        for (let i = 0; i < ContributData.length; i++) {
-          const marker = new mapboxgl.Marker({ color: '#AAFF00' })
-            .setLngLat([ContributData[i].Longitude, ContributData[i].Lattitude])
-            .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>; <button class="like-button">Like</button>;  <button class="dislike-button">Dislike</button>`))
-            .addTo(map);
-
-            // add click listener to marker
-            marker.getElement().addEventListener('click', () => {
-              markerClicked = true;
-            });
-
-            // Hover over pins and see immediate information
-            marker.getElement().addEventListener('mouseover', () => {
-              marker.togglePopup();
-            });
-          
-            marker.getElement().addEventListener('mouseout', () => {
-              marker.togglePopup();
-            });
-        }
+        
        
       }
 
-      const mongoose = require('mongoose');
-
-      Like(39.56126011912147, -120.04878396803926 , -1);
+      // Like(39.56126011912147, -120.04878396803926 , -1);
 
 
       // Function to add event listener for marking pins
