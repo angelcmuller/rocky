@@ -36,4 +36,31 @@ recordRoutes.route("/conrecord").get(function(req, res) {
   });
 });
 
+recordRoutes.route("/updateComment").post(function(req, res) {
+  let db_connect = dbo.getDb("pinDatabase");
+  let { lat, lng, update_value } = req.body;
+  let updateQuery = {};
+
+  if (update_value > 0) {
+    // increment likes
+    updateQuery = { $inc: { Likes: 1 } };
+  } else if (update_value < 0) {
+    // increment dislikes
+    updateQuery = { $inc: { Dislikes: 1 } };
+  }
+
+  db_connect.collection("Comments").findOneAndUpdate(
+    { Lattitude: lat, Longitude: lng }, 
+    updateQuery,
+    { returnOriginal: false },
+    function(err, result) {
+      if (err) throw err;
+      console.log(`Updated data in Comments collection`);
+      res.send(`Successfully updated data in Comments collection`);
+    }
+  );
+});
+
+
+
 module.exports = recordRoutes;

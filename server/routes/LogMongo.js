@@ -11,13 +11,14 @@ recordRoutes.route("/request").post(function(req, res) {
 
   if (requestState === false){
     db_connect.collection("Comments").insertOne({
-      User: stringVariable1,
+      Source: stringVariable1,
       Comment: stringVariable2,
-      Lat: floatVariable1,
-      Lng: floatVariable2,
+      Lattitude: floatVariable1,
+      Longitude: floatVariable2,
       Option: opt,
-      Cond: cond,
-      Value: 0
+      Classification: cond,
+      Likes: 0,
+      Dislikes: 0
     }, function(err, result) {
       if (err) throw err;
       console.log(`Inserted data into Comments collection`);
@@ -28,8 +29,8 @@ recordRoutes.route("/request").post(function(req, res) {
     db_connect.collection("RequestLog").insertOne({
       User: stringVariable1,
       Reason: stringVariable2,
-      Lat: floatVariable1,
-      Lng: floatVariable2
+      Lattitude: floatVariable1,
+      Longitude: floatVariable2
     }, function(err, result) {
       if (err) throw err;
       console.log(`Inserted data into RequestLog collection`);

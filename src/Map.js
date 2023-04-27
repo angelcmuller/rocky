@@ -1,6 +1,7 @@
 import JsonListReturn from "./components/recordList";
 import { Route } from "./Routing.js";
 import { LogMongo } from "./components/Log";
+import { Like } from "./like_dislike.js";
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Box, Button, Flex, HStack, Heading,
   IconButton, Input, Text, Popover, PopoverContent, PopoverBody, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
   ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useBoolean, useDisclosure,
@@ -368,9 +369,9 @@ function Map() {
         
         for (let i = 0; i < commentData.length; i++) {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
-            .setLngLat([commentData[i].Lng, commentData[i].Lat])
+            .setLngLat([commentData[i].Longitude, commentData[i].Lattitude])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn" class="popup-button display-button">Like</button> <button id="dislike-btn" class="popup-button display-button">Dislike</button> </div>  `))
+            .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn" class="popup-button display-button">Like</button> <button id="dislike-btn" class="popup-button display-button">Dislike</button> </div>   `))
             .addTo(map);
             
             // add the marker to the markers array
@@ -411,6 +412,11 @@ function Map() {
         }
        
       }
+
+      const mongoose = require('mongoose');
+
+      Like(39.56126011912147, -120.04878396803926 , -1);
+
 
       // Function to add event listener for marking pins
       function addPinListener() {
