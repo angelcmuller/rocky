@@ -370,7 +370,7 @@ function Map() {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
             .setLngLat([commentData[i].Lng, commentData[i].Lat])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
+            .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn" class="popup-button display-button">Like</button> <button id="dislike-btn" class="popup-button display-button">Dislike</button> </div>  `))
             .addTo(map);
             
             // add the marker to the markers array
@@ -382,12 +382,8 @@ function Map() {
               markerClicked = true;
             });
 
-            // Hover over pins and see immediate information
-            marker.getElement().addEventListener('mouseover', () => {
-              marker.togglePopup();
-            });
-          
-            marker.getElement().addEventListener('mouseout', () => {
+              // add click listener to marker
+            marker.getElement().addEventListener('click', () => {
               marker.togglePopup();
             });
         }
@@ -396,7 +392,7 @@ function Map() {
           const marker = new mapboxgl.Marker({ color: '#AAFF00' })
             .setLngLat([ContributData[i].Longitude, ContributData[i].Lattitude])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>`))
+            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>; <button class="like-button">Like</button>;  <button class="dislike-button">Dislike</button>`))
             .addTo(map);
 
             // add click listener to marker
@@ -545,24 +541,54 @@ function Map() {
     else {
       //turn text box info into a string 
       const Element = document.getElementById("input");
+      const ElementName = document.getElementById("input_name");
       const inputString = Element.value.toString();
+      const inputStringName = ElementName.value.toString();
+      const conditionsRoad = document.getElementById("conditions");
+      const optionsRoad = document.getElementById("options");
+      const conditionsRoadString = conditionsRoad.value.toString();
+      const optionsRoadString = optionsRoad.value.toString();
 
-      //submit data to MongoDB
-      console.log('map.js rstate:', typeof requestState)
-      LogMongo(requestState, "auto", inputString, UserLat, UserLng );
-      
-      // Reset text box and toggle off request 
-      Element.value = "";
+      let accepted_input = true
 
-      if(requestState){
-        Toggle("Request")
-        boxState = false;
-        // console.log("Box State changed", boxState)
+      //if in comment mode check if criteria is filled, if not set state so input not pushed to database 
+      if (!requestState){
+       
+        if (inputStringName.trim().length === 0 || inputString.trim().length === 0 || conditionsRoadString === "" || optionsRoadString === "") {
+          // string is blank
+          alert("Not all criteria is filled, please try again")
+          accepted_input = false
+        } 
       }
-      else{
-        Toggle("Comment")
-        boxState = false;
-        // console.log("Box State changed", boxState)
+
+      //if in request mode check if criteria is filled, if not set state so input not pushed to database 
+      if (inputStringName.trim().length === 0 || inputString.trim().length === 0 ) {
+        // string is blank
+        alert("Not all criteria is filled, please try again")
+        accepted_input = false
+      } 
+
+      if (accepted_input){
+
+        
+        // string is not blank
+        //submit data to MongoDB
+        console.log('map.js rstate:', typeof requestState)
+        LogMongo(requestState, inputStringName, inputString, UserLat, UserLng, conditionsRoadString, optionsRoadString);
+      
+        // Reset text box and toggle off request 
+        Element.value = "";
+
+        if(requestState){
+          Toggle("Request")
+          boxState = false;
+          // console.log("Box State changed", boxState)
+        }
+        else{
+          Toggle("Comment")
+          boxState = false;
+          // console.log("Box State changed", boxState)
+        }
       }
     }
   }
@@ -897,13 +923,24 @@ function Map() {
             <label htmlFor='input' className='description-text' textAlign='center'>
               {requestState ? 'Please provide your request' : 'Please leave a comment'}
             </label>
-            
+
             <Input type='text-description' id='input' className='stretch-box-black-text' w='80%'
-            placeholder='Type your reason or comment here' overflowWrap="break-word" borderRadius='6px'
+            placeholder='Comment/Reason here' overflowWrap="break-word" borderRadius='6px'
             border='1px solid gray' mt='10px' style={{height: '45px'}}
             maxLength={200}/>
             {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
             
+
+            <label htmlFor='input_name' className='description-text' textAlign='center'>
+              {requestState ? 'Name' : 'Name'}
+            </label>
+            
+            <Input type='text-description' id='input_name' className='stretch-box-black-text' w='50%'
+            placeholder='Name here' overflowWrap="break-word" borderRadius='6px'
+            border='1px solid gray' mt='10px' style={{height: '40px'}}
+            maxLength={200}/>
+
+
             {/* Change button text to be more specific */}
             <Button colorScheme='purple' size='md' mt='40px' onClick={SendUserInfo}>
               {requestState ? 'Submit Request' : 'Submit Comment'}

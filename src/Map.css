@@ -15,6 +15,33 @@
 }
 
 
+/* ========For comment rating system=========  */
+.counter-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+#decrement-btn,
+#increment-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background-color: #e7eaf6;
+  color: #555;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#decrement-btn:hover,
+#increment-btn:hover {
+  background-color: #c5c8d8;
+  color: #fff;
+}
+/* =================  */
+
 .popup-button {
   background-color: #559cad;
   color: #FFFFFF;
@@ -94,6 +121,28 @@
 #request-btn:hover {
   background-color: #5cb85c;
 }
+
+#like-btn {
+  background-color: #21f868;
+}
+
+#like-btn:hover {
+  background-color: #559cad;
+}
+#dislike-btn {
+  background-color: #ff7676;
+}
+.popup-buttons-container {
+  display: flex;
+  gap: 8px;
+}
+
+
+#dislike-btn:hover {
+  background-color: #559cad;
+}
+
+
 
 .close-button {
   background-color: transparent;
