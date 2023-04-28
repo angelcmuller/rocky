@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // This function submits data to the databse using the LogMongo.js script which was made with the help of chatGPT 
 // Gabriel Mortensen 
-export function LogMongo(requestState, stringVariable1, stringVariable2, floatVariable1, floatVariable2) {
+export function LogMongo(requestState, stringVariable1, stringVariable2, floatVariable1, floatVariable2,  opt, cond) {
    
   console.log('Log.js rstate:', typeof requestState)
   console.log('Log.js rstate:',  requestState)
@@ -12,7 +12,9 @@ export function LogMongo(requestState, stringVariable1, stringVariable2, floatVa
       stringVariable1: stringVariable1,
       stringVariable2: stringVariable2,
       floatVariable1: floatVariable1,
-      floatVariable2: floatVariable2
+      floatVariable2: floatVariable2,
+      opt: opt,
+      cond: cond
     })
     .then(function (response) {
       console.log(response.data);
