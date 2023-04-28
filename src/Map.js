@@ -697,11 +697,11 @@ function Map() {
         <label htmlFor="conditions"></label>
         <select id="conditions" value={selectedConditionOption} onChange={handleConditionChange}>
           <option value="">Type</option>
-          <option value="Pothole">Pothole</option>
-          <option value="Crack">Crack</option>
-          <option value="Speedbump">Speedbump</option>
-          <option value="Bump">Bump</option>
-          <option value="Other">Other</option>
+          <option value="pothole">Pothole</option>
+          <option value="crack">Crack</option>
+          <option value="speed bump">Speedbump</option>
+          <option value="bump">Bump</option>
+          <option value="other">Other</option>
         </select>
         {/* <p>You selected: {selectedOption}</p> */}
       </div>
