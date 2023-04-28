@@ -7,14 +7,18 @@ const dbo = require("../db/conn");
 //ChatGPT was used to figure out the requestState functionality regrading switching collections
 recordRoutes.route("/request").post(function(req, res) {
   let db_connect = dbo.getDb("pinDatabase");
-  let { requestState, stringVariable1, stringVariable2, floatVariable1, floatVariable2 } = req.body;
+  let { requestState, stringVariable1, stringVariable2, floatVariable1, floatVariable2, opt, cond} = req.body;
 
   if (requestState === false){
     db_connect.collection("Comments").insertOne({
-      User: stringVariable1,
+      Source: stringVariable1,
       Comment: stringVariable2,
-      Lat: floatVariable1,
-      Lng: floatVariable2
+      Lattitude: floatVariable1,
+      Longitude: floatVariable2,
+      Option: opt,
+      Classification: cond,
+      Likes: 0,
+      Dislikes: 0
     }, function(err, result) {
       if (err) throw err;
       console.log(`Inserted data into Comments collection`);
@@ -25,8 +29,8 @@ recordRoutes.route("/request").post(function(req, res) {
     db_connect.collection("RequestLog").insertOne({
       User: stringVariable1,
       Reason: stringVariable2,
-      Lat: floatVariable1,
-      Lng: floatVariable2
+      Lattitude: floatVariable1,
+      Longitude: floatVariable2
     }, function(err, result) {
       if (err) throw err;
       console.log(`Inserted data into RequestLog collection`);

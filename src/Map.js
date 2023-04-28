@@ -1,6 +1,7 @@
 import JsonListReturn from "./components/recordList";
 import { Route } from "./Routing.js";
 import { LogMongo } from "./components/Log";
+import { Like } from "./like_dislike.js";
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Box, Button, Flex, HStack, Heading,
   IconButton, Input, Text, Popover, PopoverContent, PopoverBody, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
   ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useBoolean, useDisclosure,
@@ -8,7 +9,7 @@ import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIco
 import { HamburgerIcon, PhoneIcon, SettingsIcon } from "@chakra-ui/icons";
 import './App.css';
 import './Map.css';
-import { BrowserRouter as Router, useNavigate, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, useNavigate, Routes, useLinkClickHandler } from 'react-router-dom';
 import { useRef, useState, useEffect} from 'react';
 import React from 'react';
 import LightPic from './images/Satellite.png';
@@ -24,6 +25,8 @@ import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 import MapboxTraffic from "./mapbox-gl-traffic.js";
 import "./mapbox-gl-traffic.css";
 import { cyan } from "@mui/material/colors";
+// import Swal from 'sweetalert2';
+
 
 var UserLat; 
 var UserLng; 
@@ -379,53 +382,54 @@ function Map() {
         
         for (let i = 0; i < commentData.length; i++) {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
-            .setLngLat([commentData[i].Lng, commentData[i].Lat])
+            .setLngLat([commentData[i].Longitude, commentData[i].Lattitude])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>`))
+              .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn-${i}" class="popup-button display-button">Like</button> <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button> </div>   `))
             .addTo(map);
-            
-            // add the marker to the markers array
-            markers.push(marker);
+        
+          // add the marker to the markers array
+          markers.push(marker);
 
-            // add click listener to marker to ensure make comment/request popup doesn't appear
-            // when user clicks on these pins
-            marker.getElement().addEventListener('click', () => {
-              markerClicked = true;
+          // add click listener to marker to ensure make comment/request popup doesn't appear
+          // when user clicks on these pins
+          marker.getElement().addEventListener('click', () => {
+            markerClicked = true;
+          });
+
+          // add click listener to marker
+          marker.getElement().addEventListener('click', () => {
+            marker.togglePopup();
+
+            // add click listeners to like/dislike buttons
+            const likeBtn = document.getElementById(`like-btn-${i}`);
+            const dislikeBtn = document.getElementById(`dislike-btn-${i}`);
+
+            likeBtn.addEventListener('click', () => {
+              const { lng, lat } = marker.getLngLat();
+              const value = 1; // user clicked "like"
+              Like(lat, lng, value); 
             });
 
-            // Hover over pins and see immediate information
-            marker.getElement().addEventListener('mouseover', () => {
-              marker.togglePopup();
+            dislikeBtn.addEventListener('click', () => {
+              const { lng, lat } = marker.getLngLat();
+              const value = -1; // user clicked "dislike"
+              Like(lat, lng, value); 
+              // Swal.fire({
+              //   title: "Comment liked!",
+              //   icon: "success",
+              //   timer: 2000,
+              //   showConfirmButton: false
+              // });
             });
-          
-            marker.getElement().addEventListener('mouseout', () => {
-              marker.togglePopup();
-            });
+          });
+
         }
-
-        for (let i = 0; i < ContributData.length; i++) {
-          const marker = new mapboxgl.Marker({ color: '#AAFF00' })
-            .setLngLat([ContributData[i].Longitude, ContributData[i].Lattitude])
-            .setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3 style="color: black; font-size: 18px;">${ContributData[i].Classification}</h3><p style="color: gray; font-size: 14px;">by ${ContributData[i].Source}</p>`))
-            .addTo(map);
-
-            // add click listener to marker
-            marker.getElement().addEventListener('click', () => {
-              markerClicked = true;
-            });
-
-            // Hover over pins and see immediate information
-            marker.getElement().addEventListener('mouseover', () => {
-              marker.togglePopup();
-            });
-          
-            marker.getElement().addEventListener('mouseout', () => {
-              marker.togglePopup();
-            });
-        }
+        
        
       }
+
+      // Like(39.56126011912147, -120.04878396803926 , -1);
+
 
       // Function to add event listener for marking pins
       function addPinListener() {
@@ -556,24 +560,54 @@ function Map() {
     else {
       //turn text box info into a string 
       const Element = document.getElementById("input");
+      const ElementName = document.getElementById("input_name");
       const inputString = Element.value.toString();
+      const inputStringName = ElementName.value.toString();
+      const conditionsRoad = document.getElementById("conditions");
+      const optionsRoad = document.getElementById("options");
+      const conditionsRoadString = conditionsRoad.value.toString();
+      const optionsRoadString = optionsRoad.value.toString();
 
-      //submit data to MongoDB
-      console.log('map.js rstate:', typeof requestState)
-      LogMongo(requestState, "auto", inputString, UserLat, UserLng );
-      
-      // Reset text box and toggle off request 
-      Element.value = "";
+      let accepted_input = true
 
-      if(requestState){
-        Toggle("Request")
-        boxState = false;
-        // console.log("Box State changed", boxState)
+      //if in comment mode check if criteria is filled, if not set state so input not pushed to database 
+      if (!requestState){
+       
+        if (inputStringName.trim().length === 0 || inputString.trim().length === 0 || conditionsRoadString === "" || optionsRoadString === "") {
+          // string is blank
+          alert("Not all criteria is filled, please try again")
+          accepted_input = false
+        } 
       }
-      else{
-        Toggle("Comment")
-        boxState = false;
-        // console.log("Box State changed", boxState)
+
+      //if in request mode check if criteria is filled, if not set state so input not pushed to database 
+      if (inputStringName.trim().length === 0 || inputString.trim().length === 0 ) {
+        // string is blank
+        alert("Not all criteria is filled, please try again")
+        accepted_input = false
+      } 
+
+      if (accepted_input){
+
+        
+        // string is not blank
+        //submit data to MongoDB
+        console.log('map.js rstate:', typeof requestState)
+        LogMongo(requestState, inputStringName, inputString, UserLat, UserLng, conditionsRoadString, optionsRoadString);
+      
+        // Reset text box and toggle off request 
+        Element.value = "";
+
+        if(requestState){
+          Toggle("Request")
+          boxState = false;
+          // console.log("Box State changed", boxState)
+        }
+        else{
+          Toggle("Comment")
+          boxState = false;
+          // console.log("Box State changed", boxState)
+        }
       }
     }
   }
@@ -952,8 +986,9 @@ function Map() {
             <label htmlFor='input' className='description-text' textAlign='center'>
               {requestState ? 'Please provide your request' : 'Please leave a comment'}
             </label>
-            
+
             <Input type='text-description' id='input' className='stretch-box-black-text' w='80%'
+            
        placeholder='Type your comment here' borderRadius='6px'
        border='1px solid gray' mt='10px' style={{ height: '45px', overflow: 'auto' }}
        maxLength={200} />
@@ -967,6 +1002,17 @@ function Map() {
 
             {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
             
+
+            <label htmlFor='input_name' className='description-text' textAlign='center'>
+              {requestState ? 'Name' : 'Name'}
+            </label>
+            
+            <Input type='text-description' id='input_name' className='stretch-box-black-text' w='50%'
+            placeholder='Name here' overflowWrap="break-word" borderRadius='6px'
+            border='1px solid gray' mt='10px' style={{height: '40px'}}
+            maxLength={200}/>
+
+
             {/* Change button text to be more specific */}
             <Button colorScheme='teal' size='md' width='180px' mt='20px' onClick={SendUserInfo}>
               {requestState ? 'Submit Request' : 'Submit Comment'}
