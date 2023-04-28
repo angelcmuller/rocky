@@ -408,7 +408,7 @@ function Map() {
               const { lng, lat } = marker.getLngLat();
               const value = 1; // user clicked "like"
               Like(lat, lng, value); 
-            }, { once: true });
+            });
 
             dislikeBtn.addEventListener('click', () => {
               const { lng, lat } = marker.getLngLat();
@@ -420,7 +420,8 @@ function Map() {
               //   timer: 2000,
               //   showConfirmButton: false
               // });
-            }, { once: true });
+            });
+          //need to add one:true to keep pop up from liking multiple times in one click
           }, { once: true });
 
         }
