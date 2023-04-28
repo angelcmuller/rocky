@@ -5,7 +5,7 @@ import { Like } from "./like_dislike.js";
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Box, Button, Flex, HStack, Heading,
   IconButton, Input, Text, Popover, PopoverContent, PopoverBody, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
   ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useBoolean, useDisclosure,
-  Divider, Image, Tooltip } from '@chakra-ui/react'; 
+  Divider, Image, Tooltip, VStack, Checkbox, Select, Stack } from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon, SettingsIcon } from "@chakra-ui/icons";
 import './App.css';
 import './Map.css';
@@ -15,7 +15,10 @@ import React from 'react';
 import LightPic from './images/Satellite.png';
 import OutsidePic from './images/Outdoors.png';
 import Streetic from './images/darkMode2.png';
-import Logo from './images/Logo.png'
+import Logo from './images/Logo.png';
+import RedPin from './images/red.png';
+import PurplePin from './images/purple.png';
+import BluePin from './images/blue.png';
 import mapboxgl from 'mapbox-gl';
 import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
@@ -51,6 +54,11 @@ var buttonCommentRequest = false;
 //assign full JSON results from MongoDB to result variable 
 //const result = MongoRecords();
 
+  async function MongoRecords(link) {
+    const pinInfo = await JsonListReturn(link);
+    return pinInfo
+  }
+
 // Create a function to create the Mapbox Directions object
 function createDirections() {
   return new MapboxDirections({
@@ -65,14 +73,6 @@ function createDirections() {
   });
 }
 
-
-
-      //This function returns records from the MongoDB database
-      async function MongoRecords(link) {
-        const pinInfo = await JsonListReturn(link);
-        return pinInfo
-      }
-
 // create an array to store markers
 const markers = []; // declare markers array outside of useEffect
 
@@ -85,7 +85,8 @@ function Map() {
   
   // const variables to manage the navigation to other Pages (/Map)
   const navigate = useNavigate();
-  const [showResults, setShowResults] = React.useState(true)
+  const [showResults, setShowResults] = React.useState(true);
+  const [pinInfo, setPinInfo] = useState([]);
   
   const navigatetoLandPage = () => {
     setShowResults(current => !current);
@@ -108,6 +109,16 @@ function Map() {
   const [commentState, setCState] = useState(false);
   const [routeState, setRouteState] = useState(true);
   const [pinInformation, setPinInformation] = useState(false);
+
+  useEffect(() => {
+    //This function returns records from the MongoDB database
+    async function getPinInfo() {
+      const pinInfo = await JsonListReturn('http://localhost:3000/record/');
+      setPinInfo(pinInfo);
+    }
+
+    getPinInfo();
+  }, []);
 
   // Using cache to reload the previous page from the browser's back button
   useEffect(() => {
@@ -333,8 +344,8 @@ function Map() {
 
           // Define popup content HTML
         const popupContent = '<div class="popup-content">' +
-        '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + '-- "' + pinData[i].Classification + '" --' +
-        '<br /><br />' +
+        '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + 'Description <br/>"' + pinData[i].Classification +
+        '"<br /><br />' +
         '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
         '</div>';
 
@@ -716,10 +727,22 @@ function Map() {
     console.log("opacity:", opacity);
   }
 
-  async function GetPinDatatoDisplay() {
-    const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
-    
-  }      
+  function RadioExample() {
+    const [value, setValue] = React.useState('2')
+  
+    return (
+      <RadioGroup onChange={setValue} value={value}>
+        <Stack direction='row' pl='22px' spacing='15px'>
+          <Radio value='1' size='sm' colorScheme='teal'>1</Radio>
+          <Radio value='2' size='sm' colorScheme='teal'>5</Radio>
+          <Radio value='3' size='sm' colorScheme='teal'>10</Radio>
+          <Radio value='4' size='sm' colorScheme='teal'>15</Radio>
+          <Radio value='5' size='sm' colorScheme='teal'>20</Radio>
+          <Radio value='6' size='sm' colorScheme='teal'>25</Radio>
+        </Stack>
+      </RadioGroup>
+    )
+  }
 
   // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
@@ -731,14 +754,14 @@ function Map() {
 
   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Flex  position=""  h='10vh' bg='#559cad'>
+      <Flex h='10vh' bg='teal' opacity='0.80'>
         {/* Hamburger Menu  */}
         <HStack spacing='5px' justifyContent='flex-start'>
         <Tooltip label="Project Rocky Road">
           <Image src={ Logo } boxSize='55px' ml='25px' bg='white' borderRadius='full'/>
         </Tooltip>
         <Tooltip label="Settings" hasArrow>
-          <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute' right='100px' />
+          <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute' right='100px' width='45px'/>
         </Tooltip>
           <Modal isOpen={isSettingsOpen} onClose={onSettingsClose} useInert='false' size={'sm'}>
             <ModalOverlay />
@@ -747,18 +770,49 @@ function Map() {
               <ModalCloseButton />
               <Divider/>
               <ModalBody>
-                <HStack spacing='140px'>
+                <HStack spacing='170px'>
                   <Text> Hide comments </Text>
-                  <Switch />
+                  <Switch colorScheme='teal'/>
                 </HStack>
               </ModalBody>
               <Divider/>
               <ModalBody>
-                Setting Two
+                <VStack spacing='2px' textAlign='left' align='left'>
+                  <Text> Features: </Text>
+                  <HStack spacing='230px'>
+                    <Text pl='20px'> Bump </Text> <Checkbox size='lg' colorScheme="teal"/>
+                  </HStack>
+                  <HStack spacing='185px'>
+                    <Text pl='20px'> Speedbump </Text> <Checkbox size='lg' colorScheme="teal" />
+                  </HStack>
+                  <HStack spacing='232px'>
+                    <Text pl='20px'> Crack </Text> <Checkbox size='lg' colorScheme="teal" />
+                  </HStack>
+                  <HStack spacing='217px'>
+                    <Text pl='20px'> Pothole </Text> <Checkbox size='lg' colorScheme="teal" />
+                  </HStack>
+                  <HStack spacing='230px'>
+                    <Text pl='20px'> Other </Text> <Checkbox size='lg' colorScheme="teal" />
+                  </HStack>
+                </VStack>
               </ModalBody>
               <Divider/>
               <ModalBody>
-                Setting Three
+                <HStack spacing='150px'>
+                  <Text> Priority </Text>
+                  <Select placeholder='None' size='md' style={{width: '130px'}}>
+                    <option value='option1'>Bump</option>
+                    <option value='option2'>Pothole</option>
+                    <option value='option3'>Speed</option>
+                  </Select>
+                </HStack>
+              </ModalBody>
+              <Divider/>
+              <ModalBody>
+                <VStack spacing='5px' textAlign='left' align='left'>
+                  <Text> Radius Distance (Miles) </Text>
+                  <RadioExample />
+                </VStack>
               </ModalBody>
               <Divider/>
               <ModalFooter>
@@ -771,7 +825,7 @@ function Map() {
         <Menu>
           <Tooltip label='Menu' hasArrow>
             <MenuButton as={IconButton} aria-label='Options'icon={<HamburgerIcon />} variant='outline' position='absolute' right={10}
-            bg='#0964ed'/>
+            bg='#0964ed' zIndex='1' />
           </Tooltip>
             <MenuList>
               <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
@@ -869,6 +923,7 @@ function Map() {
           width='250px'
           bgColor='rgba(128, 128, 128, 0.8)'
           shadow='base'
+          top='11%'
           left = '40%'
           zIndex='1'
           position = 'absolute'
@@ -933,9 +988,18 @@ function Map() {
             </label>
 
             <Input type='text-description' id='input' className='stretch-box-black-text' w='80%'
-            placeholder='Comment/Reason here' overflowWrap="break-word" borderRadius='6px'
-            border='1px solid gray' mt='10px' style={{height: '45px'}}
-            maxLength={200}/>
+            
+       placeholder='Type your comment here' borderRadius='6px'
+       border='1px solid gray' mt='10px' style={{ height: '45px', overflow: 'auto' }}
+       maxLength={200} />
+
+
+            
+            <HStack spacing='12px' mt='20px'>
+              <ConditionSelector />
+              <NumberSelector />
+            </HStack>
+
             {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
             
 
@@ -950,13 +1014,13 @@ function Map() {
 
 
             {/* Change button text to be more specific */}
-            <Button colorScheme='purple' size='md' mt='40px' onClick={SendUserInfo}>
+            <Button colorScheme='teal' size='md' width='180px' mt='20px' onClick={SendUserInfo}>
               {requestState ? 'Submit Request' : 'Submit Comment'}
             </Button>
 
             {/* Request Location Buttons  */}
             {isRVisible && (
-              <Button colorScheme={requestState ? 'orange' : 'blue'} size='md' mt='10px' mb='5px' onClick={() => Toggle("Request")}>
+              <Button colorScheme={requestState ? 'red' : 'blue'} size='md' width='180px' mt='10px' mb='5px' onClick={() => Toggle("Request")}>
                 {ReqName}
               </Button>
               )
@@ -964,13 +1028,9 @@ function Map() {
 
             {isCVisible && (
               <>
-              <Button colorScheme={commentState ? 'orange' : 'blue'} size='md' mt='10px' mb='15px' onClick={() => Toggle("Comment")}>
+              <Button colorScheme={commentState ? 'red' : 'blue'} size='md' width='180px' mt='10px' mb='15px' onClick={() => Toggle("Comment")}>
                 {ComName}
               </Button>
-              <HStack spacing='15px'>
-                <ConditionSelector />
-                <NumberSelector />
-              </HStack>
               </>
             )}
 
@@ -978,7 +1038,42 @@ function Map() {
           
         ) : null
       }
-        
+        <Tooltip label='Legend' openDelay={400} hasArrow>
+        <Box
+          p={1}
+          borderRadius='lg'
+          m={1}
+          height='95px'
+          width='120px'
+          bgColor='rgba(128, 128, 128, 0.8)'
+          shadow='base'
+          bottom='10px'
+          right='10px'
+          zIndex='1'
+          position = 'absolute'
+          border='1px solid orange'
+          display='flex' >
+            <VStack spacing = {0.5} alignItems='flex-start' pl='5px'>
+              <HStack>
+                <Image src={RedPin} boxSize='20px' />
+                <Text fontSize='10px' pb='1px' textAlign='left' as='b'> Potholes </Text>
+              </HStack>
+              <HStack>
+                <Image src={BluePin} boxSize='20px' />
+                <Text fontSize='10px' pb='1px' textAlign='left'  as='b'> Speedbump </Text>
+              </HStack>
+              <HStack>
+                <Image src={PurplePin} boxSize='20px' />
+                <Text fontSize='10px' pb='1px' textAlign='left' as='b'> Bump </Text>
+              </HStack>
+              <HStack>
+                <Image src={RedPin} boxSize='20px' />
+                <Text fontSize='10px' pb='1px' textAlign='left' as='b'> Cracks </Text>
+              </HStack>
+            </VStack>
+
+          </Box>
+          </Tooltip>
     </Flex>
   );
 }
