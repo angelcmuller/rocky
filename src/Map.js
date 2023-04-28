@@ -393,7 +393,10 @@ function Map() {
           const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
             .setLngLat([commentData[i].Longitude, commentData[i].Lattitude])
             .setPopup(new mapboxgl.Popup({ offset: 25 })
-              .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn-${i}" class="popup-button display-button">Like</button> <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button> </div>   `))
+              .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br>
+                <div class="popup-buttons-container">
+                <button id="like-btn-${i}" class="popup-button display-button">Like</button>
+                <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button> </div>   `))
             .addTo(map);
         
           // add the marker to the markers array

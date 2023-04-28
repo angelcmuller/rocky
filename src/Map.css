@@ -6,8 +6,13 @@
 .mapboxgl-popup-close-button {
   width: 30px !important;
   height: 30px !important;
-  font-size: 20px !important;
+  font-size: 30px !important;
   line-height: 30px !important;
+  color: gray;
+}
+.mapboxgl-popup-close-button:hover{
+  opacity: 75%;
+  background-color: red;
 }
 
 .popup-content {
