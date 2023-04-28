@@ -19,6 +19,7 @@ import Logo from './images/Logo.png';
 import RedPin from './images/red.png';
 import PurplePin from './images/purple.png';
 import BluePin from './images/blue.png';
+import GreenPin from './images/green.png';
 import mapboxgl from 'mapbox-gl';
 import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
@@ -652,6 +653,26 @@ function Map() {
     } 
   }
 
+  const handleCheckbox1 = (event) => {
+    setIsBumpChecked(event.target.checked);
+  }
+  const handleCheckbox2 = (event) => {
+    setIsSpeedBumpChecked(event.target.checked);
+  }
+  const handleCheckbox3 = (event) => {
+    setIsCrackChecked(event.target.checked);
+  }
+  const handleCheckbox4 = (event) => {
+    setIsPotholeChecked(event.target.checked);
+  }
+  const handleCheckbox5 = (event) => {
+    setIsOtherChecked(event.target.checked);
+  }
+
+  const handleSelectedChange = (event) => {
+    setSelectedPriority(event.target.value);
+  }
+
   const handleRequestClick = (event) => {
     // condition that allows button to be visible only iff
     // the other button is not being used
@@ -727,9 +748,7 @@ function Map() {
     console.log("opacity:", opacity);
   }
 
-  function RadioExample() {
-    const [value, setValue] = React.useState('2')
-  
+  function RadioExample() {  
     return (
       <RadioGroup onChange={setValue} value={value}>
         <Stack direction='row' pl='22px' spacing='15px'>
@@ -744,17 +763,30 @@ function Map() {
     )
   }
 
-  // Event handlers for the Comment/Request/ShowComments Switches
+  // State handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
+
+  // State handler for the values of the radio buttons
+  const [value, setValue] = useState('2');
+
+  // State handlers for the checkboxes in Features in Settings Menu
+  const [isBumpChecked, setIsBumpChecked] = useState(false);
+  const [isSpeedBumpChecked, setIsSpeedBumpChecked] = useState(false);
+  const [isCrackChecked, setIsCrackChecked] = useState(false);
+  const [isPotholeChecked, setIsPotholeChecked] = useState(false);
+  const [isOtherChecked, setIsOtherChecked] = useState(false);
+
+  // State handler for the Select dropdown from Settings Menu
+  const [selectedPriority, setSelectedPriority] = useState('');
 
   const [markerOpacity, setMarkerOpacity] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");
 
   return (
-    <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
-      <Flex h='10vh' bg='teal' opacity='0.80'>
+    <Flex position= 'fixed' height = '100vh' w='100vw' display='vertical' color='white'>
+      <Flex className="flex-container" h='10vh' bg='teal'>
         {/* Hamburger Menu  */}
         <HStack spacing='5px' justifyContent='flex-start'>
           <Tooltip label="Project Rocky Road">
@@ -772,7 +804,7 @@ function Map() {
                 <ModalBody>
                   <HStack spacing='170px'>
                     <Text> Hide comments </Text>
-                    <Switch colorScheme='teal'/>
+                    <Switch colorScheme='teal' id='comment-alert' isChecked={isCommentChecked} onChange={handleCommentClick}/>
                   </HStack>
                 </ModalBody>
                 <Divider/>
@@ -780,19 +812,19 @@ function Map() {
                   <VStack spacing='2px' textAlign='left' align='left'>
                     <Text> Features: </Text>
                     <HStack spacing='230px'>
-                      <Text pl='20px'> Bump </Text> <Checkbox size='lg' colorScheme="teal"/>
+                      <Text pl='20px'> Bump </Text> <Checkbox size='lg' colorScheme="teal" isChecked={isBumpChecked} onChange={handleCheckbox1}/>
                     </HStack>
                     <HStack spacing='185px'>
-                      <Text pl='20px'> Speedbump </Text> <Checkbox size='lg' colorScheme="teal" />
+                      <Text pl='20px'> Speedbump </Text> <Checkbox size='lg' colorScheme="teal" isChecked={isSpeedBumpChecked} onChange={handleCheckbox2}/>
                     </HStack>
                     <HStack spacing='232px'>
-                      <Text pl='20px'> Crack </Text> <Checkbox size='lg' colorScheme="teal" />
+                      <Text pl='20px'> Crack </Text> <Checkbox size='lg' colorScheme="teal" isChecked={isCrackChecked} onChange={handleCheckbox3}/>
                     </HStack>
                     <HStack spacing='217px'>
-                      <Text pl='20px'> Pothole </Text> <Checkbox size='lg' colorScheme="teal" />
+                      <Text pl='20px'> Pothole </Text> <Checkbox size='lg' colorScheme="teal" isChecked={isPotholeChecked} onChange={handleCheckbox4}/>
                     </HStack>
                     <HStack spacing='230px'>
-                      <Text pl='20px'> Other </Text> <Checkbox size='lg' colorScheme="teal" />
+                      <Text pl='20px'> Other </Text> <Checkbox size='lg' colorScheme="teal" isChecked={isOtherChecked} onChange={handleCheckbox5}/>
                     </HStack>
                   </VStack>
                 </ModalBody>
@@ -800,7 +832,7 @@ function Map() {
                 <ModalBody>
                   <HStack spacing='150px'>
                     <Text> Priority </Text>
-                    <Select placeholder='None' size='md' style={{width: '130px'}}>
+                    <Select placeholder='None' size='md' style={{width: '140px'}} value={selectedPriority} onChange={handleSelectedChange}>
                       <option value='option1'>Bump</option>
                       <option value='option2'>Pothole</option>
                       <option value='option3'>Speedbump</option>
@@ -1067,7 +1099,7 @@ function Map() {
                 <Text fontSize='10px' pb='1px' textAlign='left' as='b'> Bump </Text>
               </HStack>
               <HStack>
-                <Image src={RedPin} boxSize='20px' />
+                <Image src={GreenPin} boxSize='20px' />
                 <Text fontSize='10px' pb='1px' textAlign='left' as='b'> Cracks </Text>
               </HStack>
             </VStack>
