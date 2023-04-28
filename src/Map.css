@@ -3,11 +3,18 @@
   flex-direction: column;
 }
 
+.mapboxgl-popup-close-button {
+  width: 30px !important;
+  height: 30px !important;
+  font-size: 20px !important;
+  line-height: 30px !important;
+}
+
 .popup-content {
   max-width: 189px;
   padding: 2px 16px 0px 2px;
   box-shadow: None;
-  border-radius: 0px;
+  border-radius: 50px;
   background-color: transparent;
   width: 105%;
   padding-right: 18px;

@@ -159,6 +159,8 @@ function Map() {
         setRouteState(true);
         setIsRVisible(false);
         setIsRequestChecked(false);
+        setSelectedOption('');
+        setConditionOption('');
       }
     }
     //Engage comment functionality 
@@ -174,6 +176,8 @@ function Map() {
         setRouteState(true);
         setIsCVisible(false);
         setIsCommentChecked(false);
+        setSelectedOption('');
+        setConditionOption('');
       }
       //Turn off request if activated
       if (requestState) {
@@ -325,7 +329,10 @@ function Map() {
         //const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
         //var pinData = await MongoRecords(`http://localhost:3000/record/`);
         //console.log(pinData)
-        
+
+        // Define the HTML content for the custom close button
+        const closeButtonHTML = '<button style="font-size: 20px; width: 30px; height: 30px; line-height: 30px;">x</button>';
+
         // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
         // depending on the classification of road deficiency
         for (let i = 0; i < pinData.length; i++) {
@@ -344,18 +351,19 @@ function Map() {
           }
 
           // Define popup content HTML
-        const popupContent = '<div class="popup-content">' +
-        '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + 'Description <br/>"' + pinData[i].Classification +
-        '"<br /><br />' +
-        '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
-        '</div>';
+          const popupContent = '<div class="popup-content">' +
+          '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold; text-decoration:underline; margin-bottom:10px">' + 'Description <br/> </h1>' + 
+          '<h2 style="color:black; font-size:16px; text-align:center; margin-bottom:10px"> "' + pinData[i].Classification + '" </h2>' +
+          '<h3 class="popup-button open-info" style="color:white; font-size: 13px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' +  
+          '</div>';
 
           const marker = new mapboxgl.Marker({ color: markerColor })
             .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
-            .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: true })
-            .setHTML(popupContent))
+            .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: true, closeButtonHTML})
+              .setHTML(popupContent))
             .addTo(map);
 
+            // Getting the coordinates to retrieve information later on
             const moreInfoButton = marker._popup._content.querySelector('#more-info-btn');
             moreInfoButton.addEventListener('click', function() {
               setPinInformation(true);
@@ -443,7 +451,7 @@ function Map() {
           
           // Add a title to the marker if commentState is true
           userInput = new mapboxgl.Marker({
-            color: (commentState ? '#006400' : '#ff0000')
+            color: (commentState ? '#19e34e' : '#ff0000')
             })
             .setLngLat([comment_request_pinListener.lng, comment_request_pinListener.lat])
             .addTo(map);
@@ -602,11 +610,16 @@ function Map() {
         if(requestState){
           Toggle("Request")
           boxState = false;
+          // Resetting values when Request is submitted
+          setSelectedOption('');
+          setConditionOption('');
           // console.log("Box State changed", boxState)
-        }
-        else{
+        } else {
           Toggle("Comment")
           boxState = false;
+          // Resetting values when comment is submitted
+          setSelectedOption('');
+          setConditionOption('');
           // console.log("Box State changed", boxState)
         }
       }
@@ -671,6 +684,17 @@ function Map() {
 
   const handleSelectedChange = (event) => {
     setSelectedPriority(event.target.value);
+  }
+
+  const handleReset = () => {
+    setIsCommentChecked(false);
+    setIsBumpChecked(false);
+    setIsSpeedBumpChecked(false);
+    setIsCrackChecked(false);
+    setIsPotholeChecked(false);
+    setIsOtherChecked(false);
+    setSelectedPriority('');
+    setValue('2');
   }
 
   const handleRequestClick = (event) => {
@@ -786,7 +810,7 @@ function Map() {
 
   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display='vertical' color='white'>
-      <Flex className="flex-container" h='10vh' bg='teal'>
+      <Flex className="flex-container" h='10vh' bg='#05998c'>
         {/* Hamburger Menu  */}
         <HStack spacing='5px' justifyContent='flex-start'>
           <Tooltip label="Project Rocky Road">
@@ -848,9 +872,12 @@ function Map() {
                 </ModalBody>
                 <Divider/>
                 <ModalFooter>
-                  <Button colorScheme='blue' mr={3} onClick={onSettingsClose}>
-                    Close
-                  </Button>
+                  <HStack spacing={5}>
+                    <Button onClick={handleReset} variant='outline'> Clear All </Button>
+                    <Button colorScheme='blue' mr={3} onClick={onSettingsClose}>
+                      Close
+                    </Button>
+                  </HStack>
                 </ModalFooter>
               </ModalContent>
             </Modal>
@@ -1003,11 +1030,11 @@ function Map() {
       {/* Is visable only when user turns on Request */}
       {(requestState || commentState) ?
         (
-          <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
+          <Box bg='white' h = '60%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
           boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
             
             {/* Add a clear heading */}
-            <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'>Request/Comment Form</Heading>
+            <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='16px'>Request/Comment Form</Heading>
             
             {/* User text box that appears when user clicks scan request */}
             {/* <label for="input" class="black-text">
@@ -1020,10 +1047,9 @@ function Map() {
             </label>
 
             <Input type='text-description' id='input' className='stretch-box-black-text' w='80%'
-            
-       placeholder='Type your comment here' borderRadius='6px'
-       border='1px solid gray' mt='10px' style={{ height: '45px', overflow: 'auto' }}
-       maxLength={200} />
+            placeholder='Type your comment here' borderRadius='6px' textAlign='center'
+            border='1px solid gray' mt='3px' style={{ height: '45px', overflow: 'auto' }}
+            maxLength={200} size='10px'/>
 
 
             
@@ -1034,14 +1060,13 @@ function Map() {
 
             {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
             
-
-            <label htmlFor='input_name' className='description-text' textAlign='center'>
+            <label htmlFor='input_name' className='description-text' textAlign='center' style={{ marginTop: '15px'}}>
               {requestState ? 'Name' : 'Name'}
             </label>
             
             <Input type='text-description' id='input_name' className='stretch-box-black-text' w='50%'
-            placeholder='Name here' overflowWrap="break-word" borderRadius='6px'
-            border='1px solid gray' mt='10px' style={{height: '40px'}}
+            placeholder='Name here' overflowWrap="break-word" borderRadius='6px' textAlign='center'
+            border='1px solid gray' mt='3px' style={{height: '40px'}} size='10px'
             maxLength={200}/>
 
 
@@ -1052,7 +1077,7 @@ function Map() {
 
             {/* Request Location Buttons  */}
             {isRVisible && (
-              <Button colorScheme={requestState ? 'red' : 'blue'} size='md' width='180px' mt='10px' mb='5px' onClick={() => Toggle("Request")}>
+              <Button colorScheme={requestState ? 'red' : 'blue'} size='md' width='180px' mt='10px' mb='15px' onClick={() => Toggle("Request")}>
                 {ReqName}
               </Button>
               )
@@ -1070,6 +1095,7 @@ function Map() {
           
         ) : null
       }
+
         <Tooltip label='Legend' openDelay={400} hasArrow>
         <Box
           p={1}
