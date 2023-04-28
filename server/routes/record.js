@@ -4,17 +4,28 @@ const dbo = require("../db/conn");
 
 recordRoutes.route("/record").get(function(req, res) {
   let db_connect = dbo.getDb("pinDatabase");
-  db_connect.collection("Pins").find({}, { Img_Byte_String: 1 }).toArray(function(err, result) {
+  let query = {};
+  if (req.query.minLongitude && req.query.maxLongitude && req.query.minLatitude && req.query.maxLatitude) {
+    query = {
+      longitude: {
+        $gte: Number(req.query.minLongitude),
+        $lte: Number(req.query.maxLongitude)
+      },
+      latitude: {
+        $gte: Number(req.query.minLatitude),
+        $lte: Number(req.query.maxLatitude)
+      }
+    };
+  }
+  db_connect.collection("Pins").find(query, { Img_Byte_String: 0 }).toArray(function(err, result) {
     if (err) throw err;
-    result.forEach((record) => {
-      console.log(record.Img_Byte_String);
-    });
     let output = JSON.stringify(result);
     console.log("Getting Pins")
     console.log(output);
     res.send(output);
   });
 });
+
 
 recordRoutes.route("/crecord").get(function(req, res) {
   let db_connect = dbo.getDb("pinDatabase");
