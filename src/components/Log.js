@@ -5,6 +5,9 @@ import axios from 'axios';
 // Gabriel Mortensen 
 export function LogMongo(requestState, stringVariable1, stringVariable2, floatVariable1, floatVariable2,  opt, cond) {
    
+  
+  let value_cond = parseInt(cond); 
+
   console.log('Log.js rstate:', typeof requestState)
   console.log('Log.js rstate:',  requestState)
   axios.post ('http://localhost:3000/request', {
@@ -14,7 +17,7 @@ export function LogMongo(requestState, stringVariable1, stringVariable2, floatVa
       floatVariable1: floatVariable1,
       floatVariable2: floatVariable2,
       opt: opt,
-      cond: cond
+      cond: value_cond
     })
     .then(function (response) {
       console.log(response.data);

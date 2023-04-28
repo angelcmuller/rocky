@@ -673,16 +673,16 @@ function Map() {
         <label htmlFor="options"></label>
         <select id="options" value={selectedOption} onChange={handleOptionChange}>
           <option value="">&nbsp; Severity</option>
-          <option value="option1">1</option>
-          <option value="option2">2</option>
-          <option value="option3">3</option>
-          <option value="option4">4</option>
-          <option value="option5">5</option>
-          <option value="option6">6</option>
-          <option value="option7">7</option>
-          <option value="option8">8</option>
-          <option value="option9">9</option>
-          <option value="option10">10</option>
+          <option value={1}>1</option>
+          <option value={2}>2</option>
+          <option value={3}>3</option>
+          <option value={4}>4</option>
+          <option value={5}>5</option>
+          <option value={6}>6</option>
+          <option value={7}>7</option>
+          <option value={8}>8</option>
+          <option value={9}>9</option>
+          <option value={10}>10</option>
         </select>
         {/* <p>You selected: {selectedOption}</p> */}
       </div>
@@ -696,11 +696,11 @@ function Map() {
         <label htmlFor="conditions"></label>
         <select id="conditions" value={selectedConditionOption} onChange={handleConditionChange}>
           <option value="">Type</option>
-          <option value="conditions1">Pothole</option>
-          <option value="conditions2">Crack</option>
-          <option value="conditions3">Speedbump</option>
-          <option value="conditions4">Divit/Bump</option>
-          <option value="conditions5">Other</option>
+          <option value="Pothole">Pothole</option>
+          <option value="Crack">Crack</option>
+          <option value="Speedbump">Speedbump</option>
+          <option value="Bump">Bump</option>
+          <option value="Other">Other</option>
         </select>
         {/* <p>You selected: {selectedOption}</p> */}
       </div>
