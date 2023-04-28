@@ -723,158 +723,158 @@ function Map() {
       <Flex h='10vh' bg='teal' opacity='0.80'>
         {/* Hamburger Menu  */}
         <HStack spacing='5px' justifyContent='flex-start'>
-        <Tooltip label="Project Rocky Road">
-          <Image src={ Logo } boxSize='55px' ml='25px' bg='white' borderRadius='full'/>
-        </Tooltip>
-        <Tooltip label="Settings" hasArrow>
-          <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute' right='100px' width='45px'/>
-        </Tooltip>
-          <Modal isOpen={isSettingsOpen} onClose={onSettingsClose} useInert='false' size={'sm'}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader> Settings </ModalHeader>
-              <ModalCloseButton />
-              <Divider/>
-              <ModalBody>
-                <HStack spacing='170px'>
-                  <Text> Hide comments </Text>
-                  <Switch colorScheme='teal'/>
-                </HStack>
-              </ModalBody>
-              <Divider/>
-              <ModalBody>
-                <VStack spacing='2px' textAlign='left' align='left'>
-                  <Text> Features: </Text>
-                  <HStack spacing='230px'>
-                    <Text pl='20px'> Bump </Text> <Checkbox size='lg' colorScheme="teal"/>
-                  </HStack>
-                  <HStack spacing='185px'>
-                    <Text pl='20px'> Speedbump </Text> <Checkbox size='lg' colorScheme="teal" />
-                  </HStack>
-                  <HStack spacing='232px'>
-                    <Text pl='20px'> Crack </Text> <Checkbox size='lg' colorScheme="teal" />
-                  </HStack>
-                  <HStack spacing='217px'>
-                    <Text pl='20px'> Pothole </Text> <Checkbox size='lg' colorScheme="teal" />
-                  </HStack>
-                  <HStack spacing='230px'>
-                    <Text pl='20px'> Other </Text> <Checkbox size='lg' colorScheme="teal" />
-                  </HStack>
-                </VStack>
-              </ModalBody>
-              <Divider/>
-              <ModalBody>
-                <HStack spacing='150px'>
-                  <Text> Priority </Text>
-                  <Select placeholder='None' size='md' style={{width: '130px'}}>
-                    <option value='option1'>Bump</option>
-                    <option value='option2'>Pothole</option>
-                    <option value='option3'>Speed</option>
-                  </Select>
-                </HStack>
-              </ModalBody>
-              <Divider/>
-              <ModalBody>
-                <VStack spacing='5px' textAlign='left' align='left'>
-                  <Text> Radius Distance (Miles) </Text>
-                  <RadioExample />
-                </VStack>
-              </ModalBody>
-              <Divider/>
-              <ModalFooter>
-                <Button colorScheme='blue' mr={3} onClick={onSettingsClose}>
-                  Close
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-        <Menu>
-          <Tooltip label='Menu' hasArrow>
-            <MenuButton as={IconButton} aria-label='Options'icon={<HamburgerIcon />} variant='outline' position='absolute' right={10}
-            bg='#0964ed' zIndex='1' />
+          <Tooltip label="Project Rocky Road">
+            <Image src={ Logo } boxSize='55px' ml='25px' bg='white' borderRadius='full'/>
           </Tooltip>
-            <MenuList>
-              <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
-                <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
-                  <ModalOverlay />
-                  <ModalContent>
-                    <ModalHeader> Road Assistance </ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                      <Accordion defaultIndex={[0]} allowMultiple>
-                      
-                      <AccordionItem>
-                        <AccordionButton>
-                          <Box as="span" flex='1' textAlign='left'>
-                            AAA
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                        <AccordionPanel pb={10}>
-                          <a>800-400-4222 </a>
-                          <a href="tel:8004004222" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                            <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8004004222" />
-                          </a>
-                        </AccordionPanel>
-                      </AccordionItem>
-                      
-                      <AccordionItem>
-                        <AccordionButton>
-                          <Box as="span" flex='1' textAlign='left'>
-                            Progressive
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                        <AccordionPanel pb={10}>
-                          <a>800-776-4737 </a>
-                          <a href="tel:8007764737" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                            <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8007764737" />
-                          </a>
-                        </AccordionPanel>
-                      </AccordionItem>
+          <Tooltip label="Settings" hasArrow>
+            <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute' right='100px' width='45px'/>
+          </Tooltip>
+            <Modal isOpen={isSettingsOpen} onClose={onSettingsClose} useInert='false' size={'sm'}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader> Settings </ModalHeader>
+                <ModalCloseButton />
+                <Divider/>
+                <ModalBody>
+                  <HStack spacing='170px'>
+                    <Text> Hide comments </Text>
+                    <Switch colorScheme='teal'/>
+                  </HStack>
+                </ModalBody>
+                <Divider/>
+                <ModalBody>
+                  <VStack spacing='2px' textAlign='left' align='left'>
+                    <Text> Features: </Text>
+                    <HStack spacing='230px'>
+                      <Text pl='20px'> Bump </Text> <Checkbox size='lg' colorScheme="teal"/>
+                    </HStack>
+                    <HStack spacing='185px'>
+                      <Text pl='20px'> Speedbump </Text> <Checkbox size='lg' colorScheme="teal" />
+                    </HStack>
+                    <HStack spacing='232px'>
+                      <Text pl='20px'> Crack </Text> <Checkbox size='lg' colorScheme="teal" />
+                    </HStack>
+                    <HStack spacing='217px'>
+                      <Text pl='20px'> Pothole </Text> <Checkbox size='lg' colorScheme="teal" />
+                    </HStack>
+                    <HStack spacing='230px'>
+                      <Text pl='20px'> Other </Text> <Checkbox size='lg' colorScheme="teal" />
+                    </HStack>
+                  </VStack>
+                </ModalBody>
+                <Divider/>
+                <ModalBody>
+                  <HStack spacing='150px'>
+                    <Text> Priority </Text>
+                    <Select placeholder='None' size='md' style={{width: '130px'}}>
+                      <option value='option1'>Bump</option>
+                      <option value='option2'>Pothole</option>
+                      <option value='option3'>Speedbump</option>
+                    </Select>
+                  </HStack>
+                </ModalBody>
+                <Divider/>
+                <ModalBody>
+                  <VStack spacing='5px' textAlign='left' align='left'>
+                    <Text> Radius Distance (Miles) </Text>
+                    <RadioExample />
+                  </VStack>
+                </ModalBody>
+                <Divider/>
+                <ModalFooter>
+                  <Button colorScheme='blue' mr={3} onClick={onSettingsClose}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          <Menu>
+            <Tooltip label='Menu' hasArrow>
+              <MenuButton as={IconButton} aria-label='Options'icon={<HamburgerIcon />} variant='outline' position='absolute' right={10}
+              bg='#0964ed'  style={{ zIndex: 9999}}/>
+            </Tooltip>
+              <MenuList  style={{ zIndex: 9999}}>
+                <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
+                  <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
+                    <ModalOverlay />
+                    <ModalContent>
+                      <ModalHeader> Road Assistance </ModalHeader>
+                      <ModalCloseButton />
+                      <ModalBody>
+                        <Accordion defaultIndex={[0]} allowMultiple>
+                        
+                        <AccordionItem>
+                          <AccordionButton>
+                            <Box as="span" flex='1' textAlign='left'>
+                              AAA
+                            </Box>
+                            <AccordionIcon />
+                          </AccordionButton>
+                          <AccordionPanel pb={10}>
+                            <a>800-400-4222 </a>
+                            <a href="tel:8004004222" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                              <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8004004222" />
+                            </a>
+                          </AccordionPanel>
+                        </AccordionItem>
+                        
+                        <AccordionItem>
+                          <AccordionButton>
+                            <Box as="span" flex='1' textAlign='left'>
+                              Progressive
+                            </Box>
+                            <AccordionIcon />
+                          </AccordionButton>
+                          <AccordionPanel pb={10}>
+                            <a>800-776-4737 </a>
+                            <a href="tel:8007764737" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                              <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8007764737" />
+                            </a>
+                          </AccordionPanel>
+                        </AccordionItem>
 
-                      <AccordionItem>
-                        <AccordionButton>
-                          <Box as="span" flex='1' textAlign='left'>
-                            StateFarm
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                        <AccordionPanel pb={10}>
-                          <a>855-259-8568 </a>
-                          <a href="tel:5558920234" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                            <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8552598568" />
-                          </a>
-                        </AccordionPanel>
-                      </AccordionItem>
+                        <AccordionItem>
+                          <AccordionButton>
+                            <Box as="span" flex='1' textAlign='left'>
+                              StateFarm
+                            </Box>
+                            <AccordionIcon />
+                          </AccordionButton>
+                          <AccordionPanel pb={10}>
+                            <a>855-259-8568 </a>
+                            <a href="tel:5558920234" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                              <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8552598568" />
+                            </a>
+                          </AccordionPanel>
+                        </AccordionItem>
 
-                      <AccordionItem>
-                        <br/>
-                        <h2>Type your insurance below to do a Google Search:</h2>
-                        <form action="https://www.google.com/search?q=phone+number+" target="_blank">
-                          <input type="text" name="q" />
-                          <input type="submit" value="Google Search" />
-                        </form>
-                      </AccordionItem>
+                        <AccordionItem>
+                          <br/>
+                          <h2>Type your insurance below to do a Google Search:</h2>
+                          <form action="https://www.google.com/search?q=phone+number+" target="_blank">
+                            <input type="text" name="q" />
+                            <input type="submit" value="Google Search" />
+                          </form>
+                        </AccordionItem>
 
-                      </Accordion>
-                    </ModalBody>
+                        </Accordion>
+                      </ModalBody>
 
-                    <ModalFooter>
-                      <Button colorScheme='blue' mr={3} onClick={onClose}>
-                        Close
-                      </Button>
-                    </ModalFooter>
-                  </ModalContent>
-                </Modal>
-              {/* <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
-                        onChange={handleCommentClick}/> </MenuItem>
-              <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
-                        isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem> */}
-              <MenuItem style={{ color: "black" }} onClick={handleShowCommentClick}> Hide Comments </MenuItem>
-              <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
-            </MenuList>
-        </Menu>
+                      <ModalFooter>
+                        <Button colorScheme='blue' mr={3} onClick={onClose}>
+                          Close
+                        </Button>
+                      </ModalFooter>
+                    </ModalContent>
+                  </Modal>
+                {/* <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
+                          onChange={handleCommentClick}/> </MenuItem>
+                <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
+                          isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem> */}
+                <MenuItem style={{ color: "black" }} onClick={handleShowCommentClick}> Hide Comments </MenuItem>
+                <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
+              </MenuList>
+          </Menu>
         </HStack>
         
         <br/>
