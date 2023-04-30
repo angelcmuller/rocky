@@ -143,17 +143,20 @@ async function addMarkers(pinData, commentData, map, pinInformation, setPinInfor
       markerColor = '#86178a'; // Set color for another specific description
       }
 
-      // Define popup content HTML
-      const popupContent = '<div class="popup-content">' +
-      '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + 'Description <br/>"' + pinData[i].Classification +
-      '"<br /><br />' +
-      '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
-      '</div>';
+       // Define popup content HTML
+    const popupContent = `
+    <div class="popup-content">
+      <div class="close-button-container">
+        <button class="close-button"></button>
+      </div>
+      <h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">Description <br/>"${pinData[i].Classification}"<br /><br />
+      <h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>
+    </div>`;
 
-      const marker = new mapboxgl.Marker({ color: markerColor })
-      .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
-      .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: true })
-      .setHTML(popupContent));
+    const marker = new mapboxgl.Marker({ color: markerColor })
+    .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
+    .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: false })
+    .setHTML(popupContent));
 
       const moreInfoButton = marker._popup._content.querySelector('#more-info-btn');
       moreInfoButton.addEventListener('click', function() {
@@ -163,6 +166,11 @@ async function addMarkers(pinData, commentData, map, pinInformation, setPinInfor
           pinCoordinatesForInfoDisplayLat = pinData[i].Lattitude;
           thisIsTheOne = i;
           console.log(pinCoordinatesForInfoDisplayLong, pinCoordinatesForInfoDisplayLat, thisIsTheOne)
+      });
+      // Add event listener for the custom close button
+      const closeButton = marker._popup._content.querySelector('.close-button');
+      closeButton.addEventListener('click', () => {
+        marker.getPopup().remove();
       });
 
       // add click listener to marker
@@ -180,48 +188,62 @@ async function addMarkers(pinData, commentData, map, pinInformation, setPinInfor
       // });
   }
   for (let i = 0; i < commentData.length; i++) {
-      const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
-      .setLngLat([commentData[i].Longitude, commentData[i].Lattitude])
-      .setPopup(new mapboxgl.Popup({ offset: 25 })
-        .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn-${i}" class="popup-button display-button">Like</button> <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button> </div>   `)
-      );
+  const commentPopupContent = `
+    <div class="popup-content">
+      <div class="close-button-container">
+        <button class="close-button"></button>
+      </div>
+      <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3>
+      <p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>
+      <div class="popup-buttons-container">
+        <button id="like-btn-${i}" class="popup-button display-button">Like</button>
+        <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button>
+      </div>
+    </div>`;
 
-      // add click listener to marker to ensure make comment/request popup doesn't appear
-      // when user clicks on these pins
-      marker.getElement().addEventListener('click', () => {
-      markerClicked = true;
-      });
+  const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
+    .setLngLat([commentData[i].Longitude, commentData[i].Lattitude])
+    .setPopup(new mapboxgl.Popup({ offset: 25, closeButton: false })
+      .setHTML(commentPopupContent));
 
-      // add click listener to marker
-      marker.getElement().addEventListener('click', () => {
-      marker.togglePopup();
+  // Add event listener for the custom close button
+  const commentCloseButton = marker._popup._content.querySelector('.close-button');
+  commentCloseButton.addEventListener('click', () => {
+    marker.getPopup().remove();
+  });
 
-      // add click listeners to like/dislike buttons
-      const likeBtn = document.getElementById(`like-btn-${i}`);
-      const dislikeBtn = document.getElementById(`dislike-btn-${i}`);
+  // ... (rest of the code remains unchanged)
+  
+  marker.getElement().addEventListener('click', () => {
+    markerClicked = true;
+  });
 
-      likeBtn.addEventListener('click', () => {
-          const { lng, lat } = marker.getLngLat();
-          const value = 1; // user clicked "like"
-          Like(lat, lng, value); 
-      });
+  // add click listener to marker
+  marker.getElement().addEventListener('click', () => {
+    marker.togglePopup();
 
-      dislikeBtn.addEventListener('click', () => {
-          const { lng, lat } = marker.getLngLat();
-          const value = -1; // user clicked "dislike"
-          Like(lat, lng, value); 
-          // Swal.fire({
-          //   title: "Comment liked!",
-          //   icon: "success",
-          //   timer: 2000,
-          //   showConfirmButton: false
-          // });
-      });
-      //need to add one:true to keep pop up from liking multiple times in one click
-      }, { once: true });
-    // add the marker to the markers array
-    markers.push(marker);
-  }
+    // add click listeners to like/dislike buttons
+    const likeBtn = document.getElementById(`like-btn-${i}`);
+    const dislikeBtn = document.getElementById(`dislike-btn-${i}`);
+
+    likeBtn.addEventListener('click', () => {
+      const { lng, lat } = marker.getLngLat();
+      const value = 1; // user clicked "like"
+      Like(lat, lng, value); 
+    });
+
+    dislikeBtn.addEventListener('click', () => {
+      const { lng, lat } = marker.getLngLat();
+      const value = -1; // user clicked "dislike"
+      Like(lat, lng, value); 
+    });
+    //need to add one:true to keep pop up from liking multiple times in one click
+  }, { once: true });
+  
+  // add the marker to the markers array
+  markers.push(marker);
+}
+
 }
 
 //Author: Tristan Bailey
