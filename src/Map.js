@@ -1,11 +1,22 @@
+// Files and CSS imports
 import JsonListReturn from "./components/recordList";
-import { Route } from "./Routing.js";
 import { LogMongo } from "./components/Log";
+import { Route } from "./Routing.js";
+import { Like } from "./like_dislike.js";
+import MapboxTraffic from "./mapbox-gl-traffic.js";
+import './App.css';
+import './Map.css';
+import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
+import "./mapbox-gl-traffic.css";
+
+// Components imports
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Box, Button, Flex, HStack, Heading,
-  IconButton, Input, Text, Popover, PopoverContent, PopoverBody, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
-  ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useBoolean, useDisclosure,
+  IconButton, Input, Text, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
+  ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useDisclosure,
   Divider, Image, Tooltip, VStack, Checkbox, Select, Stack } from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon, SettingsIcon } from "@chakra-ui/icons";
+
+// React imports
 import './App.css';
 import './Map.css';
 import { Like } from "./like_dislike.js";
@@ -13,19 +24,21 @@ import { Like } from "./like_dislike.js";
 import { BrowserRouter as Router, useNavigate, Routes, useLinkClickHandler } from 'react-router-dom';
 import { useRef, useState, useEffect} from 'react';
 import React from 'react';
+
+// Images imports
 import LightPic from './images/Satellite.png';
 import OutsidePic from './images/Outdoors.png';
 import Streetic from './images/darkMode2.png';
-import Logo from './images/Logo.png';
+import Logo from './images/compressedLogo.png';
 import RedPin from './images/red.png';
 import PurplePin from './images/purple.png';
 import BluePin from './images/blue.png';
 import GreenPin from './images/green.png';
+
+// Mapbox imports
 import mapboxgl from 'mapbox-gl';
-import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
-import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
-import MapboxTraffic from "./mapbox-gl-traffic.js";
-import "./mapbox-gl-traffic.css";
+import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
+
 import { cyan } from "@mui/material/colors";
 import * as turf from '@turf/turf';
 
@@ -34,6 +47,7 @@ import * as turf from '@turf/turf';
 var markerClicked = false
 var markers = [] // Array to store markers currently on the map
 
+// Used to store lattitude and Longitud
 //radius_global
 var radius_global = 0.5
 var comment_bool = true
@@ -42,31 +56,31 @@ var comment
 
 var UserLat; 
 var UserLng; 
-var userInput; //used for comments and requests
+// Used for comments and requests
+var userInput;
+// Used to display Directions API
 var directions = createDirections();
-var flip = true;
+// Used to store Mapbox theme
 var mapStyle = 'mapbox://styles/mapbox/outdoors-v12?optimize=true';
+// Used to check if the DescriptionBox is displayed on screen
 var boxState = false;
+// Used for pinCoordinatesforInfoDisplay
 var pinCoordinatesForInfoDisplayLong;
 var pinCoordinatesForInfoDisplayLat;
 var comment_request_pinListener;
+// Used to store the index of the pin from above pin for further display
 var thisIsTheOne;
+
+// Used to check if button Comment/Request are being used
 
 
 
 // Boolean to check if button Comment/Request are being used
 var buttonCommentRequest = false;
 
-//Developed by Aaron Ramirez and Gabriel Mortensen
+// create an array to store markers
+const markers = []; // declare markers array outside of useEffect
 
-  //This function returns records from the MongoDB database 
-  // async function MongoRecords() {
-  //   const example = await JsonListReturn();
-  //   return example;
-  // }
-  
-//assign full JSON results from MongoDB to result variable 
-//const result = MongoRecords();
 
 async function MongoRecords(link) {
   const pinInfo = await JsonListReturn(link);
@@ -286,12 +300,6 @@ function Map() {
   const navigate = useNavigate();
   const [showResults, setShowResults] = React.useState(true);
   const [pinInfo, setPinInfo] = useState([]);
-  
-  const navigatetoLandPage = () => {
-    setShowResults(current => !current);
-    navigate('/')
-    document.location.reload();
-  }
 
   //const map = useRef(null);
   //sets start to RENO area
@@ -308,9 +316,16 @@ function Map() {
   const [commentState, setCState] = useState(false);
   const [routeState, setRouteState] = useState(true);
   const [pinInformation, setPinInformation] = useState(false);
+  
+  // Used to navigate to the Home Page
+  const navigatetoLandPage = () => {
+    setShowResults(current => !current);
+    navigate('/')
+    document.location.reload();
+  }
 
+  //This function returns records from the MongoDB database
   useEffect(() => {
-    //This function returns records from the MongoDB database
     async function getPinInfo() {
       const pinInfo = await JsonListReturn('http://localhost:3000/record/');
       setPinInfo(pinInfo);
@@ -941,7 +956,8 @@ function Map() {
             <Image src={ Logo } boxSize='55px' ml='25px' bg='white' borderRadius='full'/>
           </Tooltip>
           <Tooltip label="Settings" hasArrow>
-            <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute' right='100px' width='45px'/>
+            <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute'
+                    right='100px' width='45px' _hover={{ bg: '#ff763f' }}/>
           </Tooltip>
             <Modal isOpen={isSettingsOpen} onClose={onSettingsClose} useInert='false' size={'sm'}>
               <ModalOverlay />
@@ -1008,9 +1024,9 @@ function Map() {
           <Menu>
             <Tooltip label='Menu' hasArrow>
               <MenuButton as={IconButton} aria-label='Options'icon={<HamburgerIcon />} variant='outline' position='absolute' right={10}
-              bg='#0964ed'  style={{ zIndex: 9999}}/>
+              bg='#0964ed' _hover={{ bg: '#ff763f' }}/>
             </Tooltip>
-              <MenuList  style={{ zIndex: 9999}}>
+              <MenuList>
                 <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
                   <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
                     <ModalOverlay />
@@ -1225,8 +1241,8 @@ function Map() {
           p={1}
           borderRadius='lg'
           m={1}
-          height='95px'
-          width='120px'
+          height='100px'
+          width='125px'
           bgColor='rgba(128, 128, 128, 0.8)'
           shadow='base'
           bottom='10px'
@@ -1234,7 +1250,8 @@ function Map() {
           zIndex='1'
           position = 'absolute'
           border='1px solid orange'
-          display='flex' >
+          display='flex'
+          alignItems='center'>
             <VStack spacing = {0.5} alignItems='flex-start' pl='5px'>
               <HStack>
                 <Image src={RedPin} boxSize='20px' />
