@@ -2,6 +2,7 @@ import JsonListReturn from "./components/recordList";
 import { Route } from "./Routing.js";
 import { LogMongo } from "./components/Log";
 import { Like } from "./like_dislike.js";
+import { GrabImage } from "./image_grabber.js";
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Box, Button, Flex, HStack, Heading,
   IconButton, Input, Text, Popover, PopoverContent, PopoverBody, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
   ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useBoolean, useDisclosure,
@@ -343,41 +344,38 @@ function Map() {
           }
 
           // Define popup content HTML
-        const popupContent = '<div class="popup-content">' +
-        '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + 'Description <br/>"' + pinData[i].Classification +
-        '"<br /><br />' +
-        '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
-        '</div>';
-
+          const popupContent = '<div class="popup-content">' +
+          '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + 'Description <br/>"' + pinData[i].Classification +
+          '"<br /><br />' +
+          '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
+          '</div>';
+          
           const marker = new mapboxgl.Marker({ color: markerColor })
-            .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
-            .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: true })
-            .setHTML(popupContent))
-            .addTo(map);
-
-            const moreInfoButton = marker._popup._content.querySelector('#more-info-btn');
-            moreInfoButton.addEventListener('click', function() {
-              setPinInformation(true);
+              .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
+              .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: true })
+              .setHTML(popupContent))
+              .addTo(map);
+          
+          const moreInfoButton = marker._popup._content.querySelector('#more-info-btn');
+          moreInfoButton.addEventListener('click', function() {
+              setPinInformation(pinData[i]);
               console.log("HERE", pinInformation);
               pinCoordinatesForInfoDisplayLong = pinData[i].Longitude;
               pinCoordinatesForInfoDisplayLat = pinData[i].Lattitude;
               thisIsTheOne = i;
               console.log(pinCoordinatesForInfoDisplayLong, pinCoordinatesForInfoDisplayLat, thisIsTheOne)
-            });
-
-            // add click listener to marker
-            marker.getElement().addEventListener('click', () => {
-              markerClicked = true;
-            });
-
-            // 'hover' over pins and see immediate information - changed it to 'click'
-            marker.getElement().addEventListener('click', () => {
-              marker.togglePopup();
-            });
+          });
           
-            // marker.getElement().addEventListener('click', () => {
-            //   marker.togglePopup();
-            // });
+          // add click listener to marker
+          marker.getElement().addEventListener('click', () => {
+              markerClicked = true;
+          });
+          
+          // 'hover' over pins and see immediate information - changed it to 'click'
+          marker.getElement().addEventListener('click', () => {
+              marker.togglePopup();
+          });
+  
         }
         
         for (let i = 0; i < commentData.length; i++) {
@@ -948,24 +946,28 @@ function Map() {
       </Tooltip>
       
       
-      {/* Gabriel worked on format of map and description location  */}
+      {/* Angel Gabriel worked on format of map and description location  */}
       <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
       
       {(pinInformation) ? 
         (
-          <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
-          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
-            {/* Add a clear heading */}
-            <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'> Additional Information </Heading>
-            <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
-            <Text color='tomato' fontSize='10px' pt='20px'> Here is some information </Text>
-            {/* <GetPinDatatoDisplay /> */}
+            <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
+            boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
+                {/* Add a clear heading */}
+                <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'> Additional Information </Heading>
+                <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
+                <Text color='red.500' fontSize='20px' pt='20px'> Here is some information </Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Source: {pinInformation.Source}</Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Image: <img src={GrabImage(pinInformation.Img_ObjectId)} alt="Pin Image" /></Text>
 
-            <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
-              Exit
-            </Button>
+                
+                {/* <GetPinDatatoDisplay /> */}
 
-          </Box>
+                <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
+                    Exit
+                </Button>
+
+            </Box>
         ) : null
       }
 

@@ -47,6 +47,26 @@ recordRoutes.route("/conrecord").get(function(req, res) {
   });
 });
 
+recordRoutes.route("/imageForPins").post(function(req, res) {
+  let db_connect = dbo.getDb("pinDatabase");
+  let { id } = req.body;
+
+  db_connect.collection("Images").findOne({_id: id}, function(err, result) {
+    if (err) throw err;
+    if (!result) {
+      res.status(404).send('Image not found using id ' + id );
+    } else {
+      let output = result.data;
+      console.log('id:', id, ' _id:', result._id);
+      res.send(output);
+    }
+  });
+});
+
+
+
+
+
 recordRoutes.route("/updateComment").post(function(req, res) {
   let db_connect = dbo.getDb("pinDatabase");
   let { lat, lng, update_value } = req.body;
