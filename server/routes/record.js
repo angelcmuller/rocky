@@ -51,17 +51,22 @@ recordRoutes.route("/imageForPins").post(function(req, res) {
   let db_connect = dbo.getDb("pinDatabase");
   let { id } = req.body;
 
-  db_connect.collection("Images").findOne({_id: id}, function(err, result) {
+  const { ObjectId } = require('mongodb');
+  const idString = '6447537b76e733d35af16d4b';
+  const objectId = new ObjectId(idString);
+
+  db_connect.collection("Images").findOne({'_id': objectId}, function(err, result) {
     if (err) throw err;
     if (!result) {
-      res.status(404).send('Image not found using id ' + id );
+      res.status(404).send('Image not found using id ' + objectId);
     } else {
       let output = result.data;
-      console.log('id:', id, ' _id:', result._id);
+      console.log('id:', objectId, ' _id:', result._id);
       res.send(output);
     }
   });
 });
+
 
 
 

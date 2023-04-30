@@ -958,9 +958,8 @@ function Map() {
                 <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
                 <Text color='red.500' fontSize='20px' pt='20px'> Here is some information </Text>
                 <Text color='red.500' fontSize='18px' pt='10px'>Source: {pinInformation.Source}</Text>
-                <Text color='red.500' fontSize='18px' pt='10px'>Image: <img src={GrabImage(pinInformation.Img_ObjectId)} alt="Pin Image" /></Text>
-
-                
+                <img src={`data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, GrabImage(pinInformation.Img_ObjectId)))}`} alt="Image" />
+               
                 {/* <GetPinDatatoDisplay /> */}
 
                 <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
