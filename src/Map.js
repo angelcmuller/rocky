@@ -19,7 +19,6 @@ import { HamburgerIcon, PhoneIcon, SettingsIcon } from "@chakra-ui/icons";
 // React imports
 import './App.css';
 import './Map.css';
-import { Like } from "./like_dislike.js";
 //import { displayMarkers, markerClicked, markers} from "./DisplayMarkers";
 import { BrowserRouter as Router, useNavigate, Routes, useLinkClickHandler } from 'react-router-dom';
 import { useRef, useState, useEffect} from 'react';
@@ -48,11 +47,9 @@ var markerClicked = false
 var markers = [] // Array to store markers currently on the map
 
 // Used to store lattitude and Longitud
-//radius_global
-var radius_global = 0.5
-var comment_bool = true
-
-var comment
+//radius_global: in miles
+var radius_global = 5
+var comment_bool = false
 
 var UserLat; 
 var UserLng; 
@@ -78,10 +75,6 @@ var thisIsTheOne;
 // Boolean to check if button Comment/Request are being used
 var buttonCommentRequest = false;
 
-// create an array to store markers
-const markers = []; // declare markers array outside of useEffect
-
-
 async function MongoRecords(link) {
   const pinInfo = await JsonListReturn(link);
   return pinInfo
@@ -100,9 +93,9 @@ var radius_layer = {}
 function activateRadius(longitude, lattitude){
   const center = [longitude, lattitude];
    // Use Turf.js to create a circle with the given radius in meters.
-   const circle = turf.circle(center, radius_global+0.05, {
+   const circle = turf.circle(center, radius_global * 1609.34, {
     steps: 100,
-    units: 'miles'
+    units: 'meters'
   });
   radius_layer = {
     id: 'circle-layer',
@@ -616,7 +609,7 @@ function Map() {
               var contributorData;
               var commentData;
               const contributorMarkersPromise = getInRadius(longitude, lattitude, 0, radius_global);
-              if(comment_bool === true){
+              if(comment_bool === false){
                 const commentMarkersPromise = getInRadius(longitude, lattitude, 1, radius_global);
                 Promise.all([commentMarkersPromise, contributorMarkersPromise])
                   .then(([commentDataResult, contributorDataResult]) => {
@@ -794,15 +787,13 @@ function Map() {
   // functions that handle the events of the buttons as they
   // are used by the users
   const handleCommentClick = (event) => {
-    if(isCommentChecked == false){
+    if(isCommentChecked === false){
       setIsCommentChecked(event.target.checked);
-      if(isRVisible == false){
-        setIsCVisible(true);
-      }
+      comment_bool = true;
     } else {
       setIsCommentChecked(false);
-      setIsCVisible(false);
-    } 
+      comment_bool = false;
+    }
   }
 
   const handleCheckbox1 = (event) => {
@@ -834,6 +825,7 @@ function Map() {
     setIsOtherChecked(false);
     setSelectedPriority('');
     setValue('2');
+    radius_global = 2;
   }
 
   const handleRequestClick = (event) => {
@@ -912,18 +904,20 @@ function Map() {
   }
 
   function RadioExample() {  
-    return (
+    const temp = (
       <RadioGroup onChange={setValue} value={value}>
         <Stack direction='row' pl='22px' spacing='15px'>
           <Radio value='1' size='sm' colorScheme='teal'>1</Radio>
-          <Radio value='2' size='sm' colorScheme='teal'>5</Radio>
-          <Radio value='3' size='sm' colorScheme='teal'>10</Radio>
-          <Radio value='4' size='sm' colorScheme='teal'>15</Radio>
-          <Radio value='5' size='sm' colorScheme='teal'>20</Radio>
-          <Radio value='6' size='sm' colorScheme='teal'>25</Radio>
+          <Radio value='5' size='sm' colorScheme='teal'>5</Radio>
+          <Radio value='10' size='sm' colorScheme='teal'>10</Radio>
+          <Radio value='15' size='sm' colorScheme='teal'>15</Radio>
+          <Radio value='20' size='sm' colorScheme='teal'>20</Radio>
+          <Radio value='25' size='sm' colorScheme='teal'>25</Radio>
         </Stack>
       </RadioGroup>
     )
+    radius_global = value;
+    return temp
   }
 
   // State handlers for the Comment/Request/ShowComments Switches
@@ -931,7 +925,7 @@ function Map() {
   const [isRequestChecked, setIsRequestChecked] = useState(false);
 
   // State handler for the values of the radio buttons
-  const [value, setValue] = useState('2');
+  const [value, setValue] = useState('5');
 
   // State handlers for the checkboxes in Features in Settings Menu
   const [isBumpChecked, setIsBumpChecked] = useState(false);
