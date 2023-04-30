@@ -26,11 +26,18 @@ import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 import MapboxTraffic from "./mapbox-gl-traffic.js";
 import "./mapbox-gl-traffic.css";
 import { cyan } from "@mui/material/colors";
+import * as turf from '@turf/turf';
 
 //node --harmony-top-level-await map.js
 // import Swal from 'sweetalert2';
 var markerClicked = false
-var markers = []
+var markers = [] // Array to store markers currently on the map
+
+//radius_global
+var radius_global = 0.5
+var comment_bool = true
+
+var comment
 
 var UserLat; 
 var UserLng; 
@@ -65,19 +72,64 @@ async function MongoRecords(link) {
   return pinInfo
 }
 
-//Gabriel Mortensen Pin Display functions below 
+// Loop through the markers array and add each marker to the map
+//Author: Tristan Bailey
+function displayMarkers(map){
+  markers.forEach((marker) => {
+    marker.addTo(map);
+  });
+}
+
+//Author: Tristan Bailey
+var radius_layer = {}
+function activateRadius(longitude, lattitude){
+  const center = [longitude, lattitude];
+   // Use Turf.js to create a circle with the given radius in meters.
+   const circle = turf.circle(center, radius_global+0.05, {
+    steps: 100,
+    units: 'miles'
+  });
+  radius_layer = {
+    id: 'circle-layer',
+    type: 'fill',
+    source: {
+      type: 'geojson',
+      data: circle
+    },
+    paint: {
+      'fill-color': '#007cbf',
+      'fill-opacity': 0.6
+    }
+  };
+}
+//Author: Tristan Bailey
+function displayRadius(map) {
+  if (Object.keys(radius_layer).length !== 0) {
+    map.addLayer(radius_layer);
+  }
+}
+
+//Author: Tristan Bailey
+function deactivateRadius(map){
+  map.removeLayer(radius_layer.id);
+  radius_layer = {}
+}
+
+//Gabriel Mortensen Pin Display functions below
 //Waiting for data from MogoDB
 //Uses the result variable 
-async function displayMarkers(pinData, commentData, map, pinInformation, setPinInformation) {
+async function addMarkers(pinData, commentData, map, pinInformation, setPinInformation) {
+  // Remove all existing markers from the map
+  markers.forEach(marker => marker.remove());
+  markers = [];
   //const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
   //const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
   //var pinData = await MongoRecords(`http://localhost:3000/record/`);
   //console.log(pinData)
-  alert(pinData)
   // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
   // depending on the classification of road deficiency
   for (let i = 0; i < pinData.length; i++) {
-      let markerColor = '#f5c7f7'; // Default color
+    let markerColor = '#f5c7f7'; // Default color
       if (pinData[i].Classification === 'bump') {
       markerColor = '#17588a'; // Set color for a specific description
       }
@@ -92,17 +144,16 @@ async function displayMarkers(pinData, commentData, map, pinInformation, setPinI
       }
 
       // Define popup content HTML
-  const popupContent = '<div class="popup-content">' +
-  '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + 'Description <br/>"' + pinData[i].Classification +
-  '"<br /><br />' +
-  '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
-  '</div>';
+      const popupContent = '<div class="popup-content">' +
+      '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + 'Description <br/>"' + pinData[i].Classification +
+      '"<br /><br />' +
+      '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
+      '</div>';
 
       const marker = new mapboxgl.Marker({ color: markerColor })
       .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
       .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: true })
-      .setHTML(popupContent))
-      .addTo(map);
+      .setHTML(popupContent));
 
       const moreInfoButton = marker._popup._content.querySelector('#more-info-btn');
       moreInfoButton.addEventListener('click', function() {
@@ -123,21 +174,17 @@ async function displayMarkers(pinData, commentData, map, pinInformation, setPinI
       marker.getElement().addEventListener('click', () => {
           marker.togglePopup();
       });
-      
+      markers.push(marker)
       // marker.getElement().addEventListener('click', () => {
       //   marker.togglePopup();
       // });
   }
-  
   for (let i = 0; i < commentData.length; i++) {
       const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
       .setLngLat([commentData[i].Longitude, commentData[i].Lattitude])
       .setPopup(new mapboxgl.Popup({ offset: 25 })
-          .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn-${i}" class="popup-button display-button">Like</button> <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button> </div>   `))
-      .addTo(map);
-  
-      // add the marker to the markers array
-      markers.push(marker);
+        .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn-${i}" class="popup-button display-button">Like</button> <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button> </div>   `)
+      );
 
       // add click listener to marker to ensure make comment/request popup doesn't appear
       // when user clicks on these pins
@@ -172,8 +219,16 @@ async function displayMarkers(pinData, commentData, map, pinInformation, setPinI
       });
       //need to add one:true to keep pop up from liking multiple times in one click
       }, { once: true });
-
+    // add the marker to the markers array
+    markers.push(marker);
   }
+}
+
+//Author: Tristan Bailey
+async function getInRadius(longitude, lattitude, collection, radius ){
+  const url = `http://localhost:3000/inradius?longitude=${longitude}&latitude=${lattitude}&radius=${radius}&collection=${collection}`;
+  const pins = await MongoRecords(url);
+  return pins
 }
 
 // Create a function to create the Mapbox Directions object
@@ -195,7 +250,6 @@ var commentData;
 
 async function init_data(){
   var [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
-  alert(commentData)
   return [pinData, commentData]
 }
 //Developed by Aaron Ramirez & Gabriel Mortensen 
@@ -351,7 +405,8 @@ function Map() {
       map.addControl(dirs, 'top-left');
 
       map.on('load', () => {
-
+        displayMarkers(map)
+        displayRadius(map)
         //use to display input boxes if in routing mode
         if (routeState === true){
           //map.removeControl(directions)
@@ -456,9 +511,11 @@ function Map() {
       async function loadData(pinData, commentData) {
         [pinData, commentData] = await init_data();
         // Call functions to display markers and add pin listener
-        displayMarkers(pinData, commentData, map, pinInformation, setPinInformation);
+        addMarkers(pinData, commentData, map, pinInformation, setPinInformation);
       }
-      loadData(pinData, commentData);
+      //OLD_PIN_LOAD
+      //loadData(pinData, commentData);
+      //alert(JSON.stringify(pinData, null, 2))
       if (requestState || commentState) {
         addPinListener();
         
@@ -507,10 +564,52 @@ function Map() {
             popup._content.insertBefore(customCloseButtonEl, popup._content.firstChild);
             
             // Add click event listeners to the buttons
+            //Author: Tristan Bailey
             document.getElementById('display-btn').addEventListener('click', () => {
               console.log('Display button clicked');
+              Toggle("Radius Display");
+              popup.remove();
+              var longitude = lngLat.lng;
+              var lattitude = lngLat.lat;
+              activateRadius(longitude, lattitude);
+              var contributorData;
+              var commentData;
+              const contributorMarkersPromise = getInRadius(longitude, lattitude, 0, radius_global);
+              if(comment_bool === true){
+                const commentMarkersPromise = getInRadius(longitude, lattitude, 1, radius_global);
+                Promise.all([commentMarkersPromise, contributorMarkersPromise])
+                  .then(([commentDataResult, contributorDataResult]) => {
+                    contributorData = contributorDataResult;
+                    commentData = commentDataResult;
+                    addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
+                      .then((markers) => {console.log("Got Markers")})
+                      .catch((error) => {
+                        console.error('Error fetching markers:', error);
+                      });
+                    // Call any other functions that need the data here
+                  })
+                  .catch((error) => {
+                    console.error(error);
+                  });
+              }
+              else{
+                Promise.all([contributorMarkersPromise])
+                  .then(([contributorDataResult]) => {
+                    contributorData = contributorDataResult;
+                    addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
+                      .then((markers) => {console.log("Got Markers")})
+                      .catch((error) => {
+                        console.error('Error fetching markers:', error);
+                      });
+                    // Call any other functions that need the data here
+                  })
+                  .catch((error) => {
+                    console.error(error);
+                  });
+              }
             });
-            
+            //end Author: Tristan Bailey
+
             document.getElementById('comment-btn').addEventListener('click', () => {
               console.log('Comment button clicked');
               setIsCommentChecked(true);
