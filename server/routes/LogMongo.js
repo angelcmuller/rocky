@@ -15,8 +15,8 @@ recordRoutes.route("/request").post(function(req, res) {
       Comment: stringVariable2,
       Lattitude: floatVariable1,
       Longitude: floatVariable2,
-      Option: opt,
-      Classification: cond,
+      Classification: opt, 
+      Option: cond,
       Likes: 0,
       Dislikes: 0
     }, function(err, result) {
