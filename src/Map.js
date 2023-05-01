@@ -307,6 +307,7 @@ function Map() {
   const [ComName, setComName] = useState("Make a Comment");
   const [requestState, setRState] = useState(false);
   const [commentState, setCState] = useState(false);
+  const [pinRadiusState, setPinRadiusState] = useState(false);
   const [routeState, setRouteState] = useState(true);
   const [pinInformation, setPinInformation] = useState(false);
   
@@ -370,7 +371,7 @@ function Map() {
       }
     }
     //Engage comment functionality 
-    else{
+    else if(Name === "Comment") {
       console.log("CommentState", commentState);
       setCState(!commentState);
       if (ComName === "Make a Comment") {
@@ -390,6 +391,9 @@ function Map() {
         setRState(false);
         setReqName("Request Location");
       }
+    } else if(Name === "Radius Display"){
+      console.log("PinStatebefore", pinRadiusState);
+      setPinRadiusState(!pinRadiusState);
     }
   };
 
@@ -616,7 +620,9 @@ function Map() {
                     contributorData = contributorDataResult;
                     commentData = commentDataResult;
                     addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
-                      .then((markers) => {console.log("Got Markers")})
+                      .then((markers) => {
+                        console.log("Got Markers");
+                      })
                       .catch((error) => {
                         console.error('Error fetching markers:', error);
                       });
@@ -631,7 +637,9 @@ function Map() {
                   .then(([contributorDataResult]) => {
                     contributorData = contributorDataResult;
                     addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
-                      .then((markers) => {console.log("Got Markers")})
+                      .then((markers) => {
+                        console.log("Got Markers");
+                      })
                       .catch((error) => {
                         console.error('Error fetching markers:', error);
                       });
@@ -646,7 +654,6 @@ function Map() {
 
             document.getElementById('comment-btn').addEventListener('click', () => {
               console.log('Comment button clicked');
-              setIsCommentChecked(true);
               setIsCVisible(true);
               Toggle("Comment");
               popup.remove();
@@ -682,7 +689,7 @@ function Map() {
     // If any of the variables in the dependency array change, the effect will re-run.
 
   }, [
-    requestState, commentState, lng, lat, markers
+    requestState, commentState, lng, lat, pinRadiusState, markers
   ]);
   
   // Function sends comment or request to database  
@@ -746,13 +753,15 @@ function Map() {
           setSelectedOption('');
           setConditionOption('');
           // console.log("Box State changed", boxState)
-        } else {
+        } else if (commentState) {
           Toggle("Comment")
           boxState = false;
           // Resetting values when comment is submitted
           setSelectedOption('');
           setConditionOption('');
           // console.log("Box State changed", boxState)
+        } else {
+          boxState = false;
         }
       }
     }
@@ -1168,7 +1177,7 @@ function Map() {
           boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
             
             {/* Add a clear heading */}
-            <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='16px'>Request/Comment Form</Heading>
+            <Heading size='md' mb='11px' textAlign='center' color='blue.500' mt='10px'>Request/Comment Form</Heading>
             
             {/* User text box that appears when user clicks scan request */}
             {/* <label for="input" class="black-text">
@@ -1182,7 +1191,7 @@ function Map() {
 
             <Input type='text-description' id='input' className='stretch-box-black-text' w='80%'
             placeholder='Type your comment here' borderRadius='6px' textAlign='center'
-            border='1px solid gray' mt='3px' style={{ height: '45px', overflow: 'auto' }}
+            border='1px solid gray' mt='2px' style={{ height: '45px', overflow: 'auto' }}
             maxLength={200} size='10px'/>
 
 
@@ -1200,7 +1209,7 @@ function Map() {
             
             <Input type='text-description' id='input_name' className='stretch-box-black-text' w='50%'
             placeholder='Name here' overflowWrap="break-word" borderRadius='6px' textAlign='center'
-            border='1px solid gray' mt='3px' style={{height: '40px'}} size='10px'
+            border='1px solid gray' mt='2px' style={{height: '40px'}} size='10px'
             maxLength={200}/>
 
 
