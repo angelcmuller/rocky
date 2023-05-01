@@ -52,8 +52,7 @@ recordRoutes.route("/imageForPins").post(function(req, res) {
   let { id } = req.body;
 
   const { ObjectId } = require('mongodb');
-  const idString = '6447537b76e733d35af16d4b';
-  const objectId = new ObjectId(idString);
+  const objectId = new ObjectId(id);
 
   db_connect.collection("Images").findOne({'_id': objectId}, function(err, result) {
     if (err) throw err;
