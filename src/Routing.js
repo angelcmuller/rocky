@@ -8,18 +8,69 @@ import * as turf from '@turf/turf';
 import * as polyline from '@mapbox/polyline';
 
 import JsonListReturn from "./components/recordList";
+import { markers, appendMarkers, displayMarkers } from "./Map.js";
 
 async function MongoRecords(link) {
     const pinInfo = await JsonListReturn(link);
     return pinInfo
+}
+
+//Author: Tristan Bailey
+async function getInBox(collection, minLongitude, maxLongitude, minLatitude, maxLatitude ){
+    var url;
+    if(collection == "Comments"){
+        url = url = `http://localhost:3000/crecord?minLongitude=${minLongitude}&maxLongitude=${maxLongitude}&minLatitude=${minLatitude}&maxLatitude=${maxLatitude}`;
+    }
+    else {
+        url = url = `http://localhost:3000/record?minLongitude=${minLongitude}&maxLongitude=${maxLongitude}&minLatitude=${minLatitude}&maxLatitude=${maxLatitude}`;
+    }
+    const pins = await MongoRecords(url);
+    return pins
+}
+
+async function geobox_pins(routeLine){
+    const bbox = turf.bbox(routeLine);
+    // Extract the individual values from the bounding box array
+    const [west, south, east, north] = bbox;
+
+    // Calculate the max and min longitude and latitude values
+    const max_longitude = east;
+    const min_longitude = west;
+    const max_latitude = north;
+    const min_latitude = south;
+
+    return await Promise.all([getInBox("Pins", min_longitude, max_longitude, min_latitude, max_latitude), getInBox("Comments", min_longitude, max_longitude, min_latitude, max_latitude)]);
+}
+
+function compile_intersection_id_list(obstructions_pins, routeLine){
+    // Initialize an array to store the intersected feature IDs
+    let intersectedFeatureIds = [];
+
+    // Iterate over the features in obstructions_pins GeoJSON
+    turf.featureEach(obstructions_pins, (currentFeature) => {
+    // Check if the current feature intersects with the routeLine
+    if (turf.booleanIntersects(currentFeature, routeLine)) {
+        // If the intersection is found, store the intersected feature ID in the array
+        intersectedFeatureIds.push(currentFeature.properties.id);
+    }
+    });
+    return intersectedFeatureIds;
+}
+function getPinsByIds(pins, pin_ids) {
+    const result = [];
+    for (let i = 0; i < pin_ids.length; i++) {
+      const index = pin_ids[i];
+      if (index >= 0 && index < pins.length) {
+        result.push(pins[index]);
+      }
+    }
+    return result;
   }
+  
 
 //developed by Tristan Bailey
-export async function Route(map, directions, startLat=0, startLong=0, endLat=0, endLong=0, routeCount=3){
-    const [pins, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
-    console.log(commentData)
-    console.log(pins)
-    function addAdditionalSourceAndLayer() {
+export async function Route(map, directions, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation, routeCount=3){
+    function addAdditionalSourceAndLayer(map, routeCount) {
         //add routes layers to map limiting to a maximum of 10
         for (let i =0; i <= routeCount && i < 10; ++i){
             map.addSource(`route${i}`, {
@@ -46,14 +97,28 @@ export async function Route(map, directions, startLat=0, startLong=0, endLat=0, 
             });
         }
     }
+    function removeAdditionalSourceAndLayer(map, routeCount) {
+        // remove routes layers from map
+        for (let i =0; i <= routeCount && i < 10; ++i){
+            if (map.getLayer(`route${i}`)) {
+                map.removeLayer(`route${i}`);
+            }
+            if (map.getSource(`route${i}`)) {
+                map.removeSource(`route${i}`);
+            }
+        }
+    }    
 
     //call to directions api to handle future route computations
     //map.addControl(directions, 'top-left');
 
-    directions.on('route', (event) => {
-        var geoJSON = pinDataToGeoJSON(pins);
-        //scale hazards naively assuming they are 8 sqft
-        var obstructions = turf.buffer(geoJSON, 0.25, { units: 'kilometers'});
+    directions.on('route', async (event) => {
+        //markers.forEach(marker => marker.remove());
+        //markers = [];
+        removeAdditionalSourceAndLayer(map, routeCount);
+        addAdditionalSourceAndLayer(map, routeCount);
+        //const [pins, commentData] = await Promise.all([getInBox(), getInBox()]);
+        //const [pins, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
         //const reports = document.getElementById('reports');
         //reports.innerHTML = '';
         //const report = reports.appendChild(document.createElement('div'));
@@ -72,18 +137,45 @@ export async function Route(map, directions, startLat=0, startLong=0, endLat=0, 
             map.setLayoutProperty(`route${route.id}`, 'visibility', 'visible');
             //convert each route to a geojson
             const routeLine = polyline.toGeoJSON(route.geometry);
-            console.log(JSON.stringify(routeLine));
-            console.log(JSON.stringify(obstructions));
+            var [pins, commentData] = await geobox_pins(routeLine);
             
+            var comment_objects_length;
+            var comment_objects;
+            if(isCommentChecked){
+                commentData = [];
+                comment_objects_length = 0;
+                comment_objects = [];
+            }
+            else{
+                const geoJSON_comments = pinDataToGeoJSON(commentData);
+                const obstructions_comments = turf.buffer(geoJSON_comments, 0.01, { units: 'kilometers'});
+                comment_objects = getPinsByIds(commentData, 
+                    compile_intersection_id_list(obstructions_comments, routeLine)
+                );
+                comment_objects_length = comment_objects.length;
+            }
+
+            const geoJSON_pins = pinDataToGeoJSON(pins);
+            //scale hazards naively assuming they are 30 sqft, as this is the minimum buffer supports
+            const obstructions_pins = turf.buffer(geoJSON_pins, 0.01, { units: 'kilometers'});
+            const pin_objects = getPinsByIds(pins,
+                compile_intersection_id_list(obstructions_pins, routeLine)
+            );
+
+            console.log("Lengths");
+            console.log(comment_objects_length);
+            console.log(pin_objects.length);
+
+            await appendMarkers(pin_objects, comment_objects, map, pinInformation, setPinInformation);
             map.getSource(`route${route.id}`).setData(routeLine);
-            const isClear = turf.booleanDisjoint(obstructions, routeLine) === true;
-            if (isClear) {
-                map.setPaintProperty(`route${route.id}`, 'line-color', '#31C4AF');
+            if (comment_objects_length === 0 && pin_objects.length === 0){
+            map.setPaintProperty(`route${route.id}`, 'line-color', '#31C4AF');
                 console.log("clear");
             } else {
                 map.setPaintProperty(`route${route.id}`, 'line-color', '#9933ff');
                 console.log("not clear");
             }
+            displayMarkers(map, markers)
         }
     });
 }
@@ -110,8 +202,12 @@ export function pinDataToGeoJSON(pinData){
                 coordinates: [pinData[i].Longitude, pinData[i].Lattitude]
             },
             properties: {
-                classification: pinData[i].Classifiaction
-                //"classification": data[i].Classification
+                //id to use to re reference later when we want to add markers to map
+                id: i,
+                classification: pinData[i].Classification,
+                severity: pinData[i].Option,
+                likes: pinData[i].Likes,
+                dislikes: pinData[i].Dislikes
             }
         };
         geoJson.features.push(feature);
