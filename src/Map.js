@@ -999,17 +999,31 @@ function Map() {
   
     return (
       <>
-        <Text color='red.500' fontSize='18px' pt='10px'>
-          Lat: {pinCoordinatesForInfoDisplayLat},
-          Lng: { pinCoordinatesForInfoDisplayLong},
-          Source: {pinSource}, 
-          Classification: {pinClass},
-          Altitude: {pinAlt},
-          MeasurementDate: {convertUnixTimestamp(pinMdate)},
+        <Text color='red.500' fontSize='12px' pl='10px'>
+          Classification: {pinClass}
+        </Text>
+        <Text color='red.500' fontSize='12px' pl='10px'>
+          Source: {pinSource}
+        </Text>
+        <Image src={imageUrl} />
+        <Text color='red.500' fontSize='12px' pl='10px'>
+          MeasurementDate: {convertUnixTimestamp(pinMdate)}
+        </Text>
+        <Text color='red.500' fontSize='12px' pl='10px'>
           UploadDate: {convertUnixTimestamp(pinUdate)}
         </Text>
-        
-        <Image src={imageUrl} />
+        <Text color='red.500' fontSize='12px' pl='10px'>
+          Lat: {pinCoordinatesForInfoDisplayLat}
+        </Text>
+        <Text color='red.500' fontSize='12px' pl='10px'>
+          Lng: { pinCoordinatesForInfoDisplayLong}
+        </Text>
+        <Text color='red.500' fontSize='12px' pl='10px'>
+          Altitude: {pinAlt}
+        </Text>
+        <Button colorScheme='cyan' verticalAlign='center' size='lg' mt='10px' mb='15px' onClick={() => setPinInformation(false)}>
+          Exit
+        </Button>
       </>
     );
 
@@ -1224,16 +1238,13 @@ function Map() {
       {(pinInformation) ? 
         (
           <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
-          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
+          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' overflowY='scroll'
+          >
             {/* Add a clear heading */}
-            <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'> Additional Information </Heading>
+            <Heading size='md' mb='10px' textAlign='center' color='blue.500' mt='10px'> Additional Information </Heading>
     
             {/* Used to display information for the pins */}
             <ConvertedImages/> 
-
-            <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
-              Exit
-            </Button>
 
           </Box>
         ) : null
