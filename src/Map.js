@@ -3,6 +3,7 @@ import JsonListReturn from "./components/recordList";
 import { LogMongo } from "./components/Log";
 import { Route } from "./Routing.js";
 import { Like } from "./like_dislike.js";
+import { GrabImage } from "./image_grabber.js";
 import MapboxTraffic from "./mapbox-gl-traffic.js";
 import './App.css';
 import './Map.css';
@@ -61,9 +62,18 @@ var directions = createDirections();
 var mapStyle = 'mapbox://styles/mapbox/outdoors-v12?optimize=true';
 // Used to check if the DescriptionBox is displayed on screen
 var boxState = false;
+
+//================================
 // Used for pinCoordinatesforInfoDisplay
 var pinCoordinatesForInfoDisplayLong;
 var pinCoordinatesForInfoDisplayLat;
+var pinSource; 
+var pinAlt;
+var pinClass;
+var DataLinkImage; 
+var pinMdate;
+var pinUdate;
+//================================
 var comment_request_pinListener;
 // Used to store the index of the pin from above pin for further display
 var thisIsTheOne;
@@ -172,8 +182,17 @@ async function addMarkers(pinData, commentData, map, pinInformation, setPinInfor
           console.log("HERE", pinInformation);
           pinCoordinatesForInfoDisplayLong = pinData[i].Longitude;
           pinCoordinatesForInfoDisplayLat = pinData[i].Lattitude;
+          pinSource = pinData[i].Source;
+          pinClass= pinData[i].Classification;
+          pinMdate = pinData[i].MeasurementDate;
+          pinUdate = pinData[i].UploadDate;
+          pinAlt = pinData[i].Altitude;
+          DataLinkImage = pinData[i].Img_ObjectId; 
           thisIsTheOne = i;
-          console.log(pinCoordinatesForInfoDisplayLong, pinCoordinatesForInfoDisplayLat, thisIsTheOne)
+
+          console.log(pinCoordinatesForInfoDisplayLong, pinCoordinatesForInfoDisplayLat, thisIsTheOne, pinInformation);
+          console.log("Funtimes: " + DataLinkImage);
+          // pinInformation_global =  pinInformation 
       });
       // Add event listener for the custom close button
       const closeButton = marker._popup._content.querySelector('.close-button');
@@ -348,6 +367,19 @@ function Map() {
   //     Toggle("Comment")
   //   }        
   // }
+
+  function convertUnixTimestamp(unixTimestamp: number): string {
+    const date = new Date(unixTimestamp * 1000);
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    const hours = ("0" + date.getHours()).slice(-2);
+    const minutes = ("0" + date.getMinutes()).slice(-2);
+    const seconds = ("0" + date.getSeconds()).slice(-2);
+    const formattedDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+    return formattedDate;
+}
+
   
   function Toggle(Name){
     setRouteState(false);
@@ -950,6 +982,43 @@ function Map() {
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");
 
+
+  const ConvertedImages = () => {
+    const [imageUrl, setImageUrl] = useState(null);
+    
+    console.log("Globlal: " + DataLinkImage)
+    useEffect(() => {
+      GrabImage(DataLinkImage)
+        .then((imageData) => setImageUrl(imageData))
+        .catch((error) => console.error(error));
+    }, [DataLinkImage]);
+  
+    if (!imageUrl) {
+      return <div>Loading...</div>;
+    }
+  
+    return (
+      <>
+        <Text color='red.500' fontSize='18px' pt='10px'>
+          Lat: {pinCoordinatesForInfoDisplayLat},
+          Lng: { pinCoordinatesForInfoDisplayLong},
+          Source: {pinSource}, 
+          Classification: {pinClass},
+          Altitude: {pinAlt},
+          MeasurementDate: {convertUnixTimestamp(pinMdate)},
+          UploadDate: {convertUnixTimestamp(pinUdate)}
+        </Text>
+        
+        <Image src={imageUrl} />
+      </>
+    );
+
+  };
+
+  function display_info(display){
+    console.log(display)
+  }
+
   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display='vertical' color='white'>
       <Flex className="flex-container" h='10vh' bg='#05998c'>
@@ -1158,9 +1227,9 @@ function Map() {
           boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
             {/* Add a clear heading */}
             <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'> Additional Information </Heading>
-            <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
-            <Text color='tomato' fontSize='10px' pt='20px'> Here is some information </Text>
-            {/* <GetPinDatatoDisplay /> */}
+    
+            {/* Used to display information for the pins */}
+            <ConvertedImages/> 
 
             <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
               Exit
