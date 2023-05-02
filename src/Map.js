@@ -118,9 +118,10 @@ function displayRadius(map) {
 }
 
 //Author: Tristan Bailey
-function deactivateRadius(map){
-  map.removeLayer(radius_layer.id);
-  radius_layer = {}
+export function deactivateRadius(map) {
+  if (map.getLayer(radius_layer.id)) {
+    map.removeLayer(radius_layer.id);
+  }
 }
 
 async function addMarkers(pinData, commentData, map, pinInformation, setPinInformation) {

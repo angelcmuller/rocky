@@ -8,7 +8,7 @@ import * as turf from '@turf/turf';
 import * as polyline from '@mapbox/polyline';
 
 import JsonListReturn from "./components/recordList";
-import { markers, appendMarkers, displayMarkers } from "./Map.js";
+import { markers, appendMarkers, displayMarkers, deactivateRadius } from "./Map.js";
 
 async function MongoRecords(link) {
     const pinInfo = await JsonListReturn(link);
@@ -111,7 +111,7 @@ export async function Route(map, directions, isOtherChecked, isPotholeChecked, i
 
     //call to directions api to handle future route computations
     //map.addControl(directions, 'top-left');
-
+    //deactivateRadius(map);
     directions.on('route', async (event) => {
         //markers.forEach(marker => marker.remove());
         //markers = [];
