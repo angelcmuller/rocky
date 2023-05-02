@@ -3,28 +3,17 @@
   flex-direction: column;
 }
 
-.mapboxgl-popup-close-button {
-  width: 30px !important;
-  height: 30px !important;
-  font-size: 30px !important;
-  line-height: 30px !important;
-  color: gray;
-}
-.mapboxgl-popup-close-button:hover{
-  opacity: 75%;
-  background-color: red;
-}
-
 .popup-content {
   max-width: 189px;
   padding: 2px 16px 0px 2px;
   box-shadow: None;
-  border-radius: 50px;
+  border-radius: 0px;
   background-color: transparent;
   width: 105%;
   padding-right: 18px;
   padding-bottom: 0px; /* This property removes the extra whitespace at the bottom of the popup */
 }
+
 
 /* ========For comment rating system=========  */
 .counter-container {

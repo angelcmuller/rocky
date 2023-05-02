@@ -1,265 +1,65 @@
-// Files and CSS imports
 import JsonListReturn from "./components/recordList";
-import { LogMongo } from "./components/Log";
 import { Route } from "./Routing.js";
+import { LogMongo } from "./components/Log";
 import { Like } from "./like_dislike.js";
-import MapboxTraffic from "./mapbox-gl-traffic.js";
-import './App.css';
-import './Map.css';
-import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
-import "./mapbox-gl-traffic.css";
-
-// Components imports
+import { GrabImage } from "./image_grabber.js";
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Box, Button, Flex, HStack, Heading,
-  IconButton, Input, Text, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
-  ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useDisclosure,
+  IconButton, Input, Text, Popover, PopoverContent, PopoverBody, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
+  ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useBoolean, useDisclosure,
   Divider, Image, Tooltip, VStack, Checkbox, Select, Stack } from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon, SettingsIcon } from "@chakra-ui/icons";
-
-// React imports
 import './App.css';
 import './Map.css';
-//import { displayMarkers, markerClicked, markers} from "./DisplayMarkers";
 import { BrowserRouter as Router, useNavigate, Routes, useLinkClickHandler } from 'react-router-dom';
 import { useRef, useState, useEffect} from 'react';
 import React from 'react';
-
-// Images imports
 import LightPic from './images/Satellite.png';
 import OutsidePic from './images/Outdoors.png';
 import Streetic from './images/darkMode2.png';
-import Logo from './images/compressedLogo.png';
+import Logo from './images/Logo.png';
 import RedPin from './images/red.png';
 import PurplePin from './images/purple.png';
 import BluePin from './images/blue.png';
-import GreenPin from './images/green.png';
-
-// Mapbox imports
 import mapboxgl from 'mapbox-gl';
-import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
-
+import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
+import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
+import MapboxTraffic from "./mapbox-gl-traffic.js";
+import "./mapbox-gl-traffic.css";
 import { cyan } from "@mui/material/colors";
-import * as turf from '@turf/turf';
-
-//node --harmony-top-level-await map.js
 // import Swal from 'sweetalert2';
-var markerClicked = false
-var markers = [] // Array to store markers currently on the map
 
-// Used to store lattitude and Longitud
-//radius_global: in miles
-var radius_global = 5
-var comment_bool = false
-
+var DataLink;
+var MeasureDataInfo; 
 var UserLat; 
 var UserLng; 
-// Used for comments and requests
-var userInput;
-// Used to display Directions API
+var userInput; //used for comments and requests
 var directions = createDirections();
-// Used to store Mapbox theme
+var flip = true;
 var mapStyle = 'mapbox://styles/mapbox/outdoors-v12?optimize=true';
-// Used to check if the DescriptionBox is displayed on screen
 var boxState = false;
-// Used for pinCoordinatesforInfoDisplay
 var pinCoordinatesForInfoDisplayLong;
 var pinCoordinatesForInfoDisplayLat;
 var comment_request_pinListener;
-// Used to store the index of the pin from above pin for further display
 var thisIsTheOne;
-
-// Used to check if button Comment/Request are being used
-
-
 
 // Boolean to check if button Comment/Request are being used
 var buttonCommentRequest = false;
 
-async function MongoRecords(link) {
-  const pinInfo = await JsonListReturn(link);
-  return pinInfo
-}
+//Developed by Aaron Ramirez and Gabriel Mortensen
 
-// Loop through the markers array and add each marker to the map
-//Author: Tristan Bailey
-function displayMarkers(map){
-  markers.forEach((marker) => {
-    marker.addTo(map);
-  });
-}
-
-//Author: Tristan Bailey
-var radius_layer = {}
-function activateRadius(longitude, lattitude){
-  const center = [longitude, lattitude];
-   // Use Turf.js to create a circle with the given radius in meters.
-   const circle = turf.circle(center, radius_global * 1609.34, {
-    steps: 100,
-    units: 'meters'
-  });
-  radius_layer = {
-    id: 'circle-layer',
-    type: 'fill',
-    source: {
-      type: 'geojson',
-      data: circle
-    },
-    paint: {
-      'fill-color': '#007cbf',
-      'fill-opacity': 0.6
-    }
-  };
-}
-//Author: Tristan Bailey
-function displayRadius(map) {
-  if (Object.keys(radius_layer).length !== 0) {
-    map.addLayer(radius_layer);
-  }
-}
-
-//Author: Tristan Bailey
-function deactivateRadius(map){
-  map.removeLayer(radius_layer.id);
-  radius_layer = {}
-}
-
-//Gabriel Mortensen Pin Display functions below
-//Waiting for data from MogoDB
-//Uses the result variable 
-async function addMarkers(pinData, commentData, map, pinInformation, setPinInformation) {
-  // Remove all existing markers from the map
-  markers.forEach(marker => marker.remove());
-  markers = [];
-  //const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
-  //const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
-  //var pinData = await MongoRecords(`http://localhost:3000/record/`);
-  //console.log(pinData)
-  // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
-  // depending on the classification of road deficiency
-  for (let i = 0; i < pinData.length; i++) {
-    let markerColor = '#f5c7f7'; // Default color
-      if (pinData[i].Classification === 'bump') {
-      markerColor = '#17588a'; // Set color for a specific description
-      }
-      if (pinData[i].Classification === 'crack' ) {
-      markerColor = '#137d1f'; // Set color for another specific description
-      }
-      if (pinData[i].Classification === 'pot hole' ) {
-      markerColor = '#8f130a'; // Set color for another specific description
-      }
-      if (pinData[i].Classification === 'speed bump' ) {
-      markerColor = '#86178a'; // Set color for another specific description
-      }
-
-       // Define popup content HTML
-    const popupContent = `
-    <div class="popup-content">
-      <div class="close-button-container">
-        <button class="close-button"></button>
-      </div>
-      <h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">Description <br/>"${pinData[i].Classification}"<br /><br />
-      <h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>
-    </div>`;
-
-    const marker = new mapboxgl.Marker({ color: markerColor })
-    .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
-    .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: false })
-    .setHTML(popupContent));
-
-      const moreInfoButton = marker._popup._content.querySelector('#more-info-btn');
-      moreInfoButton.addEventListener('click', function() {
-          setPinInformation(true);
-          console.log("HERE", pinInformation);
-          pinCoordinatesForInfoDisplayLong = pinData[i].Longitude;
-          pinCoordinatesForInfoDisplayLat = pinData[i].Lattitude;
-          thisIsTheOne = i;
-          console.log(pinCoordinatesForInfoDisplayLong, pinCoordinatesForInfoDisplayLat, thisIsTheOne)
-      });
-      // Add event listener for the custom close button
-      const closeButton = marker._popup._content.querySelector('.close-button');
-      closeButton.addEventListener('click', () => {
-        marker.getPopup().remove();
-      });
-
-      // add click listener to marker
-      marker.getElement().addEventListener('click', () => {
-          markerClicked = true;
-      });
-
-      // 'hover' over pins and see immediate information - changed it to 'click'
-      marker.getElement().addEventListener('click', () => {
-          marker.togglePopup();
-      });
-      markers.push(marker)
-      // marker.getElement().addEventListener('click', () => {
-      //   marker.togglePopup();
-      // });
-  }
-  for (let i = 0; i < commentData.length; i++) {
-  const commentPopupContent = `
-    <div class="popup-content">
-      <div class="close-button-container">
-        <button class="close-button"></button>
-      </div>
-      <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3>
-      <p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>
-      <div class="popup-buttons-container">
-        <button id="like-btn-${i}" class="popup-button display-button">Like</button>
-        <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button>
-      </div>
-    </div>`;
-
-  const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
-    .setLngLat([commentData[i].Longitude, commentData[i].Lattitude])
-    .setPopup(new mapboxgl.Popup({ offset: 25, closeButton: false })
-      .setHTML(commentPopupContent));
-
-  // Add event listener for the custom close button
-  const commentCloseButton = marker._popup._content.querySelector('.close-button');
-  commentCloseButton.addEventListener('click', () => {
-    marker.getPopup().remove();
-  });
-
-  // ... (rest of the code remains unchanged)
+  //This function returns records from the MongoDB database 
+  // async function MongoRecords() {
+  //   const example = await JsonListReturn();
+  //   return example;
+  // }
   
-  marker.getElement().addEventListener('click', () => {
-    markerClicked = true;
-  });
+//assign full JSON results from MongoDB to result variable 
+//const result = MongoRecords();
 
-  // add click listener to marker
-  marker.getElement().addEventListener('click', () => {
-    marker.togglePopup();
-
-    // add click listeners to like/dislike buttons
-    const likeBtn = document.getElementById(`like-btn-${i}`);
-    const dislikeBtn = document.getElementById(`dislike-btn-${i}`);
-
-    likeBtn.addEventListener('click', () => {
-      const { lng, lat } = marker.getLngLat();
-      const value = 1; // user clicked "like"
-      Like(lat, lng, value); 
-    });
-
-    dislikeBtn.addEventListener('click', () => {
-      const { lng, lat } = marker.getLngLat();
-      const value = -1; // user clicked "dislike"
-      Like(lat, lng, value); 
-    });
-    //need to add one:true to keep pop up from liking multiple times in one click
-  }, { once: true });
-  
-  // add the marker to the markers array
-  markers.push(marker);
-}
-
-}
-
-//Author: Tristan Bailey
-async function getInRadius(longitude, lattitude, collection, radius ){
-  const url = `http://localhost:3000/inradius?longitude=${longitude}&latitude=${lattitude}&radius=${radius}&collection=${collection}`;
-  const pins = await MongoRecords(url);
-  return pins
-}
+  async function MongoRecords(link) {
+    const pinInfo = await JsonListReturn(link);
+    return pinInfo
+  }
 
 // Create a function to create the Mapbox Directions object
 function createDirections() {
@@ -275,13 +75,9 @@ function createDirections() {
   });
 }
 
-var pinData;
-var commentData;
+// create an array to store markers
+const markers = []; // declare markers array outside of useEffect
 
-async function init_data(){
-  var [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
-  return [pinData, commentData]
-}
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
   //Araon Ramirez Map Loading Procedures Belo
@@ -293,6 +89,12 @@ function Map() {
   const navigate = useNavigate();
   const [showResults, setShowResults] = React.useState(true);
   const [pinInfo, setPinInfo] = useState([]);
+  
+  const navigatetoLandPage = () => {
+    setShowResults(current => !current);
+    navigate('/')
+    document.location.reload();
+  }
 
   //const map = useRef(null);
   //sets start to RENO area
@@ -307,19 +109,11 @@ function Map() {
   const [ComName, setComName] = useState("Make a Comment");
   const [requestState, setRState] = useState(false);
   const [commentState, setCState] = useState(false);
-  const [pinRadiusState, setPinRadiusState] = useState(false);
   const [routeState, setRouteState] = useState(true);
   const [pinInformation, setPinInformation] = useState(false);
-  
-  // Used to navigate to the Home Page
-  const navigatetoLandPage = () => {
-    setShowResults(current => !current);
-    navigate('/')
-    document.location.reload();
-  }
 
-  //This function returns records from the MongoDB database
   useEffect(() => {
+    //This function returns records from the MongoDB database
     async function getPinInfo() {
       const pinInfo = await JsonListReturn('http://localhost:3000/record/');
       setPinInfo(pinInfo);
@@ -366,12 +160,10 @@ function Map() {
         setRouteState(true);
         setIsRVisible(false);
         setIsRequestChecked(false);
-        setSelectedOption('');
-        setConditionOption('');
       }
     }
     //Engage comment functionality 
-    else if(Name === "Comment") {
+    else{
       console.log("CommentState", commentState);
       setCState(!commentState);
       if (ComName === "Make a Comment") {
@@ -383,17 +175,12 @@ function Map() {
         setRouteState(true);
         setIsCVisible(false);
         setIsCommentChecked(false);
-        setSelectedOption('');
-        setConditionOption('');
       }
       //Turn off request if activated
       if (requestState) {
         setRState(false);
         setReqName("Request Location");
       }
-    } else if(Name === "Radius Display"){
-      console.log("PinStatebefore", pinRadiusState);
-      setPinRadiusState(!pinRadiusState);
     }
   };
 
@@ -432,6 +219,9 @@ function Map() {
   useEffect(() => {
     //Initialize the Map with current lng and lat
     if(lng && lat){
+      // Boolean to check if a marker was clicked
+      let markerClicked = false;
+      
       const map = new mapboxgl.Map({
         container: mapContainer.current,
         style: mapStyle,
@@ -444,8 +234,7 @@ function Map() {
       map.addControl(dirs, 'top-left');
 
       map.on('load', () => {
-        displayMarkers(map)
-        displayRadius(map)
+
         //use to display input boxes if in routing mode
         if (routeState === true){
           //map.removeControl(directions)
@@ -526,6 +315,120 @@ function Map() {
           console.log("Changed Theme");
         };
       }
+
+      //Gabriel Mortensen Pin Display functions below 
+      //Waiting for data from MogoDB
+      //Uses the result variable 
+      async function displayMarkers() {
+        // Wait for data from MongoDB
+        const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
+        //const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
+        //const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
+        //var pinData = await MongoRecords(`http://localhost:3000/record/`);
+        //console.log(pinData)
+        
+        // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
+        // depending on the classification of road deficiency
+        for (let i = 0; i < pinData.length; i++) {
+          let markerColor = '#f5c7f7'; // Default color
+          if (pinData[i].Classification === 'bump') {
+            markerColor = '#17588a'; // Set color for a specific description
+          }
+          if (pinData[i].Classification === 'crack' ) {
+            markerColor = '#137d1f'; // Set color for another specific description
+          }
+          if (pinData[i].Classification === 'pot hole' ) {
+            markerColor = '#8f130a'; // Set color for another specific description
+          }
+          if (pinData[i].Classification === 'speed bump' ) {
+            markerColor = '#86178a'; // Set color for another specific description
+          }
+
+          // Define popup content HTML
+          const popupContent = '<div class="popup-content">' +
+          '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + 'Description <br/>"' + pinData[i].Classification +
+          '"<br /><br />' +
+          '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
+          '</div>';
+         
+
+          const marker = new mapboxgl.Marker({ color: markerColor })
+              .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
+              .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: true })
+              .setHTML(popupContent))
+              .addTo(map);
+          
+          const moreInfoButton = marker._popup._content.querySelector('#more-info-btn');
+          moreInfoButton.addEventListener('click', function() {
+              setPinInformation(pinData[i]);
+              console.log("HERE", pinInformation);
+              pinCoordinatesForInfoDisplayLong = pinData[i].Longitude;
+              pinCoordinatesForInfoDisplayLat = pinData[i].Lattitude;
+              thisIsTheOne = i;
+              console.log(pinCoordinatesForInfoDisplayLong, pinCoordinatesForInfoDisplayLat, thisIsTheOne)
+          });
+          
+          // add click listener to marker
+          marker.getElement().addEventListener('click', () => {
+              markerClicked = true;
+          });
+          
+          // 'hover' over pins and see immediate information - changed it to 'click'
+          marker.getElement().addEventListener('click', () => {
+              marker.togglePopup();
+          });
+  
+        }
+        
+        for (let i = 0; i < commentData.length; i++) {
+          const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
+            .setLngLat([commentData[i].Longitude, commentData[i].Lattitude])
+            .setPopup(new mapboxgl.Popup({ offset: 25 })
+              .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn-${i}" class="popup-button display-button">Like</button> <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button> </div>   `))
+            .addTo(map);
+        
+          // add the marker to the markers array
+          markers.push(marker);
+
+          // add click listener to marker to ensure make comment/request popup doesn't appear
+          // when user clicks on these pins
+          marker.getElement().addEventListener('click', () => {
+            markerClicked = true;
+          });
+
+          // add click listener to marker
+          marker.getElement().addEventListener('click', () => {
+            marker.togglePopup();
+
+            // add click listeners to like/dislike buttons
+            const likeBtn = document.getElementById(`like-btn-${i}`);
+            const dislikeBtn = document.getElementById(`dislike-btn-${i}`);
+
+            likeBtn.addEventListener('click', () => {
+              const { lng, lat } = marker.getLngLat();
+              const value = 1; // user clicked "like"
+              Like(lat, lng, value); 
+            });
+
+            dislikeBtn.addEventListener('click', () => {
+              const { lng, lat } = marker.getLngLat();
+              const value = -1; // user clicked "dislike"
+              Like(lat, lng, value); 
+              // Swal.fire({
+              //   title: "Comment liked!",
+              //   icon: "success",
+              //   timer: 2000,
+              //   showConfirmButton: false
+              // });
+            });
+          //need to add one:true to keep pop up from liking multiple times in one click
+          }, { once: true });
+
+        }
+        
+       
+      }
+
       // Like(39.56126011912147, -120.04878396803926 , -1);
 
 
@@ -540,20 +443,15 @@ function Map() {
           
           // Add a title to the marker if commentState is true
           userInput = new mapboxgl.Marker({
-            color: (commentState ? '#19e34e' : '#ff0000')
+            color: (commentState ? '#006400' : '#ff0000')
             })
             .setLngLat([comment_request_pinListener.lng, comment_request_pinListener.lat])
             .addTo(map);
         }
       }
-      async function loadData(pinData, commentData) {
-        [pinData, commentData] = await init_data();
-        // Call functions to display markers and add pin listener
-        addMarkers(pinData, commentData, map, pinInformation, setPinInformation);
-      }
-      //OLD_PIN_LOAD
-      //loadData(pinData, commentData);
-      //alert(JSON.stringify(pinData, null, 2))
+
+      // Call functions to display markers and add pin listener
+      displayMarkers();
       if (requestState || commentState) {
         addPinListener();
         
@@ -602,58 +500,13 @@ function Map() {
             popup._content.insertBefore(customCloseButtonEl, popup._content.firstChild);
             
             // Add click event listeners to the buttons
-            //Author: Tristan Bailey
             document.getElementById('display-btn').addEventListener('click', () => {
               console.log('Display button clicked');
-              Toggle("Radius Display");
-              popup.remove();
-              var longitude = lngLat.lng;
-              var lattitude = lngLat.lat;
-              activateRadius(longitude, lattitude);
-              var contributorData;
-              var commentData;
-              const contributorMarkersPromise = getInRadius(longitude, lattitude, 0, radius_global);
-              if(comment_bool === false){
-                const commentMarkersPromise = getInRadius(longitude, lattitude, 1, radius_global);
-                Promise.all([commentMarkersPromise, contributorMarkersPromise])
-                  .then(([commentDataResult, contributorDataResult]) => {
-                    contributorData = contributorDataResult;
-                    commentData = commentDataResult;
-                    addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
-                      .then((markers) => {
-                        console.log("Got Markers");
-                      })
-                      .catch((error) => {
-                        console.error('Error fetching markers:', error);
-                      });
-                    // Call any other functions that need the data here
-                  })
-                  .catch((error) => {
-                    console.error(error);
-                  });
-              }
-              else{
-                Promise.all([contributorMarkersPromise])
-                  .then(([contributorDataResult]) => {
-                    contributorData = contributorDataResult;
-                    addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
-                      .then((markers) => {
-                        console.log("Got Markers");
-                      })
-                      .catch((error) => {
-                        console.error('Error fetching markers:', error);
-                      });
-                    // Call any other functions that need the data here
-                  })
-                  .catch((error) => {
-                    console.error(error);
-                  });
-              }
             });
-            //end Author: Tristan Bailey
-
+            
             document.getElementById('comment-btn').addEventListener('click', () => {
               console.log('Comment button clicked');
+              setIsCommentChecked(true);
               setIsCVisible(true);
               Toggle("Comment");
               popup.remove();
@@ -689,7 +542,7 @@ function Map() {
     // If any of the variables in the dependency array change, the effect will re-run.
 
   }, [
-    requestState, commentState, lng, lat, pinRadiusState, markers
+    requestState, commentState, lng, lat, markers
   ]);
   
   // Function sends comment or request to database  
@@ -749,19 +602,12 @@ function Map() {
         if(requestState){
           Toggle("Request")
           boxState = false;
-          // Resetting values when Request is submitted
-          setSelectedOption('');
-          setConditionOption('');
           // console.log("Box State changed", boxState)
-        } else if (commentState) {
+        }
+        else{
           Toggle("Comment")
           boxState = false;
-          // Resetting values when comment is submitted
-          setSelectedOption('');
-          setConditionOption('');
           // console.log("Box State changed", boxState)
-        } else {
-          boxState = false;
         }
       }
     }
@@ -796,45 +642,15 @@ function Map() {
   // functions that handle the events of the buttons as they
   // are used by the users
   const handleCommentClick = (event) => {
-    if(isCommentChecked === false){
+    if(isCommentChecked == false){
       setIsCommentChecked(event.target.checked);
-      comment_bool = true;
+      if(isRVisible == false){
+        setIsCVisible(true);
+      }
     } else {
       setIsCommentChecked(false);
-      comment_bool = false;
-    }
-  }
-
-  const handleCheckbox1 = (event) => {
-    setIsBumpChecked(event.target.checked);
-  }
-  const handleCheckbox2 = (event) => {
-    setIsSpeedBumpChecked(event.target.checked);
-  }
-  const handleCheckbox3 = (event) => {
-    setIsCrackChecked(event.target.checked);
-  }
-  const handleCheckbox4 = (event) => {
-    setIsPotholeChecked(event.target.checked);
-  }
-  const handleCheckbox5 = (event) => {
-    setIsOtherChecked(event.target.checked);
-  }
-
-  const handleSelectedChange = (event) => {
-    setSelectedPriority(event.target.value);
-  }
-
-  const handleReset = () => {
-    setIsCommentChecked(false);
-    setIsBumpChecked(false);
-    setIsSpeedBumpChecked(false);
-    setIsCrackChecked(false);
-    setIsPotholeChecked(false);
-    setIsOtherChecked(false);
-    setSelectedPriority('');
-    setValue('2');
-    radius_global = 2;
+      setIsCVisible(false);
+    } 
   }
 
   const handleRequestClick = (event) => {
@@ -912,205 +728,235 @@ function Map() {
     console.log("opacity:", opacity);
   }
 
-  function RadioExample() {  
-    const temp = (
+  function RadioExample() {
+    const [value, setValue] = React.useState('2')
+  
+    return (
       <RadioGroup onChange={setValue} value={value}>
         <Stack direction='row' pl='22px' spacing='15px'>
           <Radio value='1' size='sm' colorScheme='teal'>1</Radio>
-          <Radio value='5' size='sm' colorScheme='teal'>5</Radio>
-          <Radio value='10' size='sm' colorScheme='teal'>10</Radio>
-          <Radio value='15' size='sm' colorScheme='teal'>15</Radio>
-          <Radio value='20' size='sm' colorScheme='teal'>20</Radio>
-          <Radio value='25' size='sm' colorScheme='teal'>25</Radio>
+          <Radio value='2' size='sm' colorScheme='teal'>5</Radio>
+          <Radio value='3' size='sm' colorScheme='teal'>10</Radio>
+          <Radio value='4' size='sm' colorScheme='teal'>15</Radio>
+          <Radio value='5' size='sm' colorScheme='teal'>20</Radio>
+          <Radio value='6' size='sm' colorScheme='teal'>25</Radio>
         </Stack>
       </RadioGroup>
     )
-    radius_global = value;
-    return temp
   }
 
-  // State handlers for the Comment/Request/ShowComments Switches
+  // Event handlers for the Comment/Request/ShowComments Switches
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
-
-  // State handler for the values of the radio buttons
-  const [value, setValue] = useState('5');
-
-  // State handlers for the checkboxes in Features in Settings Menu
-  const [isBumpChecked, setIsBumpChecked] = useState(false);
-  const [isSpeedBumpChecked, setIsSpeedBumpChecked] = useState(false);
-  const [isCrackChecked, setIsCrackChecked] = useState(false);
-  const [isPotholeChecked, setIsPotholeChecked] = useState(false);
-  const [isOtherChecked, setIsOtherChecked] = useState(false);
-
-  // State handler for the Select dropdown from Settings Menu
-  const [selectedPriority, setSelectedPriority] = useState('');
 
   const [markerOpacity, setMarkerOpacity] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");
 
+
+  async function getData() {
+    const data_link = await GrabImage_bind(pinInformation.Img_ObjectId);
+    return data_link
+  }
+
+
+  function GrabImage_bind(param) {
+    var data_link;
+    GrabImage(param).then(link => {
+      data_link = link;
+      alert(data_link)
+      return data_link
+    });
+  }
+
+  function convertUnixTimestamp(unixTimestamp: number): string {
+    const date = new Date(unixTimestamp * 1000);
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    const hours = ("0" + date.getHours()).slice(-2);
+    const minutes = ("0" + date.getMinutes()).slice(-2);
+    const seconds = ("0" + date.getSeconds()).slice(-2);
+    const formattedDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+    return formattedDate;
+}
+
+const ConvertedImages = () => {
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    GrabImage(pinInformation.Img_ObjectId)
+      .then((imageData) => setImageUrl(imageData))
+      .catch((error) => console.error(error));
+  }, [pinInformation.Img_ObjectId]);
+
+  if (!imageUrl) {
+    return <div>Loading...</div>;
+  }
+
+  return <Image src={imageUrl} />;
+};
+
+
+
+
   return (
-    <Flex position= 'fixed' height = '100vh' w='100vw' display='vertical' color='white'>
-      <Flex className="flex-container" h='10vh' bg='#05998c'>
+    <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
+      <Flex h='10vh' bg='teal' opacity='0.80'>
         {/* Hamburger Menu  */}
         <HStack spacing='5px' justifyContent='flex-start'>
-          <Tooltip label="Project Rocky Road">
-            <Image src={ Logo } boxSize='55px' ml='25px' bg='white' borderRadius='full'/>
+        <Tooltip label="Project Rocky Road">
+          <Image src={ Logo } boxSize='55px' ml='25px' bg='white' borderRadius='full'/>
+        </Tooltip>
+        <Tooltip label="Settings" hasArrow>
+          <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute' right='100px' width='45px'/>
+        </Tooltip>
+          <Modal isOpen={isSettingsOpen} onClose={onSettingsClose} useInert='false' size={'sm'}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader> Settings </ModalHeader>
+              <ModalCloseButton />
+              <Divider/>
+              <ModalBody>
+                <HStack spacing='170px'>
+                  <Text> Hide comments </Text>
+                  <Switch colorScheme='teal'/>
+                </HStack>
+              </ModalBody>
+              <Divider/>
+              <ModalBody>
+                <VStack spacing='2px' textAlign='left' align='left'>
+                  <Text> Features: </Text>
+                  <HStack spacing='230px'>
+                    <Text pl='20px'> Bump </Text> <Checkbox size='lg' colorScheme="teal"/>
+                  </HStack>
+                  <HStack spacing='185px'>
+                    <Text pl='20px'> Speedbump </Text> <Checkbox size='lg' colorScheme="teal" />
+                  </HStack>
+                  <HStack spacing='232px'>
+                    <Text pl='20px'> Crack </Text> <Checkbox size='lg' colorScheme="teal" />
+                  </HStack>
+                  <HStack spacing='217px'>
+                    <Text pl='20px'> Pothole </Text> <Checkbox size='lg' colorScheme="teal" />
+                  </HStack>
+                  <HStack spacing='230px'>
+                    <Text pl='20px'> Other </Text> <Checkbox size='lg' colorScheme="teal" />
+                  </HStack>
+                </VStack>
+              </ModalBody>
+              <Divider/>
+              <ModalBody>
+                <HStack spacing='150px'>
+                  <Text> Priority </Text>
+                  <Select placeholder='None' size='md' style={{width: '130px'}}>
+                    <option value='option1'>Bump</option>
+                    <option value='option2'>Pothole</option>
+                    <option value='option3'>Speed</option>
+                  </Select>
+                </HStack>
+              </ModalBody>
+              <Divider/>
+              <ModalBody>
+                <VStack spacing='5px' textAlign='left' align='left'>
+                  <Text> Radius Distance (Miles) </Text>
+                  <RadioExample />
+                </VStack>
+              </ModalBody>
+              <Divider/>
+              <ModalFooter>
+                <Button colorScheme='blue' mr={3} onClick={onSettingsClose}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+        <Menu>
+          <Tooltip label='Menu' hasArrow>
+            <MenuButton as={IconButton} aria-label='Options'icon={<HamburgerIcon />} variant='outline' position='absolute' right={10}
+            bg='#0964ed' zIndex='1' />
           </Tooltip>
-          <Tooltip label="Settings" hasArrow>
-            <Button as={IconButton} icon={<SettingsIcon />} onClick={onSettingsOpen} bg='#0964dd' variant='outline' position='absolute'
-                    right='100px' width='45px' _hover={{ bg: '#ff763f' }}/>
-          </Tooltip>
-            <Modal isOpen={isSettingsOpen} onClose={onSettingsClose} useInert='false' size={'sm'}>
-              <ModalOverlay />
-              <ModalContent>
-                <ModalHeader> Settings </ModalHeader>
-                <ModalCloseButton />
-                <Divider/>
-                <ModalBody>
-                  <HStack spacing='170px'>
-                    <Text> Hide comments </Text>
-                    <Switch colorScheme='teal' id='comment-alert' isChecked={isCommentChecked} onChange={handleCommentClick}/>
-                  </HStack>
-                </ModalBody>
-                <Divider/>
-                <ModalBody>
-                  <VStack spacing='2px' textAlign='left' align='left'>
-                    <Text> Features: </Text>
-                    <HStack spacing='230px'>
-                      <Text pl='20px'> Bump </Text> <Checkbox size='lg' colorScheme="teal" isChecked={isBumpChecked} onChange={handleCheckbox1}/>
-                    </HStack>
-                    <HStack spacing='185px'>
-                      <Text pl='20px'> Speedbump </Text> <Checkbox size='lg' colorScheme="teal" isChecked={isSpeedBumpChecked} onChange={handleCheckbox2}/>
-                    </HStack>
-                    <HStack spacing='232px'>
-                      <Text pl='20px'> Crack </Text> <Checkbox size='lg' colorScheme="teal" isChecked={isCrackChecked} onChange={handleCheckbox3}/>
-                    </HStack>
-                    <HStack spacing='217px'>
-                      <Text pl='20px'> Pothole </Text> <Checkbox size='lg' colorScheme="teal" isChecked={isPotholeChecked} onChange={handleCheckbox4}/>
-                    </HStack>
-                    <HStack spacing='230px'>
-                      <Text pl='20px'> Other </Text> <Checkbox size='lg' colorScheme="teal" isChecked={isOtherChecked} onChange={handleCheckbox5}/>
-                    </HStack>
-                  </VStack>
-                </ModalBody>
-                <Divider/>
-                <ModalBody>
-                  <HStack spacing='150px'>
-                    <Text> Priority </Text>
-                    <Select placeholder='None' size='md' style={{width: '140px'}} value={selectedPriority} onChange={handleSelectedChange}>
-                      <option value='option1'>Bump</option>
-                      <option value='option2'>Pothole</option>
-                      <option value='option3'>Speedbump</option>
-                    </Select>
-                  </HStack>
-                </ModalBody>
-                <Divider/>
-                <ModalBody>
-                  <VStack spacing='5px' textAlign='left' align='left'>
-                    <Text> Radius Distance (Miles) </Text>
-                    <RadioExample />
-                  </VStack>
-                </ModalBody>
-                <Divider/>
-                <ModalFooter>
-                  <HStack spacing={5}>
-                    <Button onClick={handleReset} variant='outline'> Clear All </Button>
-                    <Button colorScheme='blue' mr={3} onClick={onSettingsClose}>
-                      Close
-                    </Button>
-                  </HStack>
-                </ModalFooter>
-              </ModalContent>
-            </Modal>
-          <Menu>
-            <Tooltip label='Menu' hasArrow>
-              <MenuButton as={IconButton} aria-label='Options'icon={<HamburgerIcon />} variant='outline' position='absolute' right={10}
-              bg='#0964ed' _hover={{ bg: '#ff763f' }}/>
-            </Tooltip>
-              <MenuList>
-                <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
-                  <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
-                    <ModalOverlay />
-                    <ModalContent>
-                      <ModalHeader> Road Assistance </ModalHeader>
-                      <ModalCloseButton />
-                      <ModalBody>
-                        <Accordion defaultIndex={[0]} allowMultiple>
-                        
-                        <AccordionItem>
-                          <AccordionButton>
-                            <Box as="span" flex='1' textAlign='left'>
-                              AAA
-                            </Box>
-                            <AccordionIcon />
-                          </AccordionButton>
-                          <AccordionPanel pb={10}>
-                            <a>800-400-4222 </a>
-                            <a href="tel:8004004222" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                              <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8004004222" />
-                            </a>
-                          </AccordionPanel>
-                        </AccordionItem>
-                        
-                        <AccordionItem>
-                          <AccordionButton>
-                            <Box as="span" flex='1' textAlign='left'>
-                              Progressive
-                            </Box>
-                            <AccordionIcon />
-                          </AccordionButton>
-                          <AccordionPanel pb={10}>
-                            <a>800-776-4737 </a>
-                            <a href="tel:8007764737" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                              <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8007764737" />
-                            </a>
-                          </AccordionPanel>
-                        </AccordionItem>
+            <MenuList>
+              <MenuItem onClick={onOpen} style={{ color: "black" }}> Contact Road Side Assistance </MenuItem>
+                <Modal isOpen={isOpen} onClose={onClose} useInert='false'>
+                  <ModalOverlay />
+                  <ModalContent>
+                    <ModalHeader> Road Assistance </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                      <Accordion defaultIndex={[0]} allowMultiple>
+                      
+                      <AccordionItem>
+                        <AccordionButton>
+                          <Box as="span" flex='1' textAlign='left'>
+                            AAA
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                        <AccordionPanel pb={10}>
+                          <a>800-400-4222 </a>
+                          <a href="tel:8004004222" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8004004222" />
+                          </a>
+                        </AccordionPanel>
+                      </AccordionItem>
+                      
+                      <AccordionItem>
+                        <AccordionButton>
+                          <Box as="span" flex='1' textAlign='left'>
+                            Progressive
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                        <AccordionPanel pb={10}>
+                          <a>800-776-4737 </a>
+                          <a href="tel:8007764737" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8007764737" />
+                          </a>
+                        </AccordionPanel>
+                      </AccordionItem>
 
-                        <AccordionItem>
-                          <AccordionButton>
-                            <Box as="span" flex='1' textAlign='left'>
-                              StateFarm
-                            </Box>
-                            <AccordionIcon />
-                          </AccordionButton>
-                          <AccordionPanel pb={10}>
-                            <a>855-259-8568 </a>
-                            <a href="tel:5558920234" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
-                              <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8552598568" />
-                            </a>
-                          </AccordionPanel>
-                        </AccordionItem>
+                      <AccordionItem>
+                        <AccordionButton>
+                          <Box as="span" flex='1' textAlign='left'>
+                            StateFarm
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                        <AccordionPanel pb={10}>
+                          <a>855-259-8568 </a>
+                          <a href="tel:5558920234" onclick="ga('send', 'event', { eventCategory: 'Contact', eventAction: 'Call', eventLabel: 'Mobile Button'});">
+                            <IconButton colorScheme='teal' aria-label='Call Segun' size='sm' icon={<PhoneIcon />} href="tel:+8552598568" />
+                          </a>
+                        </AccordionPanel>
+                      </AccordionItem>
 
-                        <AccordionItem>
-                          <br/>
-                          <h2>Type your insurance below to do a Google Search:</h2>
-                          <form action="https://www.google.com/search?q=phone+number+" target="_blank">
-                            <input type="text" name="q" />
-                            <input type="submit" value="Google Search" />
-                          </form>
-                        </AccordionItem>
+                      <AccordionItem>
+                        <br/>
+                        <h2>Type your insurance below to do a Google Search:</h2>
+                        <form action="https://www.google.com/search?q=phone+number+" target="_blank">
+                          <input type="text" name="q" />
+                          <input type="submit" value="Google Search" />
+                        </form>
+                      </AccordionItem>
 
-                        </Accordion>
-                      </ModalBody>
+                      </Accordion>
+                    </ModalBody>
 
-                      <ModalFooter>
-                        <Button colorScheme='blue' mr={3} onClick={onClose}>
-                          Close
-                        </Button>
-                      </ModalFooter>
-                    </ModalContent>
-                  </Modal>
-                {/* <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
-                          onChange={handleCommentClick}/> </MenuItem>
-                <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
-                          isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem> */}
-                <MenuItem style={{ color: "black" }} onClick={handleShowCommentClick}> Hide Comments </MenuItem>
-                <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
-              </MenuList>
-          </Menu>
+                    <ModalFooter>
+                      <Button colorScheme='blue' mr={3} onClick={onClose}>
+                        Close
+                      </Button>
+                    </ModalFooter>
+                  </ModalContent>
+                </Modal>
+              {/* <MenuItem style={{ color: "black" }}> Make a Comment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='comment-alert' isChecked={isCommentChecked}
+                        onChange={handleCommentClick}/> </MenuItem>
+              <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
+                        isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem> */}
+              <MenuItem style={{ color: "black" }} onClick={handleShowCommentClick}> Hide Comments </MenuItem>
+              <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
+            </MenuList>
+        </Menu>
         </HStack>
         
         <br/>
@@ -1149,35 +995,48 @@ function Map() {
       </Tooltip>
       
       
-      {/* Gabriel worked on format of map and description location  */}
+      {/* Angel Gabriel worked on format of map and description location  */}
       <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
       
       {(pinInformation) ? 
         (
-          <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
-          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
-            {/* Add a clear heading */}
-            <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'> Additional Information </Heading>
-            <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
-            <Text color='tomato' fontSize='10px' pt='20px'> Here is some information </Text>
-            {/* <GetPinDatatoDisplay /> */}
+            <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
+            boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
+                {/* Add a clear heading */}
+                <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'> Additional Information </Heading>
+                <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
+                <Text color='red.500' fontSize='20px' pt='20px'> Here is some information </Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Source: {pinInformation.Source}</Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Classification: {pinInformation.Classification}</Text>
+                <ConvertedImages/> 
+                {/* <script>
+                  {GrabImage(pinInformation.Img_ObjectId)};
+                  {MeasureDataInfo} = convertUnixTimestamp({pinInformation.MeasurementDate})
+                </script> */}
+                
+                {/* <Text color='red.500' fontSize='18px' pt='10px'>Link : {DataLink} </Text> */}
+                <Text color='red.500' fontSize='18px' pt='10px'>Measure Date: <br></br> {convertUnixTimestamp(pinInformation.MeasurementDate)} </Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Lat: {pinInformation.Lattitude} Lng: {pinInformation.Longitude}</Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Altitude: {pinInformation.Altitude} </Text>
+               
 
-            <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
-              Exit
-            </Button>
+                
+                <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
+                    Exit
+                </Button>
 
-          </Box>
+            </Box>
         ) : null
       }
 
       {/* Is visable only when user turns on Request */}
       {(requestState || commentState) ?
         (
-          <Box bg='white' h = '60%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
+          <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
           boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
             
             {/* Add a clear heading */}
-            <Heading size='md' mb='11px' textAlign='center' color='blue.500' mt='10px'>Request/Comment Form</Heading>
+            <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'>Request/Comment Form</Heading>
             
             {/* User text box that appears when user clicks scan request */}
             {/* <label for="input" class="black-text">
@@ -1190,9 +1049,10 @@ function Map() {
             </label>
 
             <Input type='text-description' id='input' className='stretch-box-black-text' w='80%'
-            placeholder='Type your comment here' borderRadius='6px' textAlign='center'
-            border='1px solid gray' mt='2px' style={{ height: '45px', overflow: 'auto' }}
-            maxLength={200} size='10px'/>
+            
+       placeholder='Type your comment here' borderRadius='6px'
+       border='1px solid gray' mt='10px' style={{ height: '45px', overflow: 'auto' }}
+       maxLength={200} />
 
 
             
@@ -1203,13 +1063,14 @@ function Map() {
 
             {/* Makes Submit Location Button appear when Request is on (Chat GPT) */}
             
-            <label htmlFor='input_name' className='description-text' textAlign='center' style={{ marginTop: '15px'}}>
+
+            <label htmlFor='input_name' className='description-text' textAlign='center'>
               {requestState ? 'Name' : 'Name'}
             </label>
             
             <Input type='text-description' id='input_name' className='stretch-box-black-text' w='50%'
-            placeholder='Name here' overflowWrap="break-word" borderRadius='6px' textAlign='center'
-            border='1px solid gray' mt='2px' style={{height: '40px'}} size='10px'
+            placeholder='Name here' overflowWrap="break-word" borderRadius='6px'
+            border='1px solid gray' mt='10px' style={{height: '40px'}}
             maxLength={200}/>
 
 
@@ -1220,7 +1081,7 @@ function Map() {
 
             {/* Request Location Buttons  */}
             {isRVisible && (
-              <Button colorScheme={requestState ? 'red' : 'blue'} size='md' width='180px' mt='10px' mb='15px' onClick={() => Toggle("Request")}>
+              <Button colorScheme={requestState ? 'red' : 'blue'} size='md' width='180px' mt='10px' mb='5px' onClick={() => Toggle("Request")}>
                 {ReqName}
               </Button>
               )
@@ -1238,14 +1099,13 @@ function Map() {
           
         ) : null
       }
-
         <Tooltip label='Legend' openDelay={400} hasArrow>
         <Box
           p={1}
           borderRadius='lg'
           m={1}
-          height='100px'
-          width='125px'
+          height='95px'
+          width='120px'
           bgColor='rgba(128, 128, 128, 0.8)'
           shadow='base'
           bottom='10px'
@@ -1253,8 +1113,7 @@ function Map() {
           zIndex='1'
           position = 'absolute'
           border='1px solid orange'
-          display='flex'
-          alignItems='center'>
+          display='flex' >
             <VStack spacing = {0.5} alignItems='flex-start' pl='5px'>
               <HStack>
                 <Image src={RedPin} boxSize='20px' />
@@ -1269,7 +1128,7 @@ function Map() {
                 <Text fontSize='10px' pb='1px' textAlign='left' as='b'> Bump </Text>
               </HStack>
               <HStack>
-                <Image src={GreenPin} boxSize='20px' />
+                <Image src={RedPin} boxSize='20px' />
                 <Text fontSize='10px' pb='1px' textAlign='left' as='b'> Cracks </Text>
               </HStack>
             </VStack>
