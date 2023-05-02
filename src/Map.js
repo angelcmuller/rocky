@@ -8,6 +8,8 @@ import './App.css';
 import './Map.css';
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
 import "./mapbox-gl-traffic.css";
+import 'react-toastify/dist/ReactToastify.css';
+
 
 // Components imports
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Box, Button, Flex, HStack, Heading,
@@ -15,10 +17,12 @@ import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIco
   ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useDisclosure,
   Divider, Image, Tooltip, VStack, Checkbox, Select, Stack } from '@chakra-ui/react'; 
 import { HamburgerIcon, PhoneIcon, SettingsIcon } from "@chakra-ui/icons";
+import { toast, ToastContainer } from 'react-toastify';
 
 // React imports
 import './App.css';
 import './Map.css';
+import Notification from "./Notification";
 //import { displayMarkers, markerClicked, markers} from "./DisplayMarkers";
 import { BrowserRouter as Router, useNavigate, Routes, useLinkClickHandler } from 'react-router-dom';
 import { useRef, useState, useEffect} from 'react';
@@ -123,6 +127,8 @@ function deactivateRadius(map){
   radius_layer = {}
 }
 
+
+
 //Gabriel Mortensen Pin Display functions below
 //Waiting for data from MogoDB
 //Uses the result variable 
@@ -201,11 +207,11 @@ async function addMarkers(pinData, commentData, map, pinInformation, setPinInfor
       <div class="close-button-container">
         <button class="close-button"></button>
       </div>
-      <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3>
-      <p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>
+      <h3 id = "comment-content" style="color: black; text-align: center; font-size: 18px;">${commentData[i].Comment}</h3>
+      <p id = "comment-content" style="color: gray; text-align: center; font-size: 14px;">by ${commentData[i].User}</p>
       <div class="popup-buttons-container">
-        <button id="like-btn-${i}" class="popup-button display-button">Like</button>
-        <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button>
+        <button id="like-btn-${i}" class="popup-button-display-button-like">Like</button>
+        <button id="dislike-btn-${i}" class="popup-button-display-button-dislike">Dislike</button>
       </div>
     </div>`;
 
@@ -238,12 +244,30 @@ async function addMarkers(pinData, commentData, map, pinInformation, setPinInfor
       const { lng, lat } = marker.getLngLat();
       const value = 1; // user clicked "like"
       Like(lat, lng, value); 
+      toast.success('You liked this!', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     });
-
+    
     dislikeBtn.addEventListener('click', () => {
       const { lng, lat } = marker.getLngLat();
       const value = -1; // user clicked "dislike"
       Like(lat, lng, value); 
+      toast.success('You disliked this!', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     });
     //need to add one:true to keep pop up from liking multiple times in one click
   }, { once: true });
@@ -310,6 +334,7 @@ function Map() {
   const [pinRadiusState, setPinRadiusState] = useState(false);
   const [routeState, setRouteState] = useState(true);
   const [pinInformation, setPinInformation] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
   
   // Used to navigate to the Home Page
   const navigatetoLandPage = () => {
@@ -317,6 +342,7 @@ function Map() {
     navigate('/')
     document.location.reload();
   }
+
 
   //This function returns records from the MongoDB database
   useEffect(() => {
@@ -563,7 +589,7 @@ function Map() {
       } else {
         boxState = false;
         // console.log("Box State changed", boxState);
-      }
+      }    
 
       // Add a click event listener to the map
       map.on('click', (e) => {
@@ -1276,6 +1302,7 @@ function Map() {
 
           </Box>
           </Tooltip>
+          <ToastContainer />
     </Flex>
   );
 }

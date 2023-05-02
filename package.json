@@ -7,8 +7,8 @@
     "@chakra-ui/icons": "^2.0.17",
     "@chakra-ui/react": "^2.4.3",
     "@chakra-ui/switch": "^2.0.17",
-    "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
+    "@emotion/react": "^11.10.8",
+    "@emotion/styled": "^11.10.8",
     "@googlemaps/react-wrapper": "^1.1.35",
     "@mapbox/mapbox-gl-directions": "^4.1.1",
     "@mui/material": "^5.10.17",
@@ -36,6 +36,7 @@
     "react-map-gl": "^7.0.21",
     "react-router-dom": "^6.4.3",
     "react-scripts": "^5.0.1",
+    "react-toastify": "^9.1.2",
     "styled-components": "^5.3.6",
     "web-vitals": "^2.1.4"
   },

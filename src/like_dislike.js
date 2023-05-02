@@ -17,5 +17,4 @@ export function Like(lat, lng , update_value) {
     .catch(function (error) {
       console.log(error);
     });
-    alert("modified comment")
 }

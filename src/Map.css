@@ -16,7 +16,7 @@
 }
 
 .popup-content {
-  max-width: 189px;
+  max-width: 20vw;
   padding: 2px 16px 0px 2px;
   box-shadow: None;
   border-radius: 50px;
@@ -65,6 +65,46 @@
   text-align: center;
   font-size: 16px;
   transition: background-color 0.2s ease-in-out;
+}
+.popup-button-display-button-like{
+  background-color: #559cad;
+  color: #FFFFFF;
+  border-radius: 2px;
+  border: none;
+  padding: 8px 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  font-size: 16px;
+  transition: background-color 0.2s ease-in-out;
+}
+#comment-content{
+
+
+}
+.popup-button-display-button-dislike{
+  background-color: #559cad;
+  color: #FFFFFF;
+  border-radius: 2px;
+  border: none;
+  padding: 8px 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  font-size: 16px;
+  transition: background-color 0.2s ease-in-out;
+}
+.popup-button-display-button-dislike:active{
+  transform: translateY(5px);
+  background-color:rgb(172, 0, 34);
+}
+.popup-button-display-button-like:active{
+  transform: translateY(5px);
+  background-color:rgb(0, 191, 60);
 }
 .popup-button:last-child {
   margin-bottom: 0;
