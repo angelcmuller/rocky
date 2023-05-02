@@ -270,7 +270,7 @@ function createDirections() {
     interactive: false,
     alternatives: 'true',
     controls: {
-      instructions: false
+      instructions: true
     }
   });
 }
