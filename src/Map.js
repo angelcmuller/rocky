@@ -657,6 +657,7 @@ function Map() {
             // Add click event listeners to the buttons
             //Author: Tristan Bailey
             document.getElementById('display-btn').addEventListener('click', () => {
+              setRouteState(false)
               console.log('Display button clicked');
               Toggle("Radius Display");
               popup.remove();
