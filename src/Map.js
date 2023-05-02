@@ -45,7 +45,7 @@ import * as turf from '@turf/turf';
 //node --harmony-top-level-await map.js
 // import Swal from 'sweetalert2';
 var markerClicked = false
-var markers = [] // Array to store markers currently on the map
+export var markers = [] // Array to store markers currently on the map
 
 // Used to store lattitude and Longitud
 //radius_global: in miles
@@ -92,10 +92,16 @@ async function MongoRecords(link) {
 
 // Loop through the markers array and add each marker to the map
 //Author: Tristan Bailey
-function displayMarkers(map){
-  markers.forEach((marker) => {
+export function displayMarkers(map, markers_list = markers){
+  markers_list.forEach((marker) => {
     marker.addTo(map);
   });
+}
+export function removeMarkers(map) {
+  markers.forEach(marker => {
+    marker.remove();
+  });
+  markers = [];
 }
 
 //Author: Tristan Bailey
@@ -128,18 +134,22 @@ function displayRadius(map) {
 }
 
 //Author: Tristan Bailey
-function deactivateRadius(map){
-  map.removeLayer(radius_layer.id);
-  radius_layer = {}
+export function deactivateRadius(map) {
+  if (map.getLayer(radius_layer.id)) {
+    map.removeLayer(radius_layer.id);
+  }
 }
 
-//Gabriel Mortensen Pin Display functions below
-//Waiting for data from MogoDB
-//Uses the result variable 
 async function addMarkers(pinData, commentData, map, pinInformation, setPinInformation) {
   // Remove all existing markers from the map
   markers.forEach(marker => marker.remove());
   markers = [];
+  await appendMarkers(pinData, commentData, map, pinInformation, setPinInformation);
+}
+//Gabriel Mortensen Pin Display functions below
+//Waiting for data from MogoDB
+//Uses the result variable 
+export async function appendMarkers(pinData, commentData, map, pinInformation, setPinInformation) {
   //const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
   //const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
   //var pinData = await MongoRecords(`http://localhost:3000/record/`);
@@ -284,7 +294,7 @@ async function getInRadius(longitude, lattitude, collection, radius ){
 function createDirections() {
   return new MapboxDirections({
     accessToken: mapboxgl.accessToken,
-    unit: 'metric',
+    unit: 'imperial',
     profile: 'mapbox/driving-traffic',
     interactive: false,
     alternatives: 'true',
@@ -312,6 +322,17 @@ function Map() {
   const navigate = useNavigate();
   const [showResults, setShowResults] = React.useState(true);
   const [pinInfo, setPinInfo] = useState([]);
+
+
+  const [isCommentChecked, setIsCommentChecked] = useState(false);
+  // State handlers for the checkboxes in Features in Settings Menu
+  const [isBumpChecked, setIsBumpChecked] = useState(false);
+  const [isSpeedBumpChecked, setIsSpeedBumpChecked] = useState(false);
+  const [isCrackChecked, setIsCrackChecked] = useState(false);
+  const [isPotholeChecked, setIsPotholeChecked] = useState(false);
+  const [isOtherChecked, setIsOtherChecked] = useState(false);
+  // State handler for the Select dropdown from Settings Menu
+  const [selectedPriority, setSelectedPriority] = useState('');
 
   //const map = useRef(null);
   //sets start to RENO area
@@ -368,7 +389,7 @@ function Map() {
   //   }        
   // }
 
-  function convertUnixTimestamp(unixTimestamp: number): string {
+  function convertUnixTimestamp(unixTimestamp) {
     const date = new Date(unixTimestamp * 1000);
     const year = date.getFullYear();
     const month = ("0" + (date.getMonth() + 1)).slice(-2);
@@ -476,7 +497,7 @@ function Map() {
       map.addControl(dirs, 'top-left');
 
       map.on('load', () => {
-        displayMarkers(map)
+        displayMarkers(map, markers)
         displayRadius(map)
         //use to display input boxes if in routing mode
         if (routeState === true){
@@ -494,7 +515,7 @@ function Map() {
           //directions = createDirections();
           //map.addControl(directions, 'top-left');
           // console.log("Routingx2");
-          Route(map, dirs);
+          Route(map, dirs,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation);
         }
       });
 
@@ -515,7 +536,7 @@ function Map() {
           //directions = createDirections();
           //map.addControl(directions, 'top-left');
           console.log("Routingx2");
-          Route(map, dirs);
+          //Route(map, dirs,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation);
         }
       });
 
@@ -721,7 +742,7 @@ function Map() {
     // If any of the variables in the dependency array change, the effect will re-run.
 
   }, [
-    requestState, commentState, lng, lat, pinRadiusState, markers
+    requestState, commentState, lng, lat, pinRadiusState, markers,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked
   ]);
   
   // Function sends comment or request to database  
@@ -962,22 +983,12 @@ function Map() {
   }
 
   // State handlers for the Comment/Request/ShowComments Switches
-  const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
 
   // State handler for the values of the radio buttons
   const [value, setValue] = useState('5');
 
   // State handlers for the checkboxes in Features in Settings Menu
-  const [isBumpChecked, setIsBumpChecked] = useState(false);
-  const [isSpeedBumpChecked, setIsSpeedBumpChecked] = useState(false);
-  const [isCrackChecked, setIsCrackChecked] = useState(false);
-  const [isPotholeChecked, setIsPotholeChecked] = useState(false);
-  const [isOtherChecked, setIsOtherChecked] = useState(false);
-
-  // State handler for the Select dropdown from Settings Menu
-  const [selectedPriority, setSelectedPriority] = useState('');
-
   const [markerOpacity, setMarkerOpacity] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");

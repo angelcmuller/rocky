@@ -102,7 +102,20 @@ recordRoutes.route("/record").get(function(req, res) {
 
 recordRoutes.route("/crecord").get(function(req, res) {
   let db_connect = dbo.getDb("pinDatabase");
-  db_connect.collection("Comments").find({}).toArray(function(err, result) {
+  let query = {};
+  if (req.query.minLongitude && req.query.maxLongitude && req.query.minLatitude && req.query.maxLatitude) {
+    query = {
+      Longitude: {
+        $gte: Number(req.query.minLongitude),
+        $lte: Number(req.query.maxLongitude)
+      },
+      Lattitude: {
+        $gte: Number(req.query.minLatitude),
+        $lte: Number(req.query.maxLatitude)
+      }
+    };
+  }
+  db_connect.collection("Comments").find(query).toArray(function(err, result) {
     if (err) throw err;
     let output = JSON.stringify(result);
     //console.log(output);
