@@ -751,6 +751,18 @@ function Map() {
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");
 
+
+  function GrabImage_bind(param) {
+    var data_link;
+    GrabImage(param).then(link => {
+      data_link = link;
+      alert(data_link)
+      return data_link
+    });
+ 
+    
+  }
+
   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
       <Flex h='10vh' bg='teal' opacity='0.80'>
@@ -958,10 +970,11 @@ function Map() {
                 <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
                 <Text color='red.500' fontSize='20px' pt='20px'> Here is some information </Text>
                 <Text color='red.500' fontSize='18px' pt='10px'>Source: {pinInformation.Source}</Text>
-                <img src={`data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, GrabImage(pinInformation.Img_ObjectId)))}`} alt="Image" />
-               
-                {/* <GetPinDatatoDisplay /> */}
-
+                
+                <script>
+                  GrabImage_bind(pinInformation.Img_ObjectId)
+                </script>
+                
                 <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
                     Exit
                 </Button>
