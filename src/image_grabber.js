@@ -2,6 +2,7 @@ import axios from 'axios';
 
 // this function grabs an image from the database corresponding to the ID provided
 export function GrabImage(id) {
+
   return axios.post('http://localhost:3000/imageForPins', { id: id })
     .then(response => {
       // Convert the base64-encoded byte string to a byte array
@@ -35,7 +36,7 @@ export function GrabImage(id) {
 
       // Get the data URL from the image data
       const imageUrl = canvas.toDataURL();
-      console.log(imageUrl)
+      // console.log(imageUrl)
       // Return the data URL
       return imageUrl;
     })

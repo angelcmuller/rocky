@@ -350,7 +350,8 @@ function Map() {
           '"<br /><br />' +
           '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
           '</div>';
-          
+         
+
           const marker = new mapboxgl.Marker({ color: markerColor })
               .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
               .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: true })
@@ -780,6 +781,24 @@ function Map() {
     return formattedDate;
 }
 
+const ConvertedImages = () => {
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    GrabImage(pinInformation.Img_ObjectId)
+      .then((imageData) => setImageUrl(imageData))
+      .catch((error) => console.error(error));
+  }, [pinInformation.Img_ObjectId]);
+
+  if (!imageUrl) {
+    return <div>Loading...</div>;
+  }
+
+  return <Image src={imageUrl} />;
+};
+
+
+
 
   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
@@ -989,13 +1008,13 @@ function Map() {
                 <Text color='red.500' fontSize='20px' pt='20px'> Here is some information </Text>
                 <Text color='red.500' fontSize='18px' pt='10px'>Source: {pinInformation.Source}</Text>
                 <Text color='red.500' fontSize='18px' pt='10px'>Classification: {pinInformation.Classification}</Text>
-               
-                <script>
-                  {DataLink} = await getData({pinInformation.Img_ObjectId});
+                <ConvertedImages/> 
+                {/* <script>
+                  {GrabImage(pinInformation.Img_ObjectId)};
                   {MeasureDataInfo} = convertUnixTimestamp({pinInformation.MeasurementDate})
-                </script>
+                </script> */}
                 
-                <Text color='red.500' fontSize='18px' pt='10px'>Link : {DataLink} </Text>
+                {/* <Text color='red.500' fontSize='18px' pt='10px'>Link : {DataLink} </Text> */}
                 <Text color='red.500' fontSize='18px' pt='10px'>Measure Date: <br></br> {convertUnixTimestamp(pinInformation.MeasurementDate)} </Text>
                 <Text color='red.500' fontSize='18px' pt='10px'>Lat: {pinInformation.Lattitude} Lng: {pinInformation.Longitude}</Text>
                 <Text color='red.500' fontSize='18px' pt='10px'>Altitude: {pinInformation.Altitude} </Text>
