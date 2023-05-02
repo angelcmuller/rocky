@@ -13,6 +13,11 @@
   height: 100%;
 }
 
+#welcome {
+  font-family: 'Times New Roman', Times, serif;
+  text-shadow: 2px 2px 4px #d6ac2d;
+}
+
 #menu {
   display: flex;
   justify-content: space-between;
@@ -47,14 +52,12 @@
 }
 
 #welcome {
-  font-size: 50px;
+  color: rgb(0,0,0);
+  font-size: 45px;
   font-weight: bold;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   text-align: center;
-  font-family: 'Montserrat', sans-serif;
-  color: #333333;
-  font-family: 'Times New Roman', Times, serif;
-  text-shadow: 2px 2px 4px #d6ac2d;
+  top: 500px;
 }
 
 #Logo {
