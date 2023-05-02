@@ -88,6 +88,13 @@ export function displayMarkers(map, markers_list=markers){
   });
 }
 
+export function removeMarkers(map) {
+  markers.forEach(marker => {
+    marker.remove();
+  });
+  markers = [];
+}
+
 //Author: Tristan Bailey
 var radius_layer = {}
 function activateRadius(longitude, lattitude){

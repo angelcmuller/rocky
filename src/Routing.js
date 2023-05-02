@@ -8,7 +8,7 @@ import * as turf from '@turf/turf';
 import * as polyline from '@mapbox/polyline';
 
 import JsonListReturn from "./components/recordList";
-import { markers, appendMarkers, displayMarkers, deactivateRadius } from "./Map.js";
+import { markers, appendMarkers, displayMarkers, removeMarkers  } from "./Map.js";
 
 async function MongoRecords(link) {
     const pinInfo = await JsonListReturn(link);
@@ -113,6 +113,7 @@ export async function Route(map, directions, isOtherChecked, isPotholeChecked, i
     //map.addControl(directions, 'top-left');
     //deactivateRadius(map);
     directions.on('route', async (event) => {
+        removeMarkers(map);
         //markers.forEach(marker => marker.remove());
         //markers = [];
         removeAdditionalSourceAndLayer(map, routeCount);
@@ -199,6 +200,7 @@ export async function Route(map, directions, isOtherChecked, isPotholeChecked, i
       
         // Add event listener for changes to the profile property of the Mapbox Directions object
         directions.on('profile', async (event) => {
+            removeMarkers(map);
             const profile = event.profile;
             if (profile === 'mapbox/walking' || profile === 'mapbox/cycling') {
                 // Change the profile-specific settings here
