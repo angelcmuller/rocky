@@ -28,7 +28,8 @@ import "./mapbox-gl-traffic.css";
 import { cyan } from "@mui/material/colors";
 // import Swal from 'sweetalert2';
 
-
+var DataLink;
+var MeasureDataInfo; 
 var UserLat; 
 var UserLng; 
 var userInput; //used for comments and requests
@@ -752,6 +753,12 @@ function Map() {
   const [selectedConditionOption, setConditionOption] = useState("");
 
 
+  async function getData() {
+    const data_link = await GrabImage_bind(pinInformation.Img_ObjectId);
+    return data_link
+  }
+
+
   function GrabImage_bind(param) {
     var data_link;
     GrabImage(param).then(link => {
@@ -759,9 +766,20 @@ function Map() {
       alert(data_link)
       return data_link
     });
- 
-    
   }
+
+  function convertUnixTimestamp(unixTimestamp: number): string {
+    const date = new Date(unixTimestamp * 1000);
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    const hours = ("0" + date.getHours()).slice(-2);
+    const minutes = ("0" + date.getMinutes()).slice(-2);
+    const seconds = ("0" + date.getSeconds()).slice(-2);
+    const formattedDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+    return formattedDate;
+}
+
 
   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display = 'vertical' color='white'>
@@ -970,10 +988,19 @@ function Map() {
                 <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
                 <Text color='red.500' fontSize='20px' pt='20px'> Here is some information </Text>
                 <Text color='red.500' fontSize='18px' pt='10px'>Source: {pinInformation.Source}</Text>
-                
+                <Text color='red.500' fontSize='18px' pt='10px'>Classification: {pinInformation.Classification}</Text>
+               
                 <script>
-                  GrabImage_bind(pinInformation.Img_ObjectId)
+                  {DataLink} = await getData({pinInformation.Img_ObjectId});
+                  {MeasureDataInfo} = convertUnixTimestamp({pinInformation.MeasurementDate})
                 </script>
+                
+                <Text color='red.500' fontSize='18px' pt='10px'>Link : {DataLink} </Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Measure Date: <br></br> {convertUnixTimestamp(pinInformation.MeasurementDate)} </Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Lat: {pinInformation.Lattitude} Lng: {pinInformation.Longitude}</Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Altitude: {pinInformation.Altitude} </Text>
+               
+
                 
                 <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
                     Exit
