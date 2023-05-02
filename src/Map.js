@@ -82,7 +82,7 @@ async function MongoRecords(link) {
 
 // Loop through the markers array and add each marker to the map
 //Author: Tristan Bailey
-export function displayMarkers(map, markers_list){
+export function displayMarkers(map, markers_list=markers){
   markers_list.forEach((marker) => {
     marker.addTo(map);
   });
@@ -268,7 +268,7 @@ function createDirections() {
   return new MapboxDirections({
     accessToken: mapboxgl.accessToken,
     unit: 'imperial',
-    profile: 'mapbox/driving-traffic',
+    profile: 'mapbox/driving',
     interactive: false,
     alternatives: 'true',
     controls: {

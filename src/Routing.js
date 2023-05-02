@@ -178,6 +178,65 @@ export async function Route(map, directions, isOtherChecked, isPotholeChecked, i
             displayMarkers(map, markers)
         }
     });
+    function getDirectionsUrl(origin, destination, params) {
+        const baseUrl = 'https://api.mapbox.com/directions/v5/mapbox';
+        const profile = params.profile;
+        const waypoints = params.waypoints ? params.waypoints.map(wp => `${wp[0]},${wp[1]}`).join(';') : '';
+        const alternatives = params.alternatives ? 'true' : 'false';
+        const accessToken = mapboxgl.accessToken;
+        const queryParams = new URLSearchParams({
+          geometries: 'polyline',
+          overview: 'full',
+          steps: 'false',
+          alternatives: alternatives,
+          access_token: accessToken
+        });
+      
+        let url = `${baseUrl}/${profile}/${waypoints}/${origin[0]},${origin[1]};${destination[0]},${destination[1]}?${queryParams.toString()}`;
+      
+        return url;
+      }
+      
+        // Add event listener for changes to the profile property of the Mapbox Directions object
+        directions.on('profile', async (event) => {
+            const profile = event.profile;
+            if (profile === 'mapbox/walking' || profile === 'mapbox/cycling') {
+                // Change the profile-specific settings here
+                directions.setOptions({
+                    profile: profile,
+                    walkingOptions: {
+                        exclude: 'motorway,tollway,steps'
+                    },
+                    cyclingOptions: {
+                        exclude: 'motorway,tollway'
+                    }
+                });
+    
+                // Rerun route calculation with the new profile
+                const origin = directions.getOrigin().geometry.coordinates;
+                const destination = directions.getDestination().geometry.coordinates;
+                const waypoints = directions.getWaypoints().map(wp => wp.geometry.coordinates);
+                const params = {
+                    profile: profile,
+                    waypoints: waypoints,
+                    alternatives: true
+                };
+                const response = await fetch(getDirectionsUrl(origin, destination, params));
+                const data = await response.json();
+                directions.setRoutes(data.routes);
+            } else {
+                // Revert to the default settings
+                directions.setOptions({
+                    profile: 'mapbox/driving',
+                    walkingOptions: {},
+                    cyclingOptions: {}
+                });
+    
+                // Rerun route calculation with the default profile
+                directions.setOrigin(directions.getOrigin());
+                directions.setDestination(directions.getDestination());
+            }
+        });
 }
 export function testJest(){
     return true;
