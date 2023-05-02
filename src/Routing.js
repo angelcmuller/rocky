@@ -17,7 +17,8 @@ async function MongoRecords(link) {
 //developed by Tristan Bailey
 export async function Route(map, directions, startLat=0, startLong=0, endLat=0, endLong=0, routeCount=3){
     const [pins, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
-    
+    console.log(commentData)
+    console.log(pins)
     function addAdditionalSourceAndLayer() {
         //add routes layers to map limiting to a maximum of 10
         for (let i =0; i <= routeCount && i < 10; ++i){
