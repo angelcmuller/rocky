@@ -29,16 +29,40 @@ function checkIntersection(routeLine, specialGeoJSONList) {
     return false;
 }
 
-async function rerouteIfNecessary(route, waypoints, directions) {
-    const bufferedRoute = turf.buffer(route, 0.01, { units: 'kilometers' });
-    const intersections = checkIntersection(bufferedRoute, waypoints);
-    if (intersections) {
-      const newWaypoints = waypoints.filter(waypoint => !intersections.includes(waypoint));
-      await setRoute(newWaypoints, directions);
-      return true;
-    }
-    return false;
-  }
+// async function rerouteIfNecessary(route, waypoints, directions) {
+//     const bufferedRoute = turf.buffer(route, 0.01, { units: 'kilometers' });
+//     const intersections = checkIntersection(bufferedRoute, waypoints);
+  
+//     if (intersections) {
+//       const origin = directions.getOrigin();
+//       const destination = directions.getDestination();
+//       const token = mapboxgl.accessToken;
+  
+//       const allPoints = [origin.geometry.coordinates]
+//         .concat(waypoints.map(waypoint => waypoint.geometry.coordinates))
+//         .concat(destination.geometry.coordinates)
+//         .join(';');
+  
+//       const matrixUrl = `https://api.mapbox.com/directions-matrix/v1/mapbox/driving/${allPoints}?sources=0&destinations=${allPoints.length - 1}&access_token=${token}`;
+//       const response = await fetch(matrixUrl);
+//       const data = await response.json();
+  
+//       if (data.code === 'Ok') {
+//         const travelTimes = data.durations[0];
+        
+//         // Use a custom algorithm to find an optimal route that avoids waypoints with high costs.
+//         const alternativeRoute = findAlternativeRoute(travelTimes, waypoints);
+        
+//         if (alternativeRoute) {
+//           const newRouteLine = polyline.toGeoJSON(alternativeRoute.geometry);
+//           map.getSource(`route${route.id}`).setData(newRouteLine);
+//           return true;
+//         }
+//       }
+//     }
+//     return false;
+//   }
+   
 
 function mergeGeoJSONObjects(geojson1, geojson2) {
    if(geojson1 === [] && geojson2 === []){
@@ -126,7 +150,82 @@ function getPinsByIds(pins, pin_ids) {
     }
     return result;
   }
-  
+  async function displayRoute(route, map, lastPanelTop, pinInformation, setPinInformation, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, selectedPriority, isCommentChecked) {
+    //get route distances
+    const distanceMeters = route.distance;
+    const distanceMiles = distanceMeters / 1609.34;
+    console.log(distanceMeters)
+    console.log(distanceMiles)
+    
+    map.setLayoutProperty(`route${route.id}`, 'visibility', 'visible');
+    //convert each route to a geojson
+    const routeLine = polyline.toGeoJSON(route.geometry);
+    var [pins, commentData] = await geobox_pins(routeLine);
+    pins = object_filter(pins, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
+    commentData = object_filter(commentData, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
+    var comment_objects_length;
+    var comment_objects;
+    var count_comment = {};
+    if(isCommentChecked){
+        commentData = [];
+        comment_objects_length = 0;
+        comment_objects = [];
+    }
+    else{
+        const geoJSON_comments = pinDataToGeoJSON(commentData);
+        const obstructions_comments = turf.buffer(geoJSON_comments, 0.01, { units: 'kilometers'});
+        comment_objects = getPinsByIds(commentData, 
+            compile_intersection_id_list(obstructions_comments, routeLine)
+        );
+        comment_objects_length = comment_objects.length;
+        count_comment = count_classifications(comment_objects, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
+    }
+
+    const geoJSON_pins = pinDataToGeoJSON(pins);
+    //scale hazards naively assuming they are 30 sqft, as this is the minimum buffer supports
+    const obstructions_pins = turf.buffer(geoJSON_pins, 0.01, { units: 'kilometers'});
+    const pin_objects = getPinsByIds(pins,
+        compile_intersection_id_list(obstructions_pins, routeLine)
+    );
+
+    const count_pins = count_classifications(pin_objects, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
+    console.log(JSON.stringify(count_comment))
+    console.log(JSON.stringify(count_pins))
+    
+    console.log("Lengths");
+    console.log(comment_objects_length);
+    console.log(pin_objects.length);
+
+    
+    const approval_rating = calculateLikesDislikesRatio(comment_objects);
+    
+    console.log("Rating " + approval_rating)
+
+    const [score, hazard_ratio] = ScoringSystem(distanceMeters, pin_objects, comment_objects)
+
+    const json_data = mergeCounts(count_comment, count_pins)
+        json_data.score = score;
+        json_data.hazard_ratio = hazard_ratio;
+        json_data.approval_rating = approval_rating;
+        json_data.route_id = route.id;
+    //alert(JSON.stringify(json_data))
+    const offset = displayPanel(json_data, map, lastPanelTop);
+
+    // Update the vertical position of the last panel displayed
+    lastPanelTop += offset + 10; // Add an offset to create some space between panels
+
+    await appendMarkers(pin_objects, comment_objects, map, pinInformation, setPinInformation);
+    map.getSource(`route${route.id}`).setData(routeLine);
+    if (comment_objects_length === 0 && pin_objects.length === 0){
+    map.setPaintProperty(`route${route.id}`, 'line-color', '#31C4AF');
+        console.log("clear");
+    } else {
+        map.setPaintProperty(`route${route.id}`, 'line-color', '#9933ff');
+        console.log("not clear");
+    }
+    displayMarkers(map, markers)
+    return lastPanelTop;
+}  
 
 //developed by Tristan Bailey
 export async function Route(map, directions, selectedPriority, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation, routeCount=3){
@@ -180,11 +279,6 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
 
     directions.on('route', async (event) => {
 
-        if (regeneratingRoute) {
-            regeneratingRoute = false;
-            return;
-        }
-
         removeMarkers(map);
         //markers.forEach(marker => marker.remove());
         //markers = [];
@@ -208,99 +302,7 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
         }
         let lastPanelTop = 10;
         for(const route of routes){
-            //get route distances
-            const distanceMeters = route.distance;
-            const distanceMiles = distanceMeters / 1609.34;
-            console.log(distanceMeters)
-            console.log(distanceMiles)
-            
-            map.setLayoutProperty(`route${route.id}`, 'visibility', 'visible');
-            //convert each route to a geojson
-            const routeLine = polyline.toGeoJSON(route.geometry);
-            var [pins, commentData] = await geobox_pins(routeLine);
-            pins = object_filter(pins, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
-            commentData = object_filter(commentData, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
-            
-            const priority_objs = mergeGeoJSONObjects(pinDataToGeoJSON(filterObjectsByPriority(pins, selectedPriority)), pinDataToGeoJSON(filterObjectsByPriority(commentData, selectedPriority)))
-            if (directions.profile === 'driving') {
-                // Calculate the centroids of the buffered special GeoJSON objects
-                const waypoints = calculateCentroids(priority_objs.features);
-    
-                // Regenerate the route using the calculated centroids as waypoints
-                const origin = directions.getOrigin().geometry.coordinates;
-                const destination = directions.getDestination().geometry.coordinates;
-                const profile = directions.getProfile();
-                const params = {
-                    profile: profile,
-                    waypoints: waypoints,
-                    alternatives: true
-                };
-                const response = await fetch(getDirectionsUrl(origin, destination, params));
-                const data = await response.json();
-                directions.setRoutes(data.routes);
-            }
-
-            var comment_objects_length;
-            var comment_objects;
-            var count_comment = {};
-            if(isCommentChecked){
-                commentData = [];
-                comment_objects_length = 0;
-                comment_objects = [];
-            }
-            else{
-                const geoJSON_comments = pinDataToGeoJSON(commentData);
-                const obstructions_comments = turf.buffer(geoJSON_comments, 0.01, { units: 'kilometers'});
-                comment_objects = getPinsByIds(commentData, 
-                    compile_intersection_id_list(obstructions_comments, routeLine)
-                );
-                comment_objects_length = comment_objects.length;
-                count_comment = count_classifications(comment_objects, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
-            }
-
-            const geoJSON_pins = pinDataToGeoJSON(pins);
-            //scale hazards naively assuming they are 30 sqft, as this is the minimum buffer supports
-            const obstructions_pins = turf.buffer(geoJSON_pins, 0.01, { units: 'kilometers'});
-            const pin_objects = getPinsByIds(pins,
-                compile_intersection_id_list(obstructions_pins, routeLine)
-            );
-
-            const count_pins = count_classifications(pin_objects, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
-            console.log(JSON.stringify(count_comment))
-            console.log(JSON.stringify(count_pins))
-            
-            console.log("Lengths");
-            console.log(comment_objects_length);
-            console.log(pin_objects.length);
-
-            
-            const approval_rating = calculateLikesDislikesRatio(comment_objects);
-            
-            console.log("Rating " + approval_rating)
-
-            const [score, hazard_ratio] = ScoringSystem(distanceMeters, pin_objects, comment_objects)
-
-            const json_data = mergeCounts(count_comment, count_pins)
-                json_data.score = score;
-                json_data.hazard_ratio = hazard_ratio;
-                json_data.approval_rating = approval_rating;
-                json_data.route_id = route.id;
-            //alert(JSON.stringify(json_data))
-            const offset = displayPanel(json_data, map, lastPanelTop);
-
-            // Update the vertical position of the last panel displayed
-            lastPanelTop += offset + 10; // Add an offset to create some space between panels
-
-            await appendMarkers(pin_objects, comment_objects, map, pinInformation, setPinInformation);
-            map.getSource(`route${route.id}`).setData(routeLine);
-            if (comment_objects_length === 0 && pin_objects.length === 0){
-            map.setPaintProperty(`route${route.id}`, 'line-color', '#31C4AF');
-                console.log("clear");
-            } else {
-                map.setPaintProperty(`route${route.id}`, 'line-color', '#9933ff');
-                console.log("not clear");
-            }
-            displayMarkers(map, markers)
+            lastPanelTop = await displayRoute(route, map, lastPanelTop, pinInformation, setPinInformation, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, selectedPriority, isCommentChecked);
         }
     });
     function getDirectionsUrl(origin, destination, params) {
