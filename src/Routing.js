@@ -9,6 +9,7 @@ import * as polyline from '@mapbox/polyline';
 
 import JsonListReturn from "./components/recordList";
 import { markers, appendMarkers, displayMarkers, removeMarkers  } from "./Map.js";
+import { object_filter } from './Object_Filter';
 
 async function MongoRecords(link) {
     const pinInfo = await JsonListReturn(link);
@@ -139,7 +140,8 @@ export async function Route(map, directions, isOtherChecked, isPotholeChecked, i
             //convert each route to a geojson
             const routeLine = polyline.toGeoJSON(route.geometry);
             var [pins, commentData] = await geobox_pins(routeLine);
-            
+            pins = object_filter(pins, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
+            commentData = object_filter(commentData, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
             var comment_objects_length;
             var comment_objects;
             if(isCommentChecked){
@@ -166,7 +168,6 @@ export async function Route(map, directions, isOtherChecked, isPotholeChecked, i
             console.log("Lengths");
             console.log(comment_objects_length);
             console.log(pin_objects.length);
-
             await appendMarkers(pin_objects, comment_objects, map, pinInformation, setPinInformation);
             map.getSource(`route${route.id}`).setData(routeLine);
             if (comment_objects_length === 0 && pin_objects.length === 0){
