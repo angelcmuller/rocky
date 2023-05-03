@@ -198,6 +198,14 @@ function About() {
             
             <br/>
 
+            <h2 id="subtopic"> Official Project Video </h2>
+
+            <br/>
+            
+            <iframe class="center" width="560" height="315" src="https://www.youtube.com/embed/C-JNbze3uQM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+            <br/>
+
             <h2 id="subtopic"> Research Publications </h2>
             <p id='book'>G. B. R., C. C., S. B. Rao M., S. M., K. E. and S. J., "Deep Learning Based Pothole Detection and Reporting System," 2020 7th International Conference on Smart Structures and Systems (ICSSS), 2020, pp. 1-6, doi: 10.1109/ICSSS49621.2020.9202061. </p>
             <br/>
