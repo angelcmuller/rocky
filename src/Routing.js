@@ -9,7 +9,7 @@ import * as polyline from '@mapbox/polyline';
 
 import JsonListReturn from "./components/recordList";
 import { markers, appendMarkers, displayMarkers, removeMarkers  } from "./Map.js";
-import { object_filter, count_classifications } from './Object_Filter';
+import { object_filter, count_classifications, calculateLikesDislikesRatio } from './Object_Filter';
 
 async function MongoRecords(link) {
     const pinInfo = await JsonListReturn(link);
@@ -180,6 +180,9 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
             console.log("Lengths");
             console.log(comment_objects_length);
             console.log(pin_objects.length);
+
+            
+            approval_rating = calculateLikesDislikesRatio(comment_objects);
             await appendMarkers(pin_objects, comment_objects, map, pinInformation, setPinInformation);
             map.getSource(`route${route.id}`).setData(routeLine);
             if (comment_objects_length === 0 && pin_objects.length === 0){

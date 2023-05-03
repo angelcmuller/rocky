@@ -73,4 +73,26 @@ export function count_classifications(object_array, isOtherChecked, isPotholeChe
     // Return the counts object
     return counts;
   }
+
+  //computes the average confidence, assumed to be approvals over total reviews, 
+  //comments only
+  //Author: Tristan Bailey
+  export function calculateLikesDislikesRatio(object_array) {
+    let total_ratio = 0;
+    let count = 0;
+    if(object_array.length === 0){
+      return 1
+    }
+    
+    object_array.forEach(obj => {
+      let likes = (obj.Likes ?? 0) + 1; // adding Laplace smoothing to account for 0's
+      let dislikes = (obj.Dislikes ?? 0) + 1;
+      let ratio = likes / (likes + dislikes);
+      total_ratio += ratio;
+      count++;
+    });
+    
+    let average_ratio = total_ratio / count;
+    return average_ratio;
+  }
   
