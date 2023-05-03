@@ -12,7 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
 
 
-// Components imports
+import { GrabImage } from "./image_grabber.js";
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Box, Button, Flex, HStack, Heading,
   IconButton, Input, Text, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
   ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useDisclosure,
@@ -56,6 +56,8 @@ var markers = [] // Array to store markers currently on the map
 var radius_global = 5
 var comment_bool = false
 
+var DataLink;
+var MeasureDataInfo; 
 var UserLat; 
 var UserLng; 
 // Used for comments and requests
@@ -354,7 +356,6 @@ function Map() {
   const [ComName, setComName] = useState("Make a Comment");
   const [requestState, setRState] = useState(false);
   const [commentState, setCState] = useState(false);
-  const [pinRadiusState, setPinRadiusState] = useState(false);
   const [routeState, setRouteState] = useState(true);
   const [pinInformation, setPinInformation] = useState(false);
   const [showPanel, setShowPanel] = useState(false);
@@ -425,7 +426,7 @@ function Map() {
       }
     }
     //Engage comment functionality 
-    else if(Name === "Comment") {
+    else{
       console.log("CommentState", commentState);
       setCState(!commentState);
       if (ComName === "Make a Comment") {
@@ -445,9 +446,6 @@ function Map() {
         setRState(false);
         setReqName("Request Location");
       }
-    } else if(Name === "Radius Display"){
-      console.log("PinStatebefore", pinRadiusState);
-      setPinRadiusState(!pinRadiusState);
     }
   };
 
@@ -581,7 +579,119 @@ function Map() {
           console.log("Changed Theme");
         };
       }
-      // Like(39.56126011912147, -120.04878396803926 , -1);
+
+      //Gabriel Mortensen Pin Display functions below 
+      //Waiting for data from MogoDB
+      //Uses the result variable 
+      async function displayMarkers() {
+        // Wait for data from MongoDB
+        const [pinData, commentData, ContributData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`), MongoRecords(`http://localhost:3000/conrecord/`)]);
+        //const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
+        //const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
+        //var pinData = await MongoRecords(`http://localhost:3000/record/`);
+        //console.log(pinData)
+        
+        // Gabriel Mortensen & Angel C. Muller loop through the marker data and create marker colors 
+        // depending on the classification of road deficiency
+        for (let i = 0; i < pinData.length; i++) {
+          let markerColor = '#f5c7f7'; // Default color
+          if (pinData[i].Classification === 'bump') {
+            markerColor = '#17588a'; // Set color for a specific description
+          }
+          if (pinData[i].Classification === 'crack' ) {
+            markerColor = '#137d1f'; // Set color for another specific description
+          }
+          if (pinData[i].Classification === 'pot hole' ) {
+            markerColor = '#8f130a'; // Set color for another specific description
+          }
+          if (pinData[i].Classification === 'speed bump' ) {
+            markerColor = '#86178a'; // Set color for another specific description
+          }
+
+          // Define popup content HTML
+          const popupContent = '<div class="popup-content">' +
+          '<h1 style="color:black; font-size:18px; text-align:center; font-weight: bold">' + 'Description <br/>"' + pinData[i].Classification +
+          '"<br /><br />' +
+          '<h3 class="popup-button open-info" style="color:white; font-size: 15px; text-align:center"><button id="more-info-btn" style="text-decoration:underline">See more Information</button></h3>' + 
+          '</div>';
+         
+
+          const marker = new mapboxgl.Marker({ color: markerColor })
+              .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
+              .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: true })
+              .setHTML(popupContent))
+              .addTo(map);
+          
+          const moreInfoButton = marker._popup._content.querySelector('#more-info-btn');
+          moreInfoButton.addEventListener('click', function() {
+              setPinInformation(pinData[i]);
+              console.log("HERE", pinInformation);
+              pinCoordinatesForInfoDisplayLong = pinData[i].Longitude;
+              pinCoordinatesForInfoDisplayLat = pinData[i].Lattitude;
+              thisIsTheOne = i;
+              console.log(pinCoordinatesForInfoDisplayLong, pinCoordinatesForInfoDisplayLat, thisIsTheOne)
+          });
+          
+          // add click listener to marker
+          marker.getElement().addEventListener('click', () => {
+              markerClicked = true;
+          });
+          
+          // 'hover' over pins and see immediate information - changed it to 'click'
+          marker.getElement().addEventListener('click', () => {
+              marker.togglePopup();
+          });
+  
+        }
+        
+        for (let i = 0; i < commentData.length; i++) {
+          const marker = new mapboxgl.Marker({ color: '#e7eaf6' })
+            .setLngLat([commentData[i].Longitude, commentData[i].Lattitude])
+            .setPopup(new mapboxgl.Popup({ offset: 25 })
+              .setHTML(` <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3><p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p> </br> <div class="popup-buttons-container"> <button id="like-btn-${i}" class="popup-button display-button">Like</button> <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button> </div>   `))
+            .addTo(map);
+        
+          // add the marker to the markers array
+          markers.push(marker);
+
+          // add click listener to marker to ensure make comment/request popup doesn't appear
+          // when user clicks on these pins
+          marker.getElement().addEventListener('click', () => {
+            markerClicked = true;
+          });
+
+          // add click listener to marker
+          marker.getElement().addEventListener('click', () => {
+            marker.togglePopup();
+
+            // add click listeners to like/dislike buttons
+            const likeBtn = document.getElementById(`like-btn-${i}`);
+            const dislikeBtn = document.getElementById(`dislike-btn-${i}`);
+
+            likeBtn.addEventListener('click', () => {
+              const { lng, lat } = marker.getLngLat();
+              const value = 1; // user clicked "like"
+              Like(lat, lng, value); 
+            });
+
+            dislikeBtn.addEventListener('click', () => {
+              const { lng, lat } = marker.getLngLat();
+              const value = -1; // user clicked "dislike"
+              Like(lat, lng, value); 
+              // Swal.fire({
+              //   title: "Comment liked!",
+              //   icon: "success",
+              //   timer: 2000,
+              //   showConfirmButton: false
+              // });
+            });
+          //need to add one:true to keep pop up from liking multiple times in one click
+          }, { once: true });
+
+        }
+        
+       
+      }
 
 
       // Function to add event listener for marking pins
@@ -675,9 +785,7 @@ function Map() {
                     contributorData = contributorDataResult;
                     commentData = commentDataResult;
                     addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
-                      .then((markers) => {
-                        console.log("Got Markers");
-                      })
+                      .then((markers) => {console.log("Got Markers")})
                       .catch((error) => {
                         console.error('Error fetching markers:', error);
                       });
@@ -692,9 +800,7 @@ function Map() {
                   .then(([contributorDataResult]) => {
                     contributorData = contributorDataResult;
                     addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
-                      .then((markers) => {
-                        console.log("Got Markers");
-                      })
+                      .then((markers) => {console.log("Got Markers")})
                       .catch((error) => {
                         console.error('Error fetching markers:', error);
                       });
@@ -709,6 +815,7 @@ function Map() {
 
             document.getElementById('comment-btn').addEventListener('click', () => {
               console.log('Comment button clicked');
+              setIsCommentChecked(true);
               setIsCVisible(true);
               Toggle("Comment");
               popup.remove();
@@ -744,7 +851,7 @@ function Map() {
     // If any of the variables in the dependency array change, the effect will re-run.
 
   }, [
-    requestState, commentState, lng, lat, pinRadiusState, markers
+    requestState, commentState, lng, lat, markers
   ]);
   
   // Function sends comment or request to database  
@@ -808,15 +915,13 @@ function Map() {
           setSelectedOption('');
           setConditionOption('');
           // console.log("Box State changed", boxState)
-        } else if (commentState) {
+        } else {
           Toggle("Comment")
           boxState = false;
           // Resetting values when comment is submitted
           setSelectedOption('');
           setConditionOption('');
           // console.log("Box State changed", boxState)
-        } else {
-          boxState = false;
         }
       }
     }
@@ -1004,6 +1109,53 @@ function Map() {
   const [markerOpacity, setMarkerOpacity] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");
+
+
+  async function getData() {
+    const data_link = await GrabImage_bind(pinInformation.Img_ObjectId);
+    return data_link
+  }
+
+
+  function GrabImage_bind(param) {
+    var data_link;
+    GrabImage(param).then(link => {
+      data_link = link;
+      alert(data_link)
+      return data_link
+    });
+  }
+
+  function convertUnixTimestamp(unixTimestamp: number): string {
+    const date = new Date(unixTimestamp * 1000);
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    const hours = ("0" + date.getHours()).slice(-2);
+    const minutes = ("0" + date.getMinutes()).slice(-2);
+    const seconds = ("0" + date.getSeconds()).slice(-2);
+    const formattedDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+    return formattedDate;
+}
+
+const ConvertedImages = () => {
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    GrabImage(pinInformation.Img_ObjectId)
+      .then((imageData) => setImageUrl(imageData))
+      .catch((error) => console.error(error));
+  }, [pinInformation.Img_ObjectId]);
+
+  if (!imageUrl) {
+    return <div>Loading...</div>;
+  }
+
+  return <Image src={imageUrl} />;
+};
+
+
+
 
   return (
     <Flex position= 'fixed' height = '100vh' w='100vw' display='vertical' color='white'>
@@ -1208,24 +1360,37 @@ function Map() {
       </Tooltip>
       
       
-      {/* Gabriel worked on format of map and description location  */}
+      {/* Angel Gabriel worked on format of map and description location  */}
       <div ref={mapContainer} className="map-container" style={{width: '100%', height: '100vh'}}/>
       
       {(pinInformation) ? 
         (
-          <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
-          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
-            {/* Add a clear heading */}
-            <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'> Additional Information </Heading>
-            <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
-            <Text color='tomato' fontSize='10px' pt='20px'> Here is some information </Text>
-            {/* <GetPinDatatoDisplay /> */}
+            <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
+            boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
+                {/* Add a clear heading */}
+                <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='20px'> Additional Information </Heading>
+                <Image src={ Logo } boxSize='80px' ml='5px' bg='white' borderRadius='full' />
+                <Text color='red.500' fontSize='20px' pt='20px'> Here is some information </Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Source: {pinInformation.Source}</Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Classification: {pinInformation.Classification}</Text>
+                <ConvertedImages/> 
+                {/* <script>
+                  {GrabImage(pinInformation.Img_ObjectId)};
+                  {MeasureDataInfo} = convertUnixTimestamp({pinInformation.MeasurementDate})
+                </script> */}
+                
+                {/* <Text color='red.500' fontSize='18px' pt='10px'>Link : {DataLink} </Text> */}
+                <Text color='red.500' fontSize='18px' pt='10px'>Measure Date: <br></br> {convertUnixTimestamp(pinInformation.MeasurementDate)} </Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Lat: {pinInformation.Lattitude} Lng: {pinInformation.Longitude}</Text>
+                <Text color='red.500' fontSize='18px' pt='10px'>Altitude: {pinInformation.Altitude} </Text>
+               
 
-            <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
-              Exit
-            </Button>
+                
+                <Button colorScheme='cyan' size='md' mt='10px' mb='5px' onClick={() => setPinInformation(false)}>
+                    Exit
+                </Button>
 
-          </Box>
+            </Box>
         ) : null
       }
 
@@ -1239,7 +1404,7 @@ function Map() {
           boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' alignItems='center' >
             
             {/* Add a clear heading */}
-            <Heading size='md' mb='11px' textAlign='center' color='blue.500' mt='10px'>Request/Comment Form</Heading>
+            <Heading size='md' mb='20px' textAlign='center' color='blue.500' mt='16px'>Request/Comment Form</Heading>
             
             {/* User text box that appears when user clicks scan request */}
             {/* <label for="input" class="black-text">
@@ -1253,7 +1418,7 @@ function Map() {
 
             <Input type='text-description' id='input' className='stretch-box-black-text' w='80%'
             placeholder='Type your comment here' borderRadius='6px' textAlign='center'
-            border='1px solid gray' mt='2px' style={{ height: '45px', overflow: 'auto' }}
+            border='1px solid gray' mt='3px' style={{ height: '45px', overflow: 'auto' }}
             maxLength={200} size='10px'/>
 
 
@@ -1271,7 +1436,7 @@ function Map() {
             
             <Input type='text-description' id='input_name' className='stretch-box-black-text' w='50%'
             placeholder='Name here' overflowWrap="break-word" borderRadius='6px' textAlign='center'
-            border='1px solid gray' mt='2px' style={{height: '40px'}} size='10px'
+            border='1px solid gray' mt='3px' style={{height: '40px'}} size='10px'
             maxLength={200}/>
 
 

@@ -120,6 +120,30 @@ recordRoutes.route("/conrecord").get(function(req, res) {
   });
 });
 
+recordRoutes.route("/imageForPins").post(function(req, res) {
+  let db_connect = dbo.getDb("pinDatabase");
+  let { id } = req.body;
+
+  const { ObjectId } = require('mongodb');
+  const objectId = new ObjectId(id);
+
+  db_connect.collection("Images").findOne({'_id': objectId}, function(err, result) {
+    if (err) throw err;
+    if (!result) {
+      res.status(404).send('Image not found using id ' + objectId);
+    } else {
+      let output = result.data;
+      console.log('id:', objectId, ' _id:', result._id);
+      res.send(output);
+    }
+  });
+});
+
+
+
+
+
+
 recordRoutes.route("/updateComment").post(function(req, res) {
   let db_connect = dbo.getDb("pinDatabase");
   let { lat, lng, update_value } = req.body;
