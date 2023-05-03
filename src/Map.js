@@ -45,7 +45,7 @@ import * as turf from '@turf/turf';
 //node --harmony-top-level-await map.js
 // import Swal from 'sweetalert2';
 var markerClicked = false
-var markers = [] // Array to store markers currently on the map
+export var markers = [] // Array to store markers currently on the map
 
 // Used to store lattitude and Longitud
 //radius_global: in miles
@@ -92,10 +92,16 @@ async function MongoRecords(link) {
 
 // Loop through the markers array and add each marker to the map
 //Author: Tristan Bailey
-function displayMarkers(map){
-  markers.forEach((marker) => {
+export function displayMarkers(map, markers_list = markers){
+  markers_list.forEach((marker) => {
     marker.addTo(map);
   });
+}
+export function removeMarkers(map) {
+  markers.forEach(marker => {
+    marker.remove();
+  });
+  markers = [];
 }
 
 //Author: Tristan Bailey
@@ -128,18 +134,22 @@ function displayRadius(map) {
 }
 
 //Author: Tristan Bailey
-function deactivateRadius(map){
-  map.removeLayer(radius_layer.id);
-  radius_layer = {}
+export function deactivateRadius(map) {
+  if (map.getLayer(radius_layer.id)) {
+    map.removeLayer(radius_layer.id);
+  }
 }
 
-//Gabriel Mortensen Pin Display functions below
-//Waiting for data from MogoDB
-//Uses the result variable 
 async function addMarkers(pinData, commentData, map, pinInformation, setPinInformation) {
   // Remove all existing markers from the map
   markers.forEach(marker => marker.remove());
   markers = [];
+  await appendMarkers(pinData, commentData, map, pinInformation, setPinInformation);
+}
+//Gabriel Mortensen Pin Display functions below
+//Waiting for data from MogoDB
+//Uses the result variable 
+export async function appendMarkers(pinData, commentData, map, pinInformation, setPinInformation) {
   //const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
   //const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
   //var pinData = await MongoRecords(`http://localhost:3000/record/`);
@@ -284,8 +294,8 @@ async function getInRadius(longitude, lattitude, collection, radius ){
 function createDirections() {
   return new MapboxDirections({
     accessToken: mapboxgl.accessToken,
-    unit: 'metric',
-    profile: 'mapbox/driving-traffic',
+    unit: 'imperial',
+    profile: 'mapbox/driving',
     interactive: false,
     alternatives: 'true',
     controls: {
@@ -312,6 +322,17 @@ function Map() {
   const navigate = useNavigate();
   const [showResults, setShowResults] = React.useState(true);
   const [pinInfo, setPinInfo] = useState([]);
+
+  const [isRouteChecked, setIsRouteChecked] = useState(false);
+  const [isCommentChecked, setIsCommentChecked] = useState(false);
+  // State handlers for the checkboxes in Features in Settings Menu
+  const [isBumpChecked, setIsBumpChecked] = useState(false);
+  const [isSpeedBumpChecked, setIsSpeedBumpChecked] = useState(false);
+  const [isCrackChecked, setIsCrackChecked] = useState(false);
+  const [isPotholeChecked, setIsPotholeChecked] = useState(false);
+  const [isOtherChecked, setIsOtherChecked] = useState(false);
+  // State handler for the Select dropdown from Settings Menu
+  const [selectedPriority, setSelectedPriority] = useState('');
 
   //const map = useRef(null);
   //sets start to RENO area
@@ -368,7 +389,7 @@ function Map() {
   //   }        
   // }
 
-  function convertUnixTimestamp(unixTimestamp: number): string {
+  function convertUnixTimestamp(unixTimestamp) {
     const date = new Date(unixTimestamp * 1000);
     const year = date.getFullYear();
     const month = ("0" + (date.getMonth() + 1)).slice(-2);
@@ -470,39 +491,51 @@ function Map() {
         center: [lng, lat],
         zoom: zoom
       });
+      if (isRouteChecked){
+        const dirs = createDirections();
 
-      const dirs = createDirections();
+        map.addControl(dirs, 'top-left');
+        map.on('load', () => {
 
-      map.addControl(dirs, 'top-left');
-
-      map.on('load', () => {
-        displayMarkers(map)
-        displayRadius(map)
-        //use to display input boxes if in routing mode
-        if (routeState === true){
-          //map.removeControl(directions)
-          // console.log("Routing");
-          // if(flip){
-          //   flip = false;
-          //   map.setStyle('mapbox://styles/mapbox/streets-v11');
-          // }
-          // else{
-          //   flip = true;
-          //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
-          // }
-          //map.setStyle(mapStyle);
-          //directions = createDirections();
-          //map.addControl(directions, 'top-left');
-          // console.log("Routingx2");
-          Route(map, dirs);
-        }
-      });
+          removeMarkers(map, markers);
+          deactivateRadius(map);
+          radius_layer = {}
+          //use to display input boxes if in routing mode
+            //map.removeControl(directions)
+            // console.log("Routing");
+            // if(flip){
+            //   flip = false;
+            //   map.setStyle('mapbox://styles/mapbox/streets-v11');
+            // }
+            // else{
+            //   flip = true;
+            //   map.setStyle('mapbox://styles/mapbox/outdoors-v12?optimize=true');
+            // }
+            //map.setStyle(mapStyle);
+            //directions = createDirections();
+            //map.addControl(directions, 'top-left');
+            // console.log("Routingx2");
+            Route(map, dirs,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation);
+        });
+      }
+      else{
+        map.on('load', () => {
+          markers.forEach(marker => {
+            marker.remove();
+          });
+          deactivateRadius(map);
+          displayMarkers(map, markers);
+          displayRadius(map);
+        });
+      }
 
       map.on('styledata', () => {
         //use to display input boxes if in routing mode
         if (routeState === true){
+
+          deactivateRadius(map);
+          removeMarkers(map);
           map.removeControl(directions)
-          console.log("Routing");
           // if(flip){
           //   flip = false;
           //   map.setStyle('mapbox://styles/mapbox/streets-v11');
@@ -514,8 +547,8 @@ function Map() {
           map.setStyle(mapStyle);
           //directions = createDirections();
           //map.addControl(directions, 'top-left');
-          console.log("Routingx2");
-          Route(map, dirs);
+          console.log("style changed");
+          //Route(map, dirs,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation);
         }
       });
 
@@ -555,6 +588,7 @@ function Map() {
         input.onclick = (layer) => {
           const layerId = layer.target.id;
           map.setStyle('mapbox://styles/mapbox/' + layerId);
+          mapStyle = 'mapbox://styles/mapbox/' + layerId;
           console.log("Changed Theme");
         };
       }
@@ -596,120 +630,121 @@ function Map() {
         boxState = false;
         // console.log("Box State changed", boxState);
       }
-
+      if(!isRouteChecked){
       // Add a click event listener to the map
-      map.on('click', (e) => {
-        var lngLat = e.lngLat;
-        comment_request_pinListener = e.lngLat;
+        map.on('click', (e) => {
+          var lngLat = e.lngLat;
+          comment_request_pinListener = e.lngLat;
 
-        if(!boxState){
-          // condition to check if the user clicks anywhere else in the Map but on a marker, popup will show up
-          if (!markerClicked) {
-            // Define custom close button HTML
-            const customCloseButton = '<button type="button" class="close-button" aria-label="Close popup"></button>';
+          if(!boxState){
+            // condition to check if the user clicks anywhere else in the Map but on a marker, popup will show up
+            if (!markerClicked) {
+              // Define custom close button HTML
+              const customCloseButton = '<button type="button" class="close-button" aria-label="Close popup"></button>';
 
-            // Define popup content HTML
-            const popupContent = '<div class="popup-content">' +
-              '<button id="display-btn" class="popup-button display-button">Display in Radius</button>' +
-              '<button id="comment-btn" class="popup-button comment-button">Leave a Comment</button>' +
-              '<button id="request-btn" class="popup-button request-button">Make a Request</button>' +
-              '</div>';
-            
-            // Create popup
-            const popup = new mapboxgl.Popup({ closeOnClick: true, closeButton: false })
-              .setLngLat(e.lngLat)
-              .setHTML(popupContent)
-              .setMaxWidth('500px')
-              .addTo(map);
-            
-            // Create custom close button element
-            const customCloseButtonEl = document.createElement('div');
-            customCloseButtonEl.innerHTML = customCloseButton;
-            customCloseButtonEl.classList.add('close-button-container');
-            customCloseButtonEl.addEventListener('click', () => {
-              popup.remove();
-            });
-            
-            // Append custom close button to popup container element
-            popup._content.insertBefore(customCloseButtonEl, popup._content.firstChild);
-            
-            // Add click event listeners to the buttons
-            //Author: Tristan Bailey
-            document.getElementById('display-btn').addEventListener('click', () => {
-              console.log('Display button clicked');
-              Toggle("Radius Display");
-              popup.remove();
-              var longitude = lngLat.lng;
-              var lattitude = lngLat.lat;
-              activateRadius(longitude, lattitude);
-              var contributorData;
-              var commentData;
-              const contributorMarkersPromise = getInRadius(longitude, lattitude, 0, radius_global);
-              if(comment_bool === false){
-                const commentMarkersPromise = getInRadius(longitude, lattitude, 1, radius_global);
-                Promise.all([commentMarkersPromise, contributorMarkersPromise])
-                  .then(([commentDataResult, contributorDataResult]) => {
-                    contributorData = contributorDataResult;
-                    commentData = commentDataResult;
-                    addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
-                      .then((markers) => {
-                        console.log("Got Markers");
-                      })
-                      .catch((error) => {
-                        console.error('Error fetching markers:', error);
-                      });
-                    // Call any other functions that need the data here
-                  })
-                  .catch((error) => {
-                    console.error(error);
-                  });
-              }
-              else{
-                Promise.all([contributorMarkersPromise])
-                  .then(([contributorDataResult]) => {
-                    contributorData = contributorDataResult;
-                    addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
-                      .then((markers) => {
-                        console.log("Got Markers");
-                      })
-                      .catch((error) => {
-                        console.error('Error fetching markers:', error);
-                      });
-                    // Call any other functions that need the data here
-                  })
-                  .catch((error) => {
-                    console.error(error);
-                  });
-              }
-            });
-            //end Author: Tristan Bailey
+              // Define popup content HTML
+              const popupContent = '<div class="popup-content">' +
+                '<button id="display-btn" class="popup-button display-button">Display in Radius</button>' +
+                '<button id="comment-btn" class="popup-button comment-button">Leave a Comment</button>' +
+                '<button id="request-btn" class="popup-button request-button">Make a Request</button>' +
+                '</div>';
+              
+              // Create popup
+              const popup = new mapboxgl.Popup({ closeOnClick: true, closeButton: false })
+                .setLngLat(e.lngLat)
+                .setHTML(popupContent)
+                .setMaxWidth('500px')
+                .addTo(map);
+              
+              // Create custom close button element
+              const customCloseButtonEl = document.createElement('div');
+              customCloseButtonEl.innerHTML = customCloseButton;
+              customCloseButtonEl.classList.add('close-button-container');
+              customCloseButtonEl.addEventListener('click', () => {
+                popup.remove();
+              });
+              
+              // Append custom close button to popup container element
+              popup._content.insertBefore(customCloseButtonEl, popup._content.firstChild);
+              
+              // Add click event listeners to the buttons
+              //Author: Tristan Bailey
+              document.getElementById('display-btn').addEventListener('click', () => {
+                console.log('Display button clicked');
+                Toggle("Radius Display");
+                popup.remove();
+                var longitude = lngLat.lng;
+                var lattitude = lngLat.lat;
+                activateRadius(longitude, lattitude);
+                var contributorData;
+                var commentData;
+                const contributorMarkersPromise = getInRadius(longitude, lattitude, 0, radius_global);
+                if(comment_bool === false){
+                  const commentMarkersPromise = getInRadius(longitude, lattitude, 1, radius_global);
+                  Promise.all([commentMarkersPromise, contributorMarkersPromise])
+                    .then(([commentDataResult, contributorDataResult]) => {
+                      contributorData = contributorDataResult;
+                      commentData = commentDataResult;
+                      addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
+                        .then((markers) => {
+                          console.log("Got Markers");
+                        })
+                        .catch((error) => {
+                          console.error('Error fetching markers:', error);
+                        });
+                      // Call any other functions that need the data here
+                    })
+                    .catch((error) => {
+                      console.error(error);
+                    });
+                }
+                else{
+                  Promise.all([contributorMarkersPromise])
+                    .then(([contributorDataResult]) => {
+                      contributorData = contributorDataResult;
+                      addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
+                        .then((markers) => {
+                          console.log("Got Markers");
+                        })
+                        .catch((error) => {
+                          console.error('Error fetching markers:', error);
+                        });
+                      // Call any other functions that need the data here
+                    })
+                    .catch((error) => {
+                      console.error(error);
+                    });
+                }
+              });
+              //end Author: Tristan Bailey
 
-            document.getElementById('comment-btn').addEventListener('click', () => {
-              console.log('Comment button clicked');
-              setIsCVisible(true);
-              Toggle("Comment");
-              popup.remove();
-              UserLng = lngLat.lng;
-              UserLat = lngLat.lat;
-            });
-            
-            document.getElementById('request-btn').addEventListener('click', () => {
-              console.log('Request button clicked');
-              setIsRequestChecked(true);
-              setIsRVisible(true);
-              Toggle("Request");
-              popup.remove();
-              UserLng = lngLat.lng;
-              UserLat = lngLat.lat;
-            });
-            
+              document.getElementById('comment-btn').addEventListener('click', () => {
+                console.log('Comment button clicked');
+                setIsCVisible(true);
+                Toggle("Comment");
+                popup.remove();
+                UserLng = lngLat.lng;
+                UserLat = lngLat.lat;
+              });
+              
+              document.getElementById('request-btn').addEventListener('click', () => {
+                console.log('Request button clicked');
+                setIsRequestChecked(true);
+                setIsRVisible(true);
+                Toggle("Request");
+                popup.remove();
+                UserLng = lngLat.lng;
+                UserLat = lngLat.lat;
+              });
+              
 
-          } else {
-            // if the user is clicking on an existing Marker, new popup won't be displayed
-            markerClicked = false;
+            } else {
+              // if the user is clicking on an existing Marker, new popup won't be displayed
+              markerClicked = false;
+            }
           }
-        }
-      });
+        });
+      }
     
       return () => {
         map.remove();
@@ -721,7 +756,7 @@ function Map() {
     // If any of the variables in the dependency array change, the effect will re-run.
 
   }, [
-    requestState, commentState, lng, lat, pinRadiusState, markers
+    requestState, commentState, lng, lat, pinRadiusState, markers,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, isRouteChecked
   ]);
   
   // Function sends comment or request to database  
@@ -836,6 +871,16 @@ function Map() {
       comment_bool = false;
     }
   }
+  
+  const handleRouteClick = (event) => {
+    if(isRouteChecked === false){
+      setIsRouteChecked(event.target.checked);
+    } else {
+      setIsRouteChecked(false);
+    }
+    markers = [];
+    radius_layer = {};
+  }
 
   const handleCheckbox1 = (event) => {
     setIsBumpChecked(event.target.checked);
@@ -858,6 +903,7 @@ function Map() {
   }
 
   const handleReset = () => {
+    setIsRouteChecked(false);
     setIsCommentChecked(false);
     setIsBumpChecked(false);
     setIsSpeedBumpChecked(false);
@@ -962,22 +1008,12 @@ function Map() {
   }
 
   // State handlers for the Comment/Request/ShowComments Switches
-  const [isCommentChecked, setIsCommentChecked] = useState(false);
   const [isRequestChecked, setIsRequestChecked] = useState(false);
 
   // State handler for the values of the radio buttons
   const [value, setValue] = useState('5');
 
   // State handlers for the checkboxes in Features in Settings Menu
-  const [isBumpChecked, setIsBumpChecked] = useState(false);
-  const [isSpeedBumpChecked, setIsSpeedBumpChecked] = useState(false);
-  const [isCrackChecked, setIsCrackChecked] = useState(false);
-  const [isPotholeChecked, setIsPotholeChecked] = useState(false);
-  const [isOtherChecked, setIsOtherChecked] = useState(false);
-
-  // State handler for the Select dropdown from Settings Menu
-  const [selectedPriority, setSelectedPriority] = useState('');
-
   const [markerOpacity, setMarkerOpacity] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedConditionOption, setConditionOption] = useState("");
@@ -1050,6 +1086,14 @@ function Map() {
               <ModalContent>
                 <ModalHeader> Settings </ModalHeader>
                 <ModalCloseButton />
+                <Divider/>
+                <ModalBody>
+                  <HStack spacing='170px'>
+                    <Text> Routing Mode </Text>
+                    <Switch colorScheme='teal' id='comment-alert' isChecked={isRouteChecked} onChange={handleRouteClick}/>
+                  </HStack>
+                </ModalBody>
+                <Divider/>
                 <Divider/>
                 <ModalBody>
                   <HStack spacing='170px'>
