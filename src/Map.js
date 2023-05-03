@@ -41,6 +41,7 @@ import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-direct
 
 import { cyan } from "@mui/material/colors";
 import * as turf from '@turf/turf';
+import { object_filter } from "./Object_Filter";
 
 //node --harmony-top-level-await map.js
 // import Swal from 'sweetalert2';
@@ -326,11 +327,11 @@ function Map() {
   const [isRouteChecked, setIsRouteChecked] = useState(false);
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   // State handlers for the checkboxes in Features in Settings Menu
-  const [isBumpChecked, setIsBumpChecked] = useState(false);
-  const [isSpeedBumpChecked, setIsSpeedBumpChecked] = useState(false);
-  const [isCrackChecked, setIsCrackChecked] = useState(false);
-  const [isPotholeChecked, setIsPotholeChecked] = useState(false);
-  const [isOtherChecked, setIsOtherChecked] = useState(false);
+  const [isBumpChecked, setIsBumpChecked] = useState(true);
+  const [isSpeedBumpChecked, setIsSpeedBumpChecked] = useState(true);
+  const [isCrackChecked, setIsCrackChecked] = useState(true);
+  const [isPotholeChecked, setIsPotholeChecked] = useState(true);
+  const [isOtherChecked, setIsOtherChecked] = useState(true);
   // State handler for the Select dropdown from Settings Menu
   const [selectedPriority, setSelectedPriority] = useState('');
 
@@ -515,7 +516,7 @@ function Map() {
             //directions = createDirections();
             //map.addControl(directions, 'top-left');
             // console.log("Routingx2");
-            Route(map, dirs,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation);
+            Route(map, dirs, selectedPriority,  isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation);
         });
       }
       else{
@@ -685,6 +686,9 @@ function Map() {
                     .then(([commentDataResult, contributorDataResult]) => {
                       contributorData = contributorDataResult;
                       commentData = commentDataResult;
+                      //filter the data appropriately
+                      contributorData = object_filter(contributorData, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
+                      commentData = object_filter(commentData, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
                       addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
                         .then((markers) => {
                           console.log("Got Markers");
@@ -756,7 +760,7 @@ function Map() {
     // If any of the variables in the dependency array change, the effect will re-run.
 
   }, [
-    requestState, commentState, lng, lat, pinRadiusState, markers,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, isRouteChecked
+    requestState, commentState, lng, lat, pinRadiusState, markers,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, isRouteChecked, selectedPriority
   ]);
   
   // Function sends comment or request to database  
