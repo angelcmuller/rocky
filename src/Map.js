@@ -9,6 +9,7 @@ import './Map.css';
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
 import "./mapbox-gl-traffic.css";
 import 'react-toastify/dist/ReactToastify.css';
+import styled from 'styled-components';
 
 
 // Components imports
@@ -22,7 +23,7 @@ import { toast, ToastContainer } from 'react-toastify';
 // React imports
 import './App.css';
 import './Map.css';
-import Notification from "./Notification";
+import SummaryBox from './summaryBox';
 //import { displayMarkers, markerClicked, markers} from "./DisplayMarkers";
 import { BrowserRouter as Router, useNavigate, Routes, useLinkClickHandler } from 'react-router-dom';
 import { useRef, useState, useEffect} from 'react';
@@ -306,6 +307,30 @@ async function init_data(){
   var [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
   return [pinData, commentData]
 }
+
+
+//Aaron Panel:
+const Panel = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 300px;
+  background-color: #f7f7f7;
+  padding: 20px;
+  box-shadow: -2px 0px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+`;
+
+const SidePanel = () => {
+  return (
+    <Panel>
+      <h2>Side Panel</h2>
+      <p>This is an example side panel that appears on the right side of the screen.</p>
+    </Panel>
+  );
+};
+
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
   //Araon Ramirez Map Loading Procedures Belo
@@ -334,7 +359,7 @@ function Map() {
   const [pinRadiusState, setPinRadiusState] = useState(false);
   const [routeState, setRouteState] = useState(true);
   const [pinInformation, setPinInformation] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
+  const [showPanel, setShowPanel] = useState(false);
   
   // Used to navigate to the Home Page
   const navigatetoLandPage = () => {
@@ -342,6 +367,11 @@ function Map() {
     navigate('/')
     document.location.reload();
   }
+
+  const handleTogglePanel = () => {
+    setShowPanel(!showPanel);
+  };
+
 
 
   //This function returns records from the MongoDB database
@@ -489,6 +519,7 @@ function Map() {
           //map.addControl(directions, 'top-left');
           // console.log("Routingx2");
           Route(map, dirs);
+          
         }
       });
 
@@ -999,6 +1030,10 @@ function Map() {
                     <Text> Hide comments </Text>
                     <Switch colorScheme='teal' id='comment-alert' isChecked={isCommentChecked} onChange={handleCommentClick}/>
                   </HStack>
+                  <HStack spacing='150px'>
+                  <Text> Show Route Summary</Text>
+                    <Switch colorScheme='teal' id='comment-alert' isChecked={isCommentChecked} onChange={handleTogglePanel}/>
+                  </HStack>
                 </ModalBody>
                 <Divider/>
                 <ModalBody>
@@ -1196,6 +1231,9 @@ function Map() {
         ) : null
       }
 
+
+          <div>{showPanel && <SidePanel />}</div>
+  
       {/* Is visable only when user turns on Request */}
       {(requestState || commentState) ?
         (
@@ -1303,6 +1341,9 @@ function Map() {
           </Box>
           </Tooltip>
           <ToastContainer />
+      <Box>
+
+      </Box>
     </Flex>
   );
 }
