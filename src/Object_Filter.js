@@ -95,4 +95,14 @@ export function count_classifications(object_array, isOtherChecked, isPotholeChe
     let average_ratio = total_ratio / count;
     return average_ratio;
   }
-  
+
+  //Author: Tristan Bailey
+export function mergeCounts(obj1, obj2) {
+    const mergedCounts = {};
+    for (const key in obj1) {
+      if (obj1.hasOwnProperty(key)) {
+        mergedCounts[key] = obj1[key] + (obj2[key] || 0);
+      }
+    }
+    return mergedCounts;
+  }

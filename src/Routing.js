@@ -9,10 +9,9 @@ import * as polyline from '@mapbox/polyline';
 
 import JsonListReturn from "./components/recordList";
 import { markers, appendMarkers, displayMarkers, removeMarkers  } from "./Map.js";
-import { object_filter, count_classifications, calculateLikesDislikesRatio } from './Object_Filter';
+import { object_filter, count_classifications, calculateLikesDislikesRatio, mergeCounts } from './Object_Filter';
 import { ScoringSystem } from './Score';
 import { displayPanel } from './Route_Panel';
-
 
 async function MongoRecords(link) {
     const pinInfo = await JsonListReturn(link);
@@ -138,6 +137,7 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
         for(let i = 0; i < routeCount && i < 10; ++i){
             map.setLayoutProperty(`route${i}`, 'visibility', 'none');
         }
+        
         for(const route of routes){
             //get route distances
             const distanceMeters = route.distance;
@@ -189,10 +189,15 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
             
             console.log("Rating " + approval_rating)
 
-            const [score, hazard_ration] = ScoringSystem(distanceMeters, pin_objects, comment_objects)
+            const [score, hazard_ratio] = ScoringSystem(distanceMeters, pin_objects, comment_objects)
 
-            const message = "Test"
-            displayPanel(message, map);
+            const json_data = mergeCounts(count_comment, count_pins)
+                json_data.score = score;
+                json_data.hazard_ratio = hazard_ratio;
+                json_data.approval_rating = approval_rating;
+                json_data.route_id = route.id;
+            alert(JSON.stringify(json_data))
+            //displayPanel(json_data, map);
 
             await appendMarkers(pin_objects, comment_objects, map, pinInformation, setPinInformation);
             map.getSource(`route${route.id}`).setData(routeLine);
