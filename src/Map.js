@@ -155,8 +155,6 @@ export function deactivateRadius(map) {
 }
 
 async function addMarkers(pinData, commentData, map, pinInformation, setPinInformation) {
-  console.log("Score of this route is: " + ScoringSystem(1421.42, pinData, commentData))
-
   // Remove all existing markers from the map
   markers.forEach(marker => marker.remove());
   markers = [];
