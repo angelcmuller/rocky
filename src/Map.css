@@ -21,7 +21,8 @@
   box-shadow: None;
   border-radius: 50px;
   background-color: transparent;
-  width: 105%;
+  width: 100%;
+  height:100%;
   padding-right: 18px;
   padding-bottom: 0px; /* This property removes the extra whitespace at the bottom of the popup */
 }
@@ -62,6 +63,7 @@
   margin-bottom: 8px;
   cursor: pointer;
   width: 100%;
+  height:100%;
   text-align: center;
   font-size: 16px;
   transition: background-color 0.2s ease-in-out;
@@ -79,14 +81,12 @@
   cursor: pointer;
   width: 100%;
   height: 100%;
-  position: relative;
   text-align: center;
   font-size: 16px;
   transition: background-color 0.2s ease-in-out;
 }
 #comment-content{
-
-
+  text-align: center;
 }
 .popup-button-display-button-dislike{
   background-color: #a50303;
@@ -98,18 +98,17 @@
   cursor: pointer;
   width: 100%;
   height: 100%;
-  position: relative;
   text-align: center;
   font-size: 16px;
   transition: background-color 0.2s ease-in-out;
 }
 .popup-button-display-button-dislike:active{
   transform: translateY(5px);
-  background-color:rgb(172, 0, 34);
+  background-color:rgb(77, 0, 15);
 }
 .popup-button-display-button-like:active{
   transform: translateY(5px);
-  background-color:rgb(0, 191, 60);
+  background-color:rgb(3, 101, 34);
 }
 .popup-button:hover {
   background-color: #5cb85c;
@@ -173,19 +172,10 @@
   background-color: #5cb85c;
 }
 
-#like-btn {
-  background-color: #21f868;
-}
-
-#like-btn:hover {
-  background-color: #559cad;
-}
-#dislike-btn {
-  background-color: #ff7676;
-}
 .popup-buttons-container {
   display: flex;
-  gap: 2px;
+  flex-direction: column;
+  width: 100%;
 }
 
 
