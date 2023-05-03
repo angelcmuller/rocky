@@ -1,3 +1,4 @@
+//Author: Tristan Bailey
 export function object_filter(object_array, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked){
     // Create a new array to hold the filtered objects
     const filtered_array = [];
@@ -41,5 +42,35 @@ export function object_filter(object_array, isOtherChecked, isPotholeChecked, is
   
     // Return the filtered array
     return filtered_array;
+  }
+
+  //Author: Tristan Bailey
+export function count_classifications(object_array, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked) {
+    // Create an object to store the count of each classification without spaces
+    const counts = {
+      'other': 0,
+      'pothole': 0,
+      'crack': 0,
+      'speedbump': 0,
+      'bump': 0
+    };
+  
+    // Iterate through the object array
+    object_array.forEach((obj) => {
+      // Check if the object has the desired Classification values based on the given boolean flags
+      const hasOther = isOtherChecked && obj.Classification === 'other';
+      const hasPothole = isPotholeChecked && (obj.Classification === 'pot hole' || obj.Classification === 'pothole');
+      const hasCrack = isCrackChecked && obj.Classification === 'crack';
+      const hasSpeedBump = isSpeedBumpChecked && obj.Classification === 'speed bump';
+      const hasBump = isBumpChecked && obj.Classification === 'bump';
+  
+      // Check if all desired Classification values are matched and increment the count of the corresponding classification
+      if (hasOther || hasPothole || hasCrack || hasSpeedBump || hasBump) {
+        counts[obj.Classification.replace(/\s+/g, '')]++;
+      }
+    });
+  
+    // Return the counts object
+    return counts;
   }
   

@@ -1,0 +1,84 @@
+[33ma6825fa3[m[33m ([m[1;36mHEAD -> [m[1;32mpin_radius_feature_tristan[m[33m, [m[1;31morigin/pin_radius_feature_tristan[m[33m)[m HEAD@{0}: checkout: moving from pin_radius_feature to pin_radius_feature_tristan
+[33m3b37e86c[m[33m ([m[1;31morigin/pin_radius_feature[m[33m, [m[1;32mpin_radius_feature[m[33m)[m HEAD@{1}: reset: moving to HEAD
+[33m3b37e86c[m[33m ([m[1;31morigin/pin_radius_feature[m[33m, [m[1;32mpin_radius_feature[m[33m)[m HEAD@{2}: checkout: moving from routing_feature_overhaul to pin_radius_feature
+[33m63e480e3[m[33m ([m[1;31morigin/routing_feature_overhaul[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mrouting_feature_overhaul[m[33m, [m[1;32mmain[m[33m)[m HEAD@{3}: rebase (finish): returning to refs/heads/routing_feature_overhaul
+[33m63e480e3[m[33m ([m[1;31morigin/routing_feature_overhaul[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mrouting_feature_overhaul[m[33m, [m[1;32mmain[m[33m)[m HEAD@{4}: rebase (start): checkout main
+[33m8e2e1471[m HEAD@{5}: checkout: moving from main to routing_feature_overhaul
+[33m63e480e3[m[33m ([m[1;31morigin/routing_feature_overhaul[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mrouting_feature_overhaul[m[33m, [m[1;32mmain[m[33m)[m HEAD@{6}: pull: Fast-forward
+[33mfd186700[m HEAD@{7}: checkout: moving from pin_radius_feature to main
+[33m3b37e86c[m[33m ([m[1;31morigin/pin_radius_feature[m[33m, [m[1;32mpin_radius_feature[m[33m)[m HEAD@{8}: commit: got radius feature fully working
+[33mfd186700[m HEAD@{9}: rebase (finish): returning to refs/heads/pin_radius_feature
+[33mfd186700[m HEAD@{10}: rebase (start): checkout main
+[33m02c5a4d0[m HEAD@{11}: checkout: moving from main to pin_radius_feature
+[33mfd186700[m HEAD@{12}: reset: moving to HEAD
+[33mfd186700[m HEAD@{13}: pull: Fast-forward
+[33m8e2e1471[m HEAD@{14}: pull: Fast-forward
+[33meaa4bcac[m[33m ([m[1;31morigin/pin_radius_feature_gabriel[m[33m)[m HEAD@{15}: checkout: moving from pin_radius_feature to main
+[33m02c5a4d0[m HEAD@{16}: pull: Fast-forward
+[33meaa4bcac[m[33m ([m[1;31morigin/pin_radius_feature_gabriel[m[33m)[m HEAD@{17}: checkout: moving from pin_radius_feature to pin_radius_feature
+[33meaa4bcac[m[33m ([m[1;31morigin/pin_radius_feature_gabriel[m[33m)[m HEAD@{18}: checkout: moving from pin_radius_feature_tristan to pin_radius_feature
+[33ma6825fa3[m[33m ([m[1;36mHEAD -> [m[1;32mpin_radius_feature_tristan[m[33m, [m[1;31morigin/pin_radius_feature_tristan[m[33m)[m HEAD@{19}: commit: updated the close button on the pin comments and contributor
+[33m976cff6c[m HEAD@{20}: commit: nearly finished the display in radius feature
+[33m34ba6a72[m HEAD@{21}: commit: made displaymarkers a global function in map.js so it can be reused/called in other code parts.
+[33mfa380017[m HEAD@{22}: commit: added some stuff to break the display pins function into its own file
+[33meaa4bcac[m[33m ([m[1;31morigin/pin_radius_feature_gabriel[m[33m)[m HEAD@{23}: checkout: moving from pin_radius_feature to pin_radius_feature_tristan
+[33meaa4bcac[m[33m ([m[1;31morigin/pin_radius_feature_gabriel[m[33m)[m HEAD@{24}: rebase (finish): returning to refs/heads/pin_radius_feature
+[33meaa4bcac[m[33m ([m[1;31morigin/pin_radius_feature_gabriel[m[33m)[m HEAD@{25}: rebase (start): checkout main
+[33m6cdde2f3[m HEAD@{26}: checkout: moving from main to pin_radius_feature
+[33meaa4bcac[m[33m ([m[1;31morigin/pin_radius_feature_gabriel[m[33m)[m HEAD@{27}: pull: Fast-forward
+[33m6cdde2f3[m HEAD@{28}: checkout: moving from pin_radius_feature to main
+[33m6cdde2f3[m HEAD@{29}: rebase (finish): returning to refs/heads/pin_radius_feature
+[33m6cdde2f3[m HEAD@{30}: rebase (start): checkout main
+[33m418dc329[m HEAD@{31}: checkout: moving from main to pin_radius_feature
+[33m6cdde2f3[m HEAD@{32}: pull: Fast-forward
+[33m0d6515a3[m[33m ([m[1;31morigin/saftey_main_comment_rating[m[33m, [m[1;31morigin/comment_like_system_new[m[33m)[m HEAD@{33}: checkout: moving from pin_radius_feature to main
+[33m418dc329[m HEAD@{34}: commit: fixed bug where liking one comment locked users out of ever liking another one
+[33mf17b801e[m HEAD@{35}: commit: fixed bug (probably) where clicking like button would like multiple times
+[33m0d6515a3[m[33m ([m[1;31morigin/saftey_main_comment_rating[m[33m, [m[1;31morigin/comment_like_system_new[m[33m)[m HEAD@{36}: reset: moving to HEAD
+[33m0d6515a3[m[33m ([m[1;31morigin/saftey_main_comment_rating[m[33m, [m[1;31morigin/comment_like_system_new[m[33m)[m HEAD@{37}: reset: moving to HEAD
+[33m0d6515a3[m[33m ([m[1;31morigin/saftey_main_comment_rating[m[33m, [m[1;31morigin/comment_like_system_new[m[33m)[m HEAD@{38}: rebase (finish): returning to refs/heads/pin_radius_feature
+[33m0d6515a3[m[33m ([m[1;31morigin/saftey_main_comment_rating[m[33m, [m[1;31morigin/comment_like_system_new[m[33m)[m HEAD@{39}: rebase (start): checkout main
+[33mc90a0b4b[m HEAD@{40}: checkout: moving from main to pin_radius_feature
+[33m0d6515a3[m[33m ([m[1;31morigin/saftey_main_comment_rating[m[33m, [m[1;31morigin/comment_like_system_new[m[33m)[m HEAD@{41}: pull: Fast-forward
+[33mc7ec9382[m HEAD@{42}: checkout: moving from pin_radius_feature to main
+[33mc90a0b4b[m HEAD@{43}: rebase (finish): returning to refs/heads/pin_radius_feature
+[33mc90a0b4b[m HEAD@{44}: rebase (pick): updated record to have geoboox cde, potentially
+[33mc7ec9382[m HEAD@{45}: rebase (start): checkout main
+[33m3ea8f962[m HEAD@{46}: checkout: moving from main to pin_radius_feature
+[33mc7ec9382[m HEAD@{47}: pull: Fast-forward
+[33m27420d3e[m HEAD@{48}: reset: moving to 27420d3e079c94504bf1d5c4cf79d0327721a3b9
+[33m3ea8f962[m HEAD@{49}: reset: moving to HEAD
+[33m3ea8f962[m HEAD@{50}: checkout: moving from pin_radius_feature to main
+[33m3ea8f962[m HEAD@{51}: checkout: moving from main to pin_radius_feature
+[33m3ea8f962[m HEAD@{52}: checkout: moving from pin_radius_feature to main
+[33m3ea8f962[m HEAD@{53}: checkout: moving from main to pin_radius_feature
+[33m3ea8f962[m HEAD@{54}: checkout: moving from pin_radius_feature to main
+[33m3ea8f962[m HEAD@{55}: rebase (finish): returning to refs/heads/pin_radius_feature
+[33m3ea8f962[m HEAD@{56}: rebase (start): checkout main
+[33md0ea3011[m HEAD@{57}: checkout: moving from main to pin_radius_feature
+[33m3ea8f962[m HEAD@{58}: commit: updated record to have geoboox cde, potentially
+[33m27420d3e[m HEAD@{59}: pull: Fast-forward
+[33m6dacbc72[m HEAD@{60}: pull: Fast-forward
+[33md0ea3011[m HEAD@{61}: checkout: moving from pin_radius_feature to main
+[33md0ea3011[m HEAD@{62}: checkout: moving from main to pin_radius_feature
+[33md0ea3011[m HEAD@{63}: pull: Fast-forward
+[33m9e11e18b[m[33m ([m[1;32mstatus[m[33m)[m HEAD@{64}: reset: moving to HEAD
+[33m9e11e18b[m[33m ([m[1;32mstatus[m[33m)[m HEAD@{65}: checkout: moving from popup_and_form_updates to main
+[33m16b850f6[m[33m ([m[1;31morigin/popup_and_form_updates[m[33m, [m[1;32mpopup_and_form_updates[m[33m)[m HEAD@{66}: commit: added updates to record to potentially allow for geoboxing, it is untested still
+[33m08bc6a1c[m HEAD@{67}: commit: updated the popup to make it more pleasing and added extra button that will be used later.
+[33m4fd28318[m HEAD@{68}: commit: updated the popup to make it more pleasing and added extra button that will be used later.
+[33m9e11e18b[m[33m ([m[1;32mstatus[m[33m)[m HEAD@{69}: checkout: moving from main to popup_and_form_updates
+[33m9e11e18b[m[33m ([m[1;32mstatus[m[33m)[m HEAD@{70}: reset: moving to HEAD
+[33m9e11e18b[m[33m ([m[1;32mstatus[m[33m)[m HEAD@{71}: pull: Fast-forward
+[33m54d20fa1[m HEAD@{72}: checkout: moving from break-off-images-to-different-colleciton to main
+[33m150a4a08[m[33m ([m[1;31morigin/break-off-images-to-different-colleciton[m[33m)[m HEAD@{73}: commit: update database manager to break pin images into a seperate collection
+[33m54d20fa1[m HEAD@{74}: checkout: moving from main to break-off-images-to-different-colleciton
+[33m54d20fa1[m HEAD@{75}: reset: moving to HEAD
+[33m54d20fa1[m HEAD@{76}: checkout: moving from break-off-images-to-different-colleciton to main
+[33m54d20fa1[m HEAD@{77}: checkout: moving from main to break-off-images-to-different-colleciton
+[33m54d20fa1[m HEAD@{78}: pull: Fast-forward
+[33m02827c15[m[33m ([m[1;31morigin/old_main[m[33m)[m HEAD@{79}: pull: Fast-forward
+[33m4d40e841[m HEAD@{80}: checkout: moving from temp_merge to main
+[33m547fdd4b[m[33m ([m[1;31morigin/temp_merge[m[33m)[m HEAD@{81}: commit: fixed pin display to work iwth updated database
+[33m4d40e841[m HEAD@{82}: checkout: moving from main to temp_merge
+[33m4d40e841[m HEAD@{83}: clone: from https://github.com/angelcmuller/rockyroad.git
