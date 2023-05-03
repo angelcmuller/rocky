@@ -300,7 +300,7 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
       <div class="close-button-container">
         <button class="close-button"></button>
       </div>
-      <div id = "comment-content">
+      <div>
       <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3>
       <p style="color: black; font-size: 16px;">Classification: ${commentData[i].Classification}</p>
       <p style="color: black; font-size: 16px;">Severity: ${commentData[i].Option}</p>
