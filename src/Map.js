@@ -41,6 +41,7 @@ import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-direct
 
 import { cyan } from "@mui/material/colors";
 import * as turf from '@turf/turf';
+import { object_filter } from "./Object_Filter";
 
 //node --harmony-top-level-await map.js
 // import Swal from 'sweetalert2';
@@ -102,6 +103,18 @@ export function removeMarkers(map) {
     marker.remove();
   });
   markers = [];
+}
+
+function convertUnixTimestamp(unixTimestamp) {
+  const date = new Date(unixTimestamp * 1000);
+  const year = date.getFullYear();
+  const month = ("0" + (date.getMonth() + 1)).slice(-2);
+  const day = ("0" + date.getDate()).slice(-2);
+  const hours = ("0" + date.getHours()).slice(-2);
+  const minutes = ("0" + date.getMinutes()).slice(-2);
+  const seconds = ("0" + date.getSeconds()).slice(-2);
+  const formattedDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+  return formattedDate;
 }
 
 //Author: Tristan Bailey
@@ -233,8 +246,8 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
     </div>
     <div style="color:black; font-size:17px; text-align:left; padding-left:5px;"> <b>Classification:</b> ${pinClass}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Source: ${pinSource}</div>
-    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Measurement Date: ${pinMdate}</div>
-    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Upload Date: ${pinUdate}</div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Measurement Date: ${convertUnixTimestamp(pinMdate)}</div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Upload Date: ${convertUnixTimestamp(pinUdate)}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Lat: ${pinCoordinatesForInfoDisplayLat}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Lng: ${pinCoordinatesForInfoDisplayLong}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Altitude: ${pinAlt}</div>
@@ -384,11 +397,11 @@ function Map() {
   const [isRouteChecked, setIsRouteChecked] = useState(false);
   const [isCommentChecked, setIsCommentChecked] = useState(false);
   // State handlers for the checkboxes in Features in Settings Menu
-  const [isBumpChecked, setIsBumpChecked] = useState(false);
-  const [isSpeedBumpChecked, setIsSpeedBumpChecked] = useState(false);
-  const [isCrackChecked, setIsCrackChecked] = useState(false);
-  const [isPotholeChecked, setIsPotholeChecked] = useState(false);
-  const [isOtherChecked, setIsOtherChecked] = useState(false);
+  const [isBumpChecked, setIsBumpChecked] = useState(true);
+  const [isSpeedBumpChecked, setIsSpeedBumpChecked] = useState(true);
+  const [isCrackChecked, setIsCrackChecked] = useState(true);
+  const [isPotholeChecked, setIsPotholeChecked] = useState(true);
+  const [isOtherChecked, setIsOtherChecked] = useState(true);
   // State handler for the Select dropdown from Settings Menu
   const [selectedPriority, setSelectedPriority] = useState('');
 
@@ -465,18 +478,6 @@ function Map() {
   //     Toggle("Comment")
   //   }        
   // }
-
-  function convertUnixTimestamp(unixTimestamp) {
-    const date = new Date(unixTimestamp * 1000);
-    const year = date.getFullYear();
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const day = ("0" + date.getDate()).slice(-2);
-    const hours = ("0" + date.getHours()).slice(-2);
-    const minutes = ("0" + date.getMinutes()).slice(-2);
-    const seconds = ("0" + date.getSeconds()).slice(-2);
-    const formattedDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
-    return formattedDate;
-}
 
   
   function Toggle(Name){
@@ -593,7 +594,7 @@ function Map() {
             //directions = createDirections();
             //map.addControl(directions, 'top-left');
             // console.log("Routingx2");
-            Route(map, dirs,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation);
+            Route(map, dirs, selectedPriority,  isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation);
         });
       }
       else{
@@ -764,6 +765,9 @@ function Map() {
                     .then(([commentDataResult, contributorDataResult]) => {
                       contributorData = contributorDataResult;
                       commentData = commentDataResult;
+                      //filter the data appropriately
+                      contributorData = object_filter(contributorData, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
+                      commentData = object_filter(commentData, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
                       addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
                         .then((markers) => {
                           console.log("Got Markers");
@@ -835,7 +839,7 @@ function Map() {
     // If any of the variables in the dependency array change, the effect will re-run.
 
   }, [
-    requestState, commentState, lng, lat, pinRadiusState, markers,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, isRouteChecked
+    requestState, commentState, lng, lat, pinRadiusState, markers,   isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, isRouteChecked, selectedPriority
   ]);
   
   // Function sends comment or request to database  

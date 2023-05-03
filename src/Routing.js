@@ -9,6 +9,7 @@ import * as polyline from '@mapbox/polyline';
 
 import JsonListReturn from "./components/recordList";
 import { markers, appendMarkers, displayMarkers, removeMarkers  } from "./Map.js";
+import { object_filter } from './Object_Filter';
 
 async function MongoRecords(link) {
     const pinInfo = await JsonListReturn(link);
@@ -69,7 +70,7 @@ function getPinsByIds(pins, pin_ids) {
   
 
 //developed by Tristan Bailey
-export async function Route(map, directions, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation, routeCount=3){
+export async function Route(map, directions, selectedPriority, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation, routeCount=3){
     function addAdditionalSourceAndLayer(map, routeCount) {
         //add routes layers to map limiting to a maximum of 10
         for (let i =0; i <= routeCount && i < 10; ++i){
@@ -135,11 +136,17 @@ export async function Route(map, directions, isOtherChecked, isPotholeChecked, i
             map.setLayoutProperty(`route${i}`, 'visibility', 'none');
         }
         for(const route of routes){
+            //get route distances
+            const distanceMeters = route.distance;
+            const distanceMiles = distanceMeters / 1609.34;
+            console.log(distanceMeters)
+            console.log(distanceMiles)
             map.setLayoutProperty(`route${route.id}`, 'visibility', 'visible');
             //convert each route to a geojson
             const routeLine = polyline.toGeoJSON(route.geometry);
             var [pins, commentData] = await geobox_pins(routeLine);
-            
+            pins = object_filter(pins, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
+            commentData = object_filter(commentData, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
             var comment_objects_length;
             var comment_objects;
             if(isCommentChecked){
@@ -166,7 +173,6 @@ export async function Route(map, directions, isOtherChecked, isPotholeChecked, i
             console.log("Lengths");
             console.log(comment_objects_length);
             console.log(pin_objects.length);
-
             await appendMarkers(pin_objects, comment_objects, map, pinInformation, setPinInformation);
             map.getSource(`route${route.id}`).setData(routeLine);
             if (comment_objects_length === 0 && pin_objects.length === 0){
