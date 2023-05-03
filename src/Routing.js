@@ -136,6 +136,11 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
             map.setLayoutProperty(`route${i}`, 'visibility', 'none');
         }
         for(const route of routes){
+            //get route distances
+            const distanceMeters = route.distance;
+            const distanceMiles = distanceMeters / 1609.34;
+            console.log(distanceMeters)
+            console.log(distanceMiles)
             map.setLayoutProperty(`route${route.id}`, 'visibility', 'visible');
             //convert each route to a geojson
             const routeLine = polyline.toGeoJSON(route.geometry);

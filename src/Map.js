@@ -105,6 +105,18 @@ export function removeMarkers(map) {
   markers = [];
 }
 
+function convertUnixTimestamp(unixTimestamp) {
+  const date = new Date(unixTimestamp * 1000);
+  const year = date.getFullYear();
+  const month = ("0" + (date.getMonth() + 1)).slice(-2);
+  const day = ("0" + date.getDate()).slice(-2);
+  const hours = ("0" + date.getHours()).slice(-2);
+  const minutes = ("0" + date.getMinutes()).slice(-2);
+  const seconds = ("0" + date.getSeconds()).slice(-2);
+  const formattedDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+  return formattedDate;
+}
+
 //Author: Tristan Bailey
 var radius_layer = {}
 function activateRadius(longitude, lattitude){
@@ -234,8 +246,8 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
     </div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Classification: ${pinClass}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Source: ${pinSource}</div>
-    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Measurement Date: ${pinMdate}</div>
-    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Upload Date: ${pinUdate}</div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Measurement Date: ${convertUnixTimestamp(pinMdate)}</div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Upload Date: ${convertUnixTimestamp(pinUdate)}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Lat: ${pinCoordinatesForInfoDisplayLat}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Lng: ${pinCoordinatesForInfoDisplayLong}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Altitude: ${pinAlt}</div>
@@ -447,18 +459,6 @@ function Map() {
   //     Toggle("Comment")
   //   }        
   // }
-
-  function convertUnixTimestamp(unixTimestamp) {
-    const date = new Date(unixTimestamp * 1000);
-    const year = date.getFullYear();
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const day = ("0" + date.getDate()).slice(-2);
-    const hours = ("0" + date.getHours()).slice(-2);
-    const minutes = ("0" + date.getMinutes()).slice(-2);
-    const seconds = ("0" + date.getSeconds()).slice(-2);
-    const formattedDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
-    return formattedDate;
-}
 
   
   function Toggle(Name){
