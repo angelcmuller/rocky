@@ -1,3 +1,16 @@
+//Author: Tirstan Bailey
+export function filterObjectsByPriority(jsonList, paramValue) {
+  return jsonList.filter(obj => {
+    if (paramValue === "option1") {
+      return obj.Classification === "bump";
+    } else if (paramValue === "option2") {
+      return obj.Classification === "pothole"|| obj.Classification === "pot hole";
+    } else if (paramValue === "option3") {
+      return obj.Classification === "speed bump";
+    }
+  });
+}
+
 //Author: Tristan Bailey
 export function object_filter(object_array, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked){
     // Create a new array to hold the filtered objects

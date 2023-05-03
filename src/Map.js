@@ -324,8 +324,6 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
   commentCloseButton.addEventListener('click', () => {
     marker.getPopup().remove();
   });
-
-  // ... (rest of the code remains unchanged)
   
   marker.getElement().addEventListener('click', () => {
     markerClicked = true;
