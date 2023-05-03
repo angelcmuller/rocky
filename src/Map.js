@@ -1,9 +1,10 @@
-// Files and CSS imports
+ // Files and CSS imports
 import JsonListReturn from "./components/recordList";
 import { LogMongo } from "./components/Log";
 import { Route } from "./Routing.js";
 import { Like } from "./like_dislike.js";
 import { GrabImage } from "./image_grabber.js";
+import { ScoringSystem } from "./score.js";
 import MapboxTraffic from "./mapbox-gl-traffic.js";
 import './App.css';
 import './Map.css';
@@ -154,6 +155,8 @@ export function deactivateRadius(map) {
 }
 
 async function addMarkers(pinData, commentData, map, pinInformation, setPinInformation) {
+  console.log("Score of this route is: " + ScoringSystem(1421.42, pinData, commentData))
+
   // Remove all existing markers from the map
   markers.forEach(marker => marker.remove());
   markers = [];
