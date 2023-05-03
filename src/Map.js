@@ -307,8 +307,6 @@ async function init_data(){
   var [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
   return [pinData, commentData]
 }
-
-
 //Aaron Panel:
 const Panel = styled.div`
   position: absolute;
