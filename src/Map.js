@@ -80,7 +80,7 @@ var thisIsTheOne;
 
 // Used to check if button Comment/Request are being used
 
-
+var isDirectionsApiDisplayed = false;
 
 // Boolean to check if button Comment/Request are being used
 var buttonCommentRequest = false;
@@ -171,6 +171,8 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
       markerColor = '#86178a'; // Set color for another specific description
       }
 
+      
+    if(isDirectionsApiDisplayed === false){
        // Define popup content HTML
     const popupContent = `
     <div class="popup-content">
@@ -223,6 +225,58 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
       // marker.getElement().addEventListener('click', () => {
       //   marker.togglePopup();
       // });
+    } else {
+      // Define popup content HTML
+    const popupContent = `<div class="popup-content">
+    <div class="close-button-container">
+      <button class="close-button"></button>
+    </div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Classification: ${pinClass}</div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Source: ${pinSource}</div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Measurement Date: ${pinMdate}</div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Upload Date: ${pinUdate}</div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Lat: ${pinCoordinatesForInfoDisplayLat}</div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Lng: ${pinCoordinatesForInfoDisplayLong}</div>
+    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Altitude: ${pinAlt}</div>
+  </div>`;
+
+    const marker = new mapboxgl.Marker({ color: markerColor })
+    .setLngLat([pinData[i].Longitude, pinData[i].Lattitude])
+    .setPopup(new mapboxgl.Popup({ offset: 25, closeOnClick: true, closeButton: false })
+    .setHTML(popupContent));
+
+        pinCoordinatesForInfoDisplayLong = pinData[i].Longitude;
+        pinCoordinatesForInfoDisplayLat = pinData[i].Lattitude;
+        pinSource = pinData[i].Source;
+        pinClass= pinData[i].Classification;
+        pinMdate = pinData[i].MeasurementDate;
+        pinUdate = pinData[i].UploadDate;
+        pinAlt = pinData[i].Altitude;
+        DataLinkImage = pinData[i].Img_ObjectId; 
+        thisIsTheOne = i;
+
+        // pinInformation_global =  pinInformation
+
+      // Add event listener for the custom close button
+      const closeButton = marker._popup._content.querySelector('.close-button');
+      closeButton.addEventListener('click', () => {
+        marker.getPopup().remove();
+      });
+
+      // add click listener to marker
+      marker.getElement().addEventListener('click', () => {
+          markerClicked = true;
+      });
+
+      // 'hover' over pins and see immediate information - changed it to 'click'
+      marker.getElement().addEventListener('click', () => {
+          marker.togglePopup();
+      });
+      markers.push(marker)
+      // marker.getElement().addEventListener('click', () => {
+      //   marker.togglePopup();
+      // });
+    }
   }
   for (let i = 0; i < commentData.length; i++) {
   const commentPopupContent = `
@@ -231,10 +285,14 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
         <button class="close-button"></button>
       </div>
       <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3>
-      <p style="color: gray; font-size: 14px;">by ${commentData[i].User}</p>
+      <p style="color: gray; font-size: 14px;">Classification: ${commentData[i].Classification}</p>
+      <p style="color: gray; font-size: 14px;">Severity: ${commentData[i].Option}</p>
+      <p style="color: gray; font-size: 14px;">Likes: ${commentData[i].Likes}</p>
+      <p style="color: gray; font-size: 14px;">Dislikes: ${commentData[i].Dislikes}</p>
+      <p style="color: gray; font-size: 14px;">By: ${commentData[i].Source}</p>
       <div class="popup-buttons-container">
-        <button id="like-btn-${i}" class="popup-button display-button">Like</button>
-        <button id="dislike-btn-${i}" class="popup-button display-button">Dislike</button>
+        <button id="like-btn-${i}" class="popup-button display-button">Like (${commentData[i].Likes})</button>
+        <button id="dislike-btn-${i}" class="popup-button display-button">Dislike (${commentData[i].Dislikes})</button>
       </div>
     </div>`;
 
@@ -492,6 +550,7 @@ function Map() {
         zoom: zoom
       });
       if (isRouteChecked){
+        //console.log(isRouteChecked);
         const dirs = createDirections();
 
         map.addControl(dirs, 'top-left');
@@ -637,6 +696,7 @@ function Map() {
           comment_request_pinListener = e.lngLat;
 
           if(!boxState){
+            console.log(boxState);
             // condition to check if the user clicks anywhere else in the Map but on a marker, popup will show up
             if (!markerClicked) {
               // Define custom close button HTML
@@ -875,8 +935,12 @@ function Map() {
   const handleRouteClick = (event) => {
     if(isRouteChecked === false){
       setIsRouteChecked(event.target.checked);
+      isDirectionsApiDisplayed = true;
+      console.log("should be true", isDirectionsApiDisplayed);
     } else {
       setIsRouteChecked(false);
+      isDirectionsApiDisplayed = false;
+      console.log("should be false", isDirectionsApiDisplayed);
     }
     markers = [];
     radius_layer = {};
@@ -911,7 +975,7 @@ function Map() {
     setIsPotholeChecked(false);
     setIsOtherChecked(false);
     setSelectedPriority('');
-    setValue('2');
+    setValue('5');
     radius_global = 2;
   }
 
@@ -1041,7 +1105,7 @@ function Map() {
         <Text color='red.500' fontSize='12px' pl='10px'>
           Source: {pinSource}
         </Text>
-        <Image src={imageUrl} />
+        <Image src={imageUrl} p='8px'/>
         <Text color='red.500' fontSize='12px' pl='10px'>
           MeasurementDate: {convertUnixTimestamp(pinMdate)}
         </Text>
@@ -1088,12 +1152,11 @@ function Map() {
                 <ModalCloseButton />
                 <Divider/>
                 <ModalBody>
-                  <HStack spacing='170px'>
+                  <HStack spacing='180px'>
                     <Text> Routing Mode </Text>
                     <Switch colorScheme='teal' id='comment-alert' isChecked={isRouteChecked} onChange={handleRouteClick}/>
                   </HStack>
                 </ModalBody>
-                <Divider/>
                 <Divider/>
                 <ModalBody>
                   <HStack spacing='170px'>
@@ -1281,8 +1344,8 @@ function Map() {
       
       {(pinInformation) ? 
         (
-          <Box bg='white' h = '54%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
-          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='35%' overflowY='scroll'
+          <Box bg='white' h = '70%' w = '20%'  display='flex' flexDirection='column' position='absolute' borderRadius='10px'
+          boxShadow='0px 0px 10px rgba(0, 0, 0, 0.2)' left = '4%' top='20%' overflowY='scroll'
           >
             {/* Add a clear heading */}
             <Heading size='md' mb='10px' textAlign='center' color='blue.500' mt='10px'> Additional Information </Heading>
