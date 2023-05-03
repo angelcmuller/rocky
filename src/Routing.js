@@ -9,13 +9,70 @@ import * as polyline from '@mapbox/polyline';
 
 import JsonListReturn from "./components/recordList";
 import { markers, appendMarkers, displayMarkers, removeMarkers  } from "./Map.js";
-import { object_filter, count_classifications, calculateLikesDislikesRatio, mergeCounts } from './Object_Filter';
+import { object_filter, count_classifications, calculateLikesDislikesRatio, mergeCounts, filterObjectsByPriority } from './Object_Filter';
 import { ScoringSystem } from './Score';
 import { displayPanel } from './Route_Panel';
 
 async function MongoRecords(link) {
     const pinInfo = await JsonListReturn(link);
     return pinInfo
+}
+
+// Add this function to your code
+function checkIntersection(routeLine, specialGeoJSONList) {
+    for (const specialGeoJSON of specialGeoJSONList) {
+        const intersection = turf.lineIntersect(routeLine, specialGeoJSON);
+        if (intersection.features.length > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+async function rerouteIfNecessary(route, waypoints, directions) {
+    const bufferedRoute = turf.buffer(route, 0.01, { units: 'kilometers' });
+    const intersections = checkIntersection(bufferedRoute, waypoints);
+    if (intersections) {
+      const newWaypoints = waypoints.filter(waypoint => !intersections.includes(waypoint));
+      await setRoute(newWaypoints, directions);
+      return true;
+    }
+    return false;
+  }
+
+function mergeGeoJSONObjects(geojson1, geojson2) {
+   if(geojson1 === [] && geojson2 === []){
+    return []
+   }
+   else if(geojson2 === []){
+    return geojson1
+   }
+   else if (geojson1 === []){
+    return geojson2
+   }
+   
+    // Concatenate the features arrays of the two GeoJSON objects
+    const mergedFeatures = geojson1.features.concat(geojson2.features);
+  
+    // Create a new GeoJSON object with the merged features
+    const mergedGeoJSON = {
+      "type": "FeatureCollection",
+      "features": mergedFeatures
+    };
+  
+    return mergedGeoJSON;
+  }
+  
+
+// Add this function to your code
+function calculateCentroids(specialGeoJSONList) {
+    const centroids = [];
+    for (const specialGeoJSON of specialGeoJSONList) {
+        const buffered = turf.buffer(specialGeoJSON, 0.25, { units: 'kilometers' });
+        const centroid = turf.centroid(buffered);
+        centroids.push(centroid.geometry.coordinates);
+    }
+    return centroids;
 }
 
 //Author: Tristan Bailey
@@ -73,6 +130,7 @@ function getPinsByIds(pins, pin_ids) {
 
 //developed by Tristan Bailey
 export async function Route(map, directions, selectedPriority, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation, routeCount=3){
+    //option1 bump, option2 isPotholeChecked, option3 speedbump
     //hard limit to three routes
     if (routeCount > 3){routeCount = 3}
     function addAdditionalSourceAndLayer(map, routeCount) {
@@ -117,7 +175,16 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
     //call to directions api to handle future route computations
     //map.addControl(directions, 'top-left');
     //deactivateRadius(map);
+
+    let regeneratingRoute = false;
+
     directions.on('route', async (event) => {
+
+        if (regeneratingRoute) {
+            regeneratingRoute = false;
+            return;
+        }
+
         removeMarkers(map);
         //markers.forEach(marker => marker.remove());
         //markers = [];
@@ -153,6 +220,26 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
             var [pins, commentData] = await geobox_pins(routeLine);
             pins = object_filter(pins, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
             commentData = object_filter(commentData, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
+            
+            const priority_objs = mergeGeoJSONObjects(pinDataToGeoJSON(filterObjectsByPriority(pins, selectedPriority)), pinDataToGeoJSON(filterObjectsByPriority(commentData, selectedPriority)))
+            if (directions.profile === 'driving') {
+                // Calculate the centroids of the buffered special GeoJSON objects
+                const waypoints = calculateCentroids(priority_objs.features);
+    
+                // Regenerate the route using the calculated centroids as waypoints
+                const origin = directions.getOrigin().geometry.coordinates;
+                const destination = directions.getDestination().geometry.coordinates;
+                const profile = directions.getProfile();
+                const params = {
+                    profile: profile,
+                    waypoints: waypoints,
+                    alternatives: true
+                };
+                const response = await fetch(getDirectionsUrl(origin, destination, params));
+                const data = await response.json();
+                directions.setRoutes(data.routes);
+            }
+
             var comment_objects_length;
             var comment_objects;
             var count_comment = {};
