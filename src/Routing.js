@@ -182,7 +182,9 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
             console.log(pin_objects.length);
 
             
-            approval_rating = calculateLikesDislikesRatio(comment_objects);
+            const approval_rating = calculateLikesDislikesRatio(comment_objects);
+            console.log(approval_rating)
+            
             await appendMarkers(pin_objects, comment_objects, map, pinInformation, setPinInformation);
             map.getSource(`route${route.id}`).setData(routeLine);
             if (comment_objects_length === 0 && pin_objects.length === 0){
