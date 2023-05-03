@@ -22,7 +22,7 @@ import './App.css';
 import './Map.css';
 //import { displayMarkers, markerClicked, markers} from "./DisplayMarkers";
 import { BrowserRouter as Router, useNavigate, Routes, useLinkClickHandler } from 'react-router-dom';
-import { useRef, useState, useEffect} from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import React from 'react';
 
 // Images imports
@@ -244,7 +244,7 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
     <div class="close-button-container">
       <button class="close-button"></button>
     </div>
-    <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Classification: ${pinClass}</div>
+    <div style="color:black; font-size:17px; text-align:left; padding-left:5px;"> <b>Classification:</b> ${pinClass}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Source: ${pinSource}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Measurement Date: ${convertUnixTimestamp(pinMdate)}</div>
     <div style="color:black; font-size:14px; text-align:left; padding-left:5px;">Upload Date: ${convertUnixTimestamp(pinUdate)}</div>
@@ -298,11 +298,11 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
         <button class="close-button"></button>
       </div>
       <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3>
-      <p style="color: gray; font-size: 14px;">Classification: ${commentData[i].Classification}</p>
-      <p style="color: gray; font-size: 14px;">Severity: ${commentData[i].Option}</p>
-      <p style="color: gray; font-size: 14px;">Likes: ${commentData[i].Likes}</p>
-      <p style="color: gray; font-size: 14px;">Dislikes: ${commentData[i].Dislikes}</p>
-      <p style="color: gray; font-size: 14px;">By: ${commentData[i].Source}</p>
+      <p style="color: black; font-size: 16px;">Classification: ${commentData[i].Classification}</p>
+      <p style="color: black; font-size: 16px;">Severity: ${commentData[i].Option}</p>
+      <p style="color: black; font-size: 16px;">Likes: ${commentData[i].Likes}</p>
+      <p style="color: black; font-size: 16px;">Dislikes: ${commentData[i].Dislikes}</p>
+      <p style="color: black; font-size: 16px;">By: ${commentData[i].Source}</p>
       <div class="popup-buttons-container">
         <button id="like-btn-${i}" class="popup-button display-button">Like (${commentData[i].Likes})</button>
         <button id="dislike-btn-${i}" class="popup-button display-button">Dislike (${commentData[i].Dislikes})</button>
@@ -421,13 +421,32 @@ function Map() {
   const [pinRadiusState, setPinRadiusState] = useState(false);
   const [routeState, setRouteState] = useState(true);
   const [pinInformation, setPinInformation] = useState(false);
-  
+
   // Used to navigate to the Home Page
   const navigatetoLandPage = () => {
     setShowResults(current => !current);
     navigate('/')
     document.location.reload();
   }
+
+  const navigatetoAbout = useCallback(() => {
+    setShowResults(current => !current);
+    navigate('/About')
+  },[navigate]);
+
+  const navigatetoContact = () => {
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLSff_rPAGKkdMLYkDDCkXMyrl-wzdikLA3MBAI-2Hr9IW3ktiQ/viewform?usp=sf_link');
+  }
+
+  const navigatetoHowTo = useCallback(() => {
+    setShowResults(current => !current);
+    navigate('/HowTo')
+  },[navigate]);
+
+  const memNavigationFunctions = useMemo(() => ({
+    navigatetoAbout,
+    navigatetoHowTo
+  }), [navigatetoAbout, navigatetoHowTo]);
 
   //This function returns records from the MongoDB database
   useEffect(() => {
@@ -1103,26 +1122,26 @@ function Map() {
   
     return (
       <>
-        <Text color='red.500' fontSize='12px' pl='10px'>
+        <Text color='black' fontSize='14px' pl='10px'>
           Classification: {pinClass}
         </Text>
-        <Text color='red.500' fontSize='12px' pl='10px'>
+        <Text color='black' fontSize='14px' pl='10px'>
           Source: {pinSource}
         </Text>
         <Image src={imageUrl} p='8px'/>
-        <Text color='red.500' fontSize='12px' pl='10px'>
+        <Text color='black' fontSize='12px' pl='10px'>
           MeasurementDate: {convertUnixTimestamp(pinMdate)}
         </Text>
-        <Text color='red.500' fontSize='12px' pl='10px'>
+        <Text color='black' fontSize='14px' pl='10px'>
           UploadDate: {convertUnixTimestamp(pinUdate)}
         </Text>
-        <Text color='red.500' fontSize='12px' pl='10px'>
+        <Text color='black' fontSize='14px' pl='10px'>
           Lat: {pinCoordinatesForInfoDisplayLat}
         </Text>
-        <Text color='red.500' fontSize='12px' pl='10px'>
+        <Text color='black' fontSize='14px' pl='10px'>
           Lng: { pinCoordinatesForInfoDisplayLong}
         </Text>
-        <Text color='red.500' fontSize='12px' pl='10px'>
+        <Text color='black' fontSize='14px' pl='10px'>
           Altitude: {pinAlt}
         </Text>
         <Button colorScheme='cyan' verticalAlign='center' size='lg' mt='10px' mb='15px' onClick={() => setPinInformation(false)}>
@@ -1212,7 +1231,7 @@ function Map() {
                   <HStack spacing={5}>
                     <Button onClick={handleReset} variant='outline'> Clear All </Button>
                     <Button colorScheme='blue' mr={3} onClick={onSettingsClose}>
-                      Close
+                      Save
                     </Button>
                   </HStack>
                 </ModalFooter>
@@ -1301,7 +1320,9 @@ function Map() {
                           onChange={handleCommentClick}/> </MenuItem>
                 <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
                           isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem> */}
-                <MenuItem style={{ color: "black" }} onClick={handleShowCommentClick}> Hide Comments </MenuItem>
+                <MenuItem style={{ color: "black" }} onClick={navigatetoAbout}> About </MenuItem>
+                <MenuItem style={{ color: "black" }} onClick={navigatetoHowTo}> Instructions </MenuItem>
+                <MenuItem style={{ color: "black" }} onClick={navigatetoContact}> Contact Us </MenuItem>
                 <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
               </MenuList>
           </Menu>
@@ -1452,11 +1473,11 @@ function Map() {
                 <Text fontSize='10px' pb='1px' textAlign='left' as='b'> Potholes </Text>
               </HStack>
               <HStack>
-                <Image src={BluePin} boxSize='20px' />
-                <Text fontSize='10px' pb='1px' textAlign='left'  as='b'> Speedbump </Text>
+                <Image src={PurplePin} boxSize='20px' />
+                <Text fontSize='10px' pb='1px' textAlign='left'  as='b'> Speed bump </Text>
               </HStack>
               <HStack>
-                <Image src={PurplePin} boxSize='20px' />
+                <Image src={BluePin} boxSize='20px' />
                 <Text fontSize='10px' pb='1px' textAlign='left' as='b'> Bump </Text>
               </HStack>
               <HStack>
