@@ -73,6 +73,8 @@ function getPinsByIds(pins, pin_ids) {
 
 //developed by Tristan Bailey
 export async function Route(map, directions, selectedPriority, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation, routeCount=3){
+    //hard limit to three routes
+    if (routeCount > 3){routeCount = 3}
     function addAdditionalSourceAndLayer(map, routeCount) {
         //add routes layers to map limiting to a maximum of 10
         for (let i =0; i <= routeCount && i < 10; ++i){
@@ -137,7 +139,7 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
         for(let i = 0; i < routeCount && i < 10; ++i){
             map.setLayoutProperty(`route${i}`, 'visibility', 'none');
         }
-        
+        let lastPanelTop = 10;
         for(const route of routes){
             //get route distances
             const distanceMeters = route.distance;
@@ -196,8 +198,11 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
                 json_data.hazard_ratio = hazard_ratio;
                 json_data.approval_rating = approval_rating;
                 json_data.route_id = route.id;
-            alert(JSON.stringify(json_data))
-            //displayPanel(json_data, map);
+            //alert(JSON.stringify(json_data))
+            const offset = displayPanel(json_data, map, lastPanelTop);
+
+            // Update the vertical position of the last panel displayed
+            lastPanelTop += offset + 10; // Add an offset to create some space between panels
 
             await appendMarkers(pin_objects, comment_objects, map, pinInformation, setPinInformation);
             map.getSource(`route${route.id}`).setData(routeLine);
