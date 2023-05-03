@@ -9,8 +9,11 @@ import './App.css';
 import './Map.css';
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
 import "./mapbox-gl-traffic.css";
+import 'react-toastify/dist/ReactToastify.css';
+import styled from 'styled-components';
 
 // Components imports
+import { toast, ToastContainer } from 'react-toastify';
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Box, Button, Flex, HStack, Heading,
   IconButton, Input, Text, Menu, MenuButton, MenuList, MenuItem, Modal, ModalOverlay,
   ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Radio, RadioGroup, Switch, useDisclosure,
@@ -297,15 +300,17 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
       <div class="close-button-container">
         <button class="close-button"></button>
       </div>
+      <div id = "comment-content">
       <h3 style="color: black; font-size: 18px;">${commentData[i].Comment}</h3>
       <p style="color: black; font-size: 16px;">Classification: ${commentData[i].Classification}</p>
       <p style="color: black; font-size: 16px;">Severity: ${commentData[i].Option}</p>
       <p style="color: black; font-size: 16px;">Likes: ${commentData[i].Likes}</p>
       <p style="color: black; font-size: 16px;">Dislikes: ${commentData[i].Dislikes}</p>
       <p style="color: black; font-size: 16px;">By: ${commentData[i].Source}</p>
+      </div>
       <div class="popup-buttons-container">
-        <button id="like-btn-${i}" class="popup-button display-button">Like (${commentData[i].Likes})</button>
-        <button id="dislike-btn-${i}" class="popup-button display-button">Dislike (${commentData[i].Dislikes})</button>
+      <button id="like-btn-${i}" class="popup-button-display-button-like">Like(${commentData[i].Likes})</button>
+      <button id="dislike-btn-${i}" class="popup-button-display-button-dislike">Dislike (${commentData[i].Dislikes})</button>
       </div>
     </div>`;
 
@@ -338,12 +343,31 @@ export async function appendMarkers(pinData, commentData, map, pinInformation, s
       const { lng, lat } = marker.getLngLat();
       const value = 1; // user clicked "like"
       Like(lat, lng, value); 
+      toast.success('You liked this!', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      
     });
 
     dislikeBtn.addEventListener('click', () => {
       const { lng, lat } = marker.getLngLat();
       const value = -1; // user clicked "dislike"
-      Like(lat, lng, value); 
+      Like(lat, lng, value);
+      toast.success('You disliked this!', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      }); 
     });
     //need to add one:true to keep pop up from liking multiple times in one click
   }, { once: true });
@@ -382,6 +406,29 @@ async function init_data(){
   var [pinData, commentData] = await Promise.all([MongoRecords(`http://localhost:3000/record/`), MongoRecords(`http://localhost:3000/crecord/`)]);
   return [pinData, commentData]
 }
+
+//Aaron Panel:
+const Panel = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 300px;
+  background-color: #f7f7f7;
+  padding: 20px;
+  box-shadow: -2px 0px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+`;
+
+const SidePanel = () => {
+  return (
+    <Panel>
+      <h2>Side Panel</h2>
+      <p>This is an example side panel that appears on the right side of the screen.</p>
+    </Panel>
+  );
+};
+
 //Developed by Aaron Ramirez & Gabriel Mortensen 
 function Map() {
   //Araon Ramirez Map Loading Procedures Belo
@@ -421,6 +468,13 @@ function Map() {
   const [pinRadiusState, setPinRadiusState] = useState(false);
   const [routeState, setRouteState] = useState(true);
   const [pinInformation, setPinInformation] = useState(false);
+  const [showPanel, setShowPanel] = useState(false);
+
+
+  //show panel
+  const handleTogglePanel = () => {
+    setShowPanel(!showPanel);
+  };
 
   // Used to navigate to the Home Page
   const navigatetoLandPage = () => {
@@ -1189,6 +1243,13 @@ function Map() {
                 </ModalBody>
                 <Divider/>
                 <ModalBody>
+                <HStack spacing='150px'>
+                  <Text> Show Route Summary</Text>
+                    <Switch colorScheme='teal' id='comment-alert' isChecked={isCommentChecked} onChange={handleTogglePanel}/>
+                  </HStack>
+                  </ModalBody>
+                  <Divider/>
+                <ModalBody>
                   <VStack spacing='2px' textAlign='left' align='left'>
                     <Text> Features: </Text>
                     <HStack spacing='230px'>
@@ -1382,6 +1443,8 @@ function Map() {
         ) : null
       }
 
+      <div>{showPanel && <SidePanel />}</div>
+
       {/* Is visable only when user turns on Request */}
       {(requestState || commentState) ?
         (
@@ -1488,6 +1551,7 @@ function Map() {
 
           </Box>
           </Tooltip>
+          <ToastContainer />
     </Flex>
   );
 }
