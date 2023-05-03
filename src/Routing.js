@@ -9,7 +9,7 @@ import * as polyline from '@mapbox/polyline';
 
 import JsonListReturn from "./components/recordList";
 import { markers, appendMarkers, displayMarkers, removeMarkers  } from "./Map.js";
-import { object_filter } from './Object_Filter';
+import { object_filter, count_classifications } from './Object_Filter';
 
 async function MongoRecords(link) {
     const pinInfo = await JsonListReturn(link);
@@ -141,6 +141,7 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
             const distanceMiles = distanceMeters / 1609.34;
             console.log(distanceMeters)
             console.log(distanceMiles)
+            
             map.setLayoutProperty(`route${route.id}`, 'visibility', 'visible');
             //convert each route to a geojson
             const routeLine = polyline.toGeoJSON(route.geometry);
@@ -149,6 +150,7 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
             commentData = object_filter(commentData, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
             var comment_objects_length;
             var comment_objects;
+            var count_comment = {};
             if(isCommentChecked){
                 commentData = [];
                 comment_objects_length = 0;
@@ -161,6 +163,7 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
                     compile_intersection_id_list(obstructions_comments, routeLine)
                 );
                 comment_objects_length = comment_objects.length;
+                count_comment = count_classifications(comment_objects, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
             }
 
             const geoJSON_pins = pinDataToGeoJSON(pins);
@@ -170,6 +173,10 @@ export async function Route(map, directions, selectedPriority, isOtherChecked, i
                 compile_intersection_id_list(obstructions_pins, routeLine)
             );
 
+            const count_pins = count_classifications(pin_objects, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked);
+            console.log(JSON.stringify(count_comment))
+            console.log(JSON.stringify(count_pins))
+            
             console.log("Lengths");
             console.log(comment_objects_length);
             console.log(pin_objects.length);
