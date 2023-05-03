@@ -11,7 +11,6 @@ export function object_filter(object_array, isOtherChecked, isPotholeChecked, is
         } 
         var hasPothole = false;
         if(isPotholeChecked){
-            alert(JSON.stringify(obj))
             hasPothole = obj.Classification === 'pot hole' || obj.Classification === 'pothole';
         } 
         var hasCrack = false;

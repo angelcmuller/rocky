@@ -70,7 +70,7 @@ function getPinsByIds(pins, pin_ids) {
   
 
 //developed by Tristan Bailey
-export async function Route(map, directions, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation, routeCount=3){
+export async function Route(map, directions, selectedPriority, isOtherChecked, isPotholeChecked, isCrackChecked, isSpeedBumpChecked, isBumpChecked, isCommentChecked, pinInformation, setPinInformation, routeCount=3){
     function addAdditionalSourceAndLayer(map, routeCount) {
         //add routes layers to map limiting to a maximum of 10
         for (let i =0; i <= routeCount && i < 10; ++i){
