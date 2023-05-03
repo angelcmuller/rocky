@@ -163,7 +163,12 @@ async function addMarkers(pinData, commentData, map, pinInformation, setPinInfor
 //Gabriel Mortensen Pin Display functions below
 //Waiting for data from MogoDB
 //Uses the result variable 
-export async function appendMarkers(pinData, commentData, map, pinInformation, setPinInformation) {
+export async function appendMarkers(pinData, commentData, map, pinInformation, setPinInformation) 
+{
+
+  const {score, hazard_ration} = ScoringSystem(1000, pinData, commentData)
+
+  
   //const commentData = await MongoRecords(`http://localhost:3000/crecord/`);
   //const ContributData = await MongoRecords(`http://localhost:3000/conrecord/`);
   //var pinData = await MongoRecords(`http://localhost:3000/record/`);
@@ -693,9 +698,12 @@ function Map() {
         }
       }
       async function loadData(pinData, commentData) {
+      
         [pinData, commentData] = await init_data();
+       
         // Call functions to display markers and add pin listener
         addMarkers(pinData, commentData, map, pinInformation, setPinInformation);
+        
       }
       //OLD_PIN_LOAD
       //loadData(pinData, commentData);
@@ -772,6 +780,7 @@ function Map() {
                       addMarkers(contributorData, commentData, map, pinInformation, setPinInformation)
                         .then((markers) => {
                           console.log("Got Markers");
+                         
                         })
                         .catch((error) => {
                           console.error('Error fetching markers:', error);

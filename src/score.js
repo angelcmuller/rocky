@@ -1,34 +1,68 @@
 export function ScoringSystem(Distance, Pins, Comments) {
 
-    // Calculate existing pins
-    let scorePins = 0;
-    for (let i = 0; i < Pins.length; i++) {
-      if (Pins[i].Classification === 'bump') {
-        scorePins += 3;
+        // Calculate existing pins
+        let scorePins = 0;
+
+        if(Pins.length > 0){
+            for (let i = 0; i < Pins.length; i++) {
+            if (Pins[i].Classification === 'bump') {
+                scorePins += 3;
+                }
+            if (Pins[i].Classification === 'crack') {
+                scorePins += 4;
+            }
+            if (Pins[i].Classification === 'pot hole') {
+                scorePins += 5;
+            }
+            if (Pins[i].Classification === 'speed bump') {
+                scorePins += 2;
+            }
+            }
         }
-      if (Pins[i].Classification === 'crack') {
-        scorePins += 4;
-      }
-      if (Pins[i].Classification === 'pot hole') {
-        scorePins += 5;
-      }
-      if (Pins[i].Classification === 'speed bump') {
-        scorePins += 2;
-      }
-    }
-  
-    // Calculate existing comments
-    let scoreComments = 0;
-    for (let i = 0; i < Comments.length; i++) {
-      const trustworthiness = Comments[i].Likes / (Comments[i].Likes + Comments[i].Dislikes);
-      scoreComments += Comments[i].Option * trustworthiness;
-    }
-  
-    let totalScore = (scorePins + scoreComments);
-    let hazardDensity =  totalScore / Distance;
+
+        // Calculate existing comments
+        let scoreComments = 0;
+
+        if(Comments.length > 0){
+            for (let i = 0; i < Comments.length; i++) {
+            const trustworthiness = (Comments[i].Likes + 1) / (Comments[i].Likes + Comments[i].Dislikes + 2);
+        
+                if (Comments[i].Classification === 'bump') {
+                    scoreComments += 3 *  trustworthiness * 0.5 * Comments[i].Option;
+                    }
+                if (Comments[i].Classification === 'crack') {
+                    scoreComments += 4 * trustworthiness * 0.5 * Comments[i].Option;
+                }
+                if (Comments[i].Classification === 'pot hole') {
+                    scoreComments += 5 * trustworthiness * 0.5 * Comments[i].Option;
+                }
+                if (Comments[i].Classification === 'speed bump') {
+                    scoreComments += 2 * trustworthiness * 0.5 * Comments[i].Option;
+                }
+            }
+        }
     
-    return {totalScore, hazardDensity};
-  }
+        let totalScore = (scorePins + scoreComments);
+
+        // Routes that don't require driving are safe
+        const hazardDensity =  (totalScore + 1) / (Distance + 1);
+
+        
+        console.log("Score : " + totalScore);
+        console.log("Ratio : " + hazardDensity);
+        
+        
+
+        // Set a cap for the totalScore 
+        if (totalScore < 100){
+          
+            return  [totalScore, hazardDensity];
+        }
+        else{
+            const score = 100;
+            return  [score, hazardDensity];
+        }
+      }
 
 
   
