@@ -195,14 +195,21 @@ function About() {
             <p id="github-link">
                 <a href="https://github.com/angelcmuller/rockyroad" target="_blank">https://github.com/angelcmuller/rockyroad</a>
             </p>
+
+            <br/>
             
+            <h2 id="subtopic"> Rocky Road Email </h2>
+            <p id="github-link">
+                <a href="mailto:rockyroadunr@gmail.com" target='blank'> rockyroadunr@gmail.com </a>
+            </p>
+
             <br/>
 
             <h2 id="subtopic"> Official Project Video </h2>
 
             <br/>
             
-            <iframe class="center" width="560" height="315" src="https://www.youtube.com/embed/C-JNbze3uQM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe class="center" width="800" height="415" src="https://www.youtube.com/embed/C-JNbze3uQM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
             <br/><br/>
 
@@ -212,6 +219,14 @@ function About() {
             
             <iframe class="center" src="https://docs.google.com/presentation/d/e/2PACX-1vTkPafcID_WScYc_6kLATGGfAGvarN3t51lwnvnSYPvlW-AongrS4eIX2uPQJJNEHg02922nWsWdTQY/embed?start=false&loop=false&delayms=3000" frameborder="0" width="800" height="600" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
 
+            <br /><br/>
+
+            <h2 id="subtopic"> Presentation </h2>
+
+            <br />
+            
+            <iframe class='center' src="https://docs.google.com/presentation/d/e/2PACX-1vRZGBL0C8uUlnuvY9RBNaV-PfdVR-O4AdeLuoQ1AEx88vMNA8OQbqGqLzauqRUd9vLH-b7KAZJ8PhNT/embed?start=false&loop=true&delayms=3000" frameborder="0" width="800" height="500" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+            
             <br /><br/>
 
             <h2 id="subtopic"> Research Publications </h2>
