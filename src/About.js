@@ -205,23 +205,23 @@ function About() {
 
             <br/>
 
-            <h2 id="subtopic"> Official Project Video </h2>
+            <h2 id="subtopic" alt='project-official-video'> Official Project Video </h2>
 
             <br/>
             
-            <iframe class="center" width="800" height="415" src="https://www.youtube.com/embed/C-JNbze3uQM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe class="center" alt='project-official-video' width="800" height="415" src="https://www.youtube.com/embed/C-JNbze3uQM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" title='frame-to-display-official-video' allowfullscreen></iframe>
 
             <br/><br/>
 
-            <h2 id="subtopic"> Official Poster Link </h2>
+            <h2 id="subtopic" alt='project-official-poster'> Official Poster </h2>
 
             <br />
             
-            <iframe class="center" src="https://docs.google.com/presentation/d/e/2PACX-1vTkPafcID_WScYc_6kLATGGfAGvarN3t51lwnvnSYPvlW-AongrS4eIX2uPQJJNEHg02922nWsWdTQY/embed?start=false&loop=false&delayms=3000" frameborder="0" width="800" height="600" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+            <iframe class="center" alt='project-official-poster' src="https://docs.google.com/presentation/d/e/2PACX-1vTkPafcID_WScYc_6kLATGGfAGvarN3t51lwnvnSYPvlW-AongrS4eIX2uPQJJNEHg02922nWsWdTQY/embed?start=false&loop=false&delayms=3000" frameborder="0" width="800" height="600" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title='frame-to-display-poster'></iframe>
 
             <br /><br/>
 
-            <h2 id="subtopic"> Presentation </h2>
+            <h2 id="subtopic" alt='project-official-presentation'> Presentation </h2>
 
             <br />
             
