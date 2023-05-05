@@ -1,100 +1,170 @@
-/* CSS For Landing Page App.js by Angel C. Muller*/
-#body {
-  background-color: rgba(185, 222, 203, 100);
-  width: 100vw;
-  min-height: 100%;
-  height: 100vh;
-  width: 100%;
-  align-items: center;
-  text-align: center;
-}
-  
-#page {
-  width: 100%;
-  height: 100%;
-}
-
-#menu {
-  display: flex;
-  justify-content: space-between;
-}
-
-#menuSettings {
-  font-size: 35px;
-  background-color: rgb(188, 247, 228);
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-}
-
-#menuSettings2 {
-  font-size: 30px;
-  background-color: rgb(226, 255, 248);
-  font-family: Georgia, 'Times New Roman', Times, serif;
-}
-
-#aboutUs {
-  padding-left: 5px;
-  padding-top: 3px;
-  padding-bottom: 3px;
-  border-bottom: 2px solid rgb(45, 123, 123);
-  cursor: pointer;
-}
-
-#contactUs {
-  padding-left: 5px;
-  padding-top: 3px;
-  padding-bottom: 3px;
-  border-bottom: 2px solid rgb(45, 123, 123);
-  cursor: pointer;
-}
-
-#welcome {
-  font-size: 50px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  text-align: center;
-  font-family: 'Montserrat', sans-serif;
-  color: #333333;
+/*
+if it's taken from an id i.e. <id='title'/>
+css format will need to start with #
+*/
+#title {
   font-family: 'Times New Roman', Times, serif;
-  text-shadow: 2px 2px 4px #d6ac2d;
+  font-size: 60px;
+  font-style: oblique;
+  font-weight: bold;
+  font-display:initial;
+  font-variant: normal;
+  text-align: center;
 }
 
-#Logo {
-  height: 400px;
-  width: 400px;
-  text-align: center;
+#groupPicture {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  width: 50%;
+  height: auto;
+  border-radius: 10px;
+  outline: 1px solid black;
 }
 
-#introtext {
+.container {
+  align-items: center;
+}
+
+#tinyText{
+  font-style: italic;
+}
+
+
+#PersonText{
+  font-style: italic;
+  font-size: large;
+  font-weight: 500;
+}
+
+.top-margin {
+  padding-top: 10px;
+}
+
+#UNRPicture{
+  float: left;
+  width:100px;
+  height:100px;
+  margin-right:10px;
+}
+
+#team {
+  font-size: 30px;
+  font-style: italic;
   text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-  position:relative;
-  width: 700px;
-  /*overflow: hidden;
-  white-space: nowrap;*/
-  text-overflow: ellipsis;
+  margin-top: -15px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-display: initial;
 }
 
-#introtext:hover {
-  overflow: visible;
-  white-space: normal;
-  transition: 0.5s;
-  opacity: 50;
+#body-margin {
+  margin-left: 150px;
+  margin-right: 150px;
+  border-right: 2px solid gainsboro;
+  border-left: 2px solid gainsboro;
 }
 
-#auxToggle {
-  border-radius: 8px;
-  font-family:sans-serif;
-  padding: 3px;
-  font-size: 12px;
-  background-color:white;
-  display:inline-flex;
-  box-shadow: 2px 1px 2px;
+#meetTeam {
+  font-size: 40px;
+  padding-left: 10px;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
-#colorblind {
-  margin-left: 10px;
+.center {
+  display: block;
+  margin: 0 auto;
+}  
+
+#names {
+  font-size: 25px;
+  padding-left: 10px;
+}
+
+#github-link a {
+  color: blue;
+  text-decoration: underline;
+  font-size: 16px;
+  margin-left: 40px;
+}
+
+#book{
+  font-size: 16px;
+  margin-left: 40px;
+  text-align: justify;
+}
+
+#transportation-booklink{
+  color: blue;
+  font-size: 16px;
+  margin-left: 40px;
+  text-align: justify;
+}
+
+#dot-booklink{
+  color: blue;
+  font-size: 16px;
+  margin-left: 40px;
+  text-align: justify;
+}
+
+#aaa-booklink{
+  color: blue;
+  font-size: 16px;
+  margin-left: 40px;
+  text-align: justify;
+}
+
+#statefarm-booklink{
+  color: blue;
+  font-size: 16px;
+  margin-left: 40px;
+  text-align: justify;
+}
+
+
+#bookinfo{
+  font-size: 14px;
+  margin-left: 80px;
+  text-align: left;
+  padding-right: 25px;
+  text-align: justify;
+}
+
+#subtopic {
+  padding-left: 10px;
+  font-weight: 700;
+  font-size: 19px;
+  font-style: italic;
+  padding-right: 20px;
+  text-align: justify;
+}
+
+#s_description {
+  font-size: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  text-align: justify;
+}
+
+
+#description {
+  font-size: 20px;
+  padding-left: 15px;
+  padding-right: 15px;
+  text-align: justify;
+}
+
+#book {
+  padding-right: 20px;
+  text-align: justify;
+}
+
+#button1 {
+  display: flex;
+align-items: center;
+justify-content: center;
+  
+}
+#button {
+  text-align: center;
 }
