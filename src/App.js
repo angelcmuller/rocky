@@ -61,8 +61,8 @@ function App () {
                   <MenuList minWidth='180px'>
                     <MenuItem onClick = {navigatetoAbout} id='aboutUs'> About </MenuItem>
                     <MenuDivider />
-                    <MenuItem onClick = {navigatetoHowTo} id='aboutUs'> Instructions </MenuItem>
-                    <MenuDivider />
+                    {/* <MenuItem onClick = {navigatetoHowTo} id='aboutUs'> Instructions </MenuItem>
+                    <MenuDivider /> */}
                     <MenuItem onClick = {navigatetoContact} id='contactUs'> Contact Us </MenuItem>
                   </MenuList>
               </Menu>

@@ -1380,7 +1380,7 @@ function Map() {
                 <MenuItem style={{ color: "black" }}> Make a Request &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Switch id='request-alert'
                           isChecked={isRequestChecked} onChange={handleRequestClick}/> </MenuItem> */}
                 <MenuItem style={{ color: "black" }} onClick={navigatetoAbout}> About </MenuItem>
-                <MenuItem style={{ color: "black" }} onClick={navigatetoHowTo}> Instructions </MenuItem>
+                {/* <MenuItem style={{ color: "black" }} onClick={navigatetoHowTo}> Instructions </MenuItem> */}
                 <MenuItem style={{ color: "black" }} onClick={navigatetoContact}> Contact Us </MenuItem>
                 <MenuItem style={{ color: "black" }} onClick={navigatetoLandPage}> Home </MenuItem>
               </MenuList>
